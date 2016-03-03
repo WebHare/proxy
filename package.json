@@ -1,8 +1,25 @@
 {
+  "name": "webhare-proxy",
+  "version": "0.0.1",
+  "description": "WebHare nginx proxy",
+  "bin": {
+    "nginx-config-server": "nginx-config-server.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WebHare/proxy.git"
+  },
+  "author": "B-Lex IT BV",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/WebHare/proxy/issues"
+  },
   "dependencies": {
     "co": "^4.6.0",
-    "fs": "0.0.2",
+    "node-getopt": "^0.2.3"
   },
-  "devDependencies": {},
-  "private": true
+  "homepage": "https://github.com/WebHare/proxy#readme"
 }

@@ -1,15 +1,17 @@
+#!/usr/bin/env node
+
 "use strict";
 
 const co = require("co");
 const fs = require("fs");
 const crypto = require("crypto");
 const https = require("https");
-const rpc = require("node-json-rpc");
 const child_process = require("child_process");
 
 let data_storage_path = "/opt/webhare-proxy-data";
 let clients = [];
 let secretkey = "";
+let portnumber = 5443;
 
 function ensureDir(path)
 {
@@ -360,8 +362,24 @@ function startServer()
     req.on("end", () => handleRPCRequest(data, res));
   });
 
-  server.listen(5443);
+  server.listen(portnumber);
 }
 
+let opt = require('node-getopt').create([
+  ['' ,  'configfolder=FOLDER' , 'configfolder, defaults to ' + data_storage_path ],
+  ['p' , 'port=PORT'           , 'port, defaults to 5443'],
+  ['h' , 'help'                , 'display this help'],
+  ['',   'install'             , 'install as service'],
+  ['',   'uninstall'           , 'uninstall as service']
+])              // create Getopt instance
+.bindHelp()     // bind option 'help' to default action
+.parseSystem(); // parse command line
+
+if(parseInt(opt.options.port))
+  portnumber = parseInt(opt.options.port);
+if(opt.options.configfolder)
+  data_storage_path = opt.options.configfolder;
+
+ensureStorageDir();
 readSavedConfiguration();
 startServer();
