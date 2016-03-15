@@ -7,8 +7,8 @@ const Config = require("./src/config");
 const GetOpt = require('node-getopt');
 
 let opt = require('node-getopt').create(
-[ ['' ,  'configfolder=FOLDER' , 'configfolder, defaults to ' + data_storage_path ],
-  ['p' , 'port=PORT'           , 'port, defaults to 5443'],
+[ ['' ,  'configfolder=FOLDER' , 'configfolder, defaults to ' + Config.data_storage_path ],
+  ['p' , 'port=PORT'           , 'port, defaults to ' + Config.portnumber ],
   ['h' , 'help'                , 'display this help'],
   ['',   'install'             , 'install as service'],
   ['',   'uninstall'           , 'uninstall as service']
