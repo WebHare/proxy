@@ -11,16 +11,15 @@ import "whatwg-fetch";
 injectTapEventPlugin();
 
 
-
 let state = { clients: [], counter: 0 };
 
 async function updateUI()
 {
   try
   {
-    console.log("Fetch with counter:", state.counter);
+//    console.log("Fetch with counter:", state.counter);
     let fetchresult = await fetch("/rpc",
-  	  { method: "post"
+      { method: "post"
       , credentials: 'same-origin'
       , headers:
           { 'Accept': 'application/json'
@@ -31,7 +30,7 @@ async function updateUI()
           , method: "getGUIState"
           , params: [ state.counter ]
           })
-  	  });
+      });
 
     let jsonresponse = null;
 
@@ -43,7 +42,6 @@ async function updateUI()
     if (!jsonresponse || jsonresponse.error)
       throw new Error("Got invalid response or error");
 
-    console.log(jsonresponse);
     state.clients = jsonresponse.result.clients;
     state.counter = jsonresponse.result.counter;
 
