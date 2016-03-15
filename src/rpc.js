@@ -48,6 +48,7 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
 
   // Apply the changes to the client, and generate+deploy the final config
   Object.assign(client, new_rec);
+  client.lastregistration = Date.now();
   yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
 
   let local_ips = Tools.getLocalIPs();
@@ -85,6 +86,13 @@ exports.getGUIState = co.wrap(function *(counter)
   return (
       { success: true
       , counter: Config.counter
-      , clients: Config.clients.map(c => c.id)
+      , clients: Config.clients.map(c =>
+                  {
+                    return (
+                      { id:   c.id
+                      , lastregistration: c.lastregistration-0
+                      , hosts: c.hosts.map(host => ({ servernames: host.servernames, with_cert: !!host.ssl_keypair }))
+                      });
+                  })
       });
 });

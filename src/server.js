@@ -27,9 +27,36 @@ function handleRequest(req, postdata, res)
   if (req.method == "POST" && req.url.match(/^\/rpc(\?.*)?$/))
     return handleRPCRequest(req, postdata, res);
 
-  res.statusCode = 403;
-  res.statusMessage = "Not found";
-  return res.end("Not found");
+  let filename = (req.url.match(/^\/([^?]*)(\?.*)?$/) || [])[1];
+  let contenttype = "application/octet-stream";
+  switch (filename)
+  {
+  case "":            filename = "index.html"; contenttype = "text/html"; break;
+  case "app.js":      contenttype = "application/javascript"; break;
+  case "app.js.map":  break;
+  case "main.css":    contenttype = "text/css"; break;
+  default:
+    {
+      res.statusCode = 403;
+      res.statusMessage = "Not found";
+      return res.end("Not found");
+    }
+  }
+
+  let path = Path.join(__dirname, '../build/' + filename);
+  let stat = fs.statSync(path);
+  console.log(path, stat.size);
+
+  res.writeHead(200,
+    { "Content-Type":     contenttype
+    , "Content-Length":   stat.size
+    , "Cache-Control":    "no-cache, no-store, must-revalidate"
+    , "Pragma":           "no-cache"
+    , "Expires":          "0"
+    });
+
+  var stream = fs.createReadStream(path);
+  stream.pipe(res);
 }
 
 function handleRPCRequest(req, jsondata, res)
