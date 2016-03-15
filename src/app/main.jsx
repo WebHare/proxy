@@ -34,6 +34,18 @@ const styles = {
   },
   heading: {
     fontSize: "20px"
+  },
+  clientregistration: {
+    height: "100%"
+  },
+  paper: {
+    height: "100%",
+    display: "flex",
+    flexDirection: "column"
+  },
+  hostslist: {
+    overflowY: "scroll",
+    flex: "1"
   }
 };
 
@@ -115,8 +127,8 @@ class ClientRegistration extends React.Component
     ];
 
     return (
-      <div>
-        <Paper>
+      <div style={styles.clientregistration}>
+        <Paper style={styles.paper}>
           <Toolbar>
             <ToolbarGroup float="left" key={0}>
               <ToolbarTitle text={this.props.client.id || 'Example'} />
@@ -127,7 +139,7 @@ class ClientRegistration extends React.Component
           </Toolbar>
           <div style={styles.heading}>Last registration: {lastreg}</div>
           <div style={styles.heading}>Registered server names:</div>
-          <List>
+          <List style={styles.hostslist}>
             { hosts.map(host =>
                 {
                   let str = host.servernames.join(", ");
@@ -193,9 +205,12 @@ class Main extends React.Component
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div style={{display: 'flex', height: '100%'}}>
-          <List>
-            { this.props.clients.map(name => { return <ListItem primaryText={name.id} key={name.id} onTouchTap={ () => this.selectClient(name.id) } />; })}
-          </List>
+          <div>
+            <div style={{fontSize: "20px"}}>Clients</div>
+            <List>
+              { this.props.clients.map(name => { return <ListItem primaryText={name.id} key={name.id} onTouchTap={ () => this.selectClient(name.id) } />; })}
+            </List>
+          </div>
           { sel
               ? <ClientRegistration client={sel} />
               : ""
