@@ -126,7 +126,7 @@ function startServer()
   });
 
   console.log("Listening for requests");
-  server.listen(5443);
+  server.listen(Config.portnumber);
 }
 
 function run()
