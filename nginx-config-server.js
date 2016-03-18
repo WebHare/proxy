@@ -35,7 +35,7 @@ Requires=nginx.service
 After=mysql.service
 
 [Service]
-ExecStart=${process.execPath} ${__filename} --configfolder="${Config.data_storage_path}" --port=${Config.portnumber}
+ExecStart=${process.execPath} ${__filename} --configfolder=${Config.data_storage_path} --port=${Config.portnumber}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
