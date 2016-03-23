@@ -8,13 +8,16 @@ function sendReply(res, error, result, id)
   else
     message.result = result;
 
-  res.writeHead(200,
+  res.writeHead(error ? 500 : 200,
     { "Cache-Control":  "no-cache, no-store, must-revalidate"
     , "Pragma":         "no-cache"
     , "Expires":        "0"
     });
 
   res.end(JSON.stringify(message));
+
+  if(error)
+    console.log(error);
 }
 
 exports.sendReply = sendReply;

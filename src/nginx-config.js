@@ -7,6 +7,7 @@ const child_process = require("child_process");
 
 const Config = require("./config");
 const Tools = require("./tools");
+const platformsupport = require('./platform/' + process.platform);
 
 let min_supported_version = 1;
 let max_supported_version = 1;
@@ -38,7 +39,7 @@ http {
   keepalive_timeout   65;
   types_hash_max_size 2048;
 
-  include             /etc/nginx/mime.types;
+  include             ${platformsupport.getNginxMimetypesPath()};
   default_type        application/octet-stream;
 
   server_names_hash_bucket_size 256;
@@ -126,7 +127,7 @@ function testNginxConfig(configdata)
 
     // Run the process, catch the return code and output
     let process;
-    let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -t -c " + testpath, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+    let output = new Promise(resolve => process = child_process.exec(platformsupport.getNginxPath() + " -t -c " + testpath, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
     let process_result = yield new Promise(resolve => process.on("exit", resolve));
     output = yield output;
 

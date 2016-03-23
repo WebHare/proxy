@@ -23,7 +23,15 @@ First, checkout this repository and read the README.
 
 - Create a config folder. The default folder is /opt/webhare-proxy-data
 
-- Create the subfolder $CONFIGDIR/ssl_config and place a SSL key and certificate chain in the files ssl.crt and ssl.key
+- Create the subfolder $CONFIGDIR/ssl_config and place a SSL key and certificate chain in the files ssl.crt and ssl.key.
+
+If you're fine with using a self-signed cert, run the commands below, and make sure the Common name is a valid hostname for your server. The rest of the fields don't matter.
+```
+mkdir /opt/webhare-proxy-data/ssl_config
+cd /opt/webhare-proxy-data/ssl_config
+openssl genrsa -out ssl.key 2048
+openssl req -new -x509 -nodes -sha1 -days 365 -key ssl.key > ssl.crt
+```
 
 - Enable and start nginx
   ```
@@ -32,7 +40,7 @@ First, checkout this repository and read the README.
   ```
 
 - Start the configuration server.
-  Override the standard configuration folder with ```---configdir=FOLDER```, and the standard port (5443) with ```--port=PORT```.
+  Override the standard configuration folder with `--configdir=FOLDER`, and the standard port (5443) with `--port=PORT`.
 
   ```
   node nginx-config-server.js --install
@@ -40,4 +48,5 @@ First, checkout this repository and read the README.
 
 After completing this step, you have a functioning proxy configuration server. The Nginx configuration will be overwritten the first time a client registers with this proxy.
 
-To access the server, user the username *webhare* and use the password that is saved to the *secret.key* file in the configuration folder. The HTTP server will listen on all local IPs on the specified port (default 5443).
+To access the server, user the username *webhare* and use the password that is saved to the *secret.key* file in the configuration folder.
+The HTTPS server will listen on all local IPs on the specified port (default 5443).
