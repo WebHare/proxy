@@ -39,4 +39,9 @@ exports.installService = installService;
 exports.uninstallService = uninstallService;
 exports.getNginxPath = function() { return "/usr/sbin/nginx"; }
 exports.getNginxMimetypesPath = function() { return "/etc/nginx/mime.types"; }
-
+exports.getNginxErrorLogPath = function() { return "/var/log/nginx/error.log"; }
+exports.getNginxAccessLogPath = function() { return "/var/log/nginx/access.log"; }
+exports.getNginxPidPath = function() { return "/run/nginx.pid"; }
+exports.getNginxConfigPath = function() { return "/etc/nginx/nginx.conf"; }
+//ADDME on darwin we request nginx to reload itself, is that more useful on linux ?
+exports.getNginxReloadCommandline = function() { return "service nginx reload"; }

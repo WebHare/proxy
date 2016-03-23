@@ -33,11 +33,13 @@ openssl genrsa -out ssl.key 2048
 openssl req -new -x509 -nodes -sha1 -days 365 -key ssl.key > ssl.crt
 ```
 
-- Enable and start nginx
+- If you're on Linux: Enable and start nginx
   ```
   systemctl enable nginx
   systemctl start nginx
   ```
+
+- If you're on a Mac: brew info nginx and follow the 'To have launchd start nginx at login' and 'Then to load nginx now' instructions.
 
 - Start the configuration server.
   Override the standard configuration folder with `--configdir=FOLDER`, and the standard port (5443) with `--port=PORT`.

@@ -19,8 +19,8 @@ function generateNginxConfig(override_id, override_config)
   config += `
 user nginx;
 worker_processes auto;
-error_log /var/log/nginx/error.log;
-pid /run/nginx.pid;
+error_log ${platformsupport.getNginxErrorLogPath()};
+pid ${platformsupport.getNginxPidPath()};
 
 events {
   worker_connections 1024;
@@ -31,7 +31,7 @@ http {
                     '$status $body_bytes_sent "$http_referer" '
                     '"$http_user_agent" "$http_x_forwarded_for"';
 
-  access_log  /var/log/nginx/access.log  main;
+  access_log  ${platformsupport.getNginxAccessLogPath()}  main;
 
   sendfile            on;
   tcp_nopush          on;
@@ -142,8 +142,8 @@ function applyNginxConfig(configdata)
 {
   return co(function * applyNginxConfig()
   {
-    let testpath = "/etc/nginx/nginx.conf.apply_tmp";
-    let finalpath = "/etc/nginx/nginx.conf";
+    let finalpath = platformsupport.getNginxConfigPath();
+    let testpath = finalpath + ".apply_tmp";
 
     let configsdir = Tools.ensureStorageDir("applied_configs");
     let datestr = new Date().toISOString().replace(/[-:.]/g, "");
@@ -157,7 +157,7 @@ function applyNginxConfig(configdata)
 
     // Reload the configuration of nginx
     let process;
-    let output = new Promise(resolve => process = child_process.exec("service nginx reload", (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+    let output = new Promise(resolve => process = child_process.exec(platformsupport.getNginxReloadCommandline(), (e, stdout, stderr) => resolve({ e, stdout, stderr })));
     let process_result = yield new Promise(resolve => process.on("exit", resolve));
     output = yield output;
 
