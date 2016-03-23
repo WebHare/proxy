@@ -1,20 +1,51 @@
 "use strict";
 
 const co = require("co");
-const fs = require("fs");
 const crypto = require("crypto");
+const http = require("http");
+const fs = require("fs");
+const url = require("url");
 
 const Config = require("./config");
 const Tools = require("./tools");
 const NginxConfig = require("./nginx-config");
 
-// Used to test connectifity
+let verifyClient = co.wrap(function * verifyClient(reverseaddress, verificationurl)
+{
+  let parsed_reverseaddr = url.parse(reverseaddress);
+  let parsed_verificationurl = url.parse(verificationurl);
+
+  let options =
+      { protocol: parsed_reverseaddr.protocol
+      , host: parsed_reverseaddr.hostname
+      , port: parsed_reverseaddr.port
+      , path: verificationurl
+      , headers:  { Host: parsed_verificationurl.hostname }
+      }
+
+  console.log(options);
+
+  return new Promise((resolve, reject) =>
+  {
+    http.get(options, res => resolve()).on("error", e =>
+    {
+      console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed:", e.message);
+      reject(new Error(e.message));
+    });
+
+    // Also set a timeout
+    setTimeout(() =>
+    {
+      reject(new Error("Timeout for retrieving verification (waited 10 seconds)"))
+    }, 10000);
+  });
+});
+
+// Used to test connectivity
 exports.test = function()
 {
   return { success: true };
 }
-
-
 
 // registerProxyClient is called by a webhare to register the hosts it needs forwarded
 exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
@@ -25,10 +56,18 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
   if (!config.id)
     throw new Error("Require a installation id");
 
+  if (!config.reverseaddress || !config.verificationurl)
+    throw new Error("Require a reverse address and verificationurl");
+
+  // Connect to the reverse address via the verification url
+  yield verifyClient(config.reverseaddress, config.verificationurl);
+
   // Remove id and secretkey from config
   let new_rec = Object.assign({}, config);
   delete new_rec.id;
   delete new_rec.secretkey;
+  delete new_rec.reverseaddress;
+  delete new_rec.verificationurl;
 
   let client = Config.clients.find(i => i.id === config.id);
   if (!client)
