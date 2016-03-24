@@ -19,7 +19,7 @@ let waitresolve = null;
 module.exports = config;
 
 /// Read the last valid configuration from disk
-function readSavedConfiguration()
+function readSavedConfiguration(resave)
 {
   try
   {

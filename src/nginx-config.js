@@ -41,7 +41,8 @@ events {
 http {
   log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                     '$status $body_bytes_sent "$http_referer" '
-                    '"$http_user_agent" "$http_x_forwarded_for"';
+                    '"$http_user_agent" $host $server_port $content_length '
+                    '"$http_x_forwarded_for" $sent_http_content_type $request_time';
 
   access_log  ${platformsupport.getNginxAccessLogPath()}  main;
 
@@ -148,8 +149,6 @@ http {
     + "  }\n"
     + "}\n";
 
-  console.log("allports:", allports);
-
   return config;
 }
 
@@ -174,7 +173,7 @@ function testNginxConfig(configdata)
   });
 }
 
-function applyNginxConfig(configdata)
+function applyNginxConfig(configdata, saveconfig)
 {
   return co(function * applyNginxConfig()
   {
@@ -201,7 +200,8 @@ function applyNginxConfig(configdata)
     if (process_result != 0)
       throw new Error("Error reloading new configuration: " + output.stdout + output.stderr);
 
-    Config.write();
+    if (save)
+      Config.write();
   });
 }
 

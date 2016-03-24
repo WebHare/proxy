@@ -100,7 +100,7 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
   // Apply the changes to the client, and generate+deploy the final config
   Object.assign(client, new_rec);
   client.lastregistration = Date.now();
-  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
+  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig(), true);
 
   let local_ips = Tools.getLocalIPs();
 

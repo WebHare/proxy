@@ -12,6 +12,7 @@ const Config = require('./config');
 const RPCs = require('./rpc');
 const Tools = require("./tools");
 const RPCSupport = require("./rpcsupport");
+const NginxConfig = require("./nginx-config");
 
 let currentversion = '';
 
@@ -90,6 +91,20 @@ function handleRPCRequest(req, jsondata, res)
       .then(result => RPCSupport.sendReply(res, null, result, decoded.id), error => RPCSupport.sendReply(res, { code: -32604, message: error.stack }));
 }
 
+let updateConfiguration = co.wrap(function * updateConfiguration()
+{
+  // Generate the config
+  let configfile = NginxConfig.generateNginxConfig();
+
+  // Test that generated config file
+  let testresult = yield NginxConfig.testNginxConfig(configfile);
+  if (!testresult)
+    console.log("Initial configuration did not validate");
+
+  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
+  console.log("Nginx configuration updated");
+});
+
 /// Starts the RPC server, starts handling incoming RPCs
 function startServer()
 {
@@ -126,6 +141,9 @@ function startServer()
     request.on("data", bytes => data += bytes);
     request.on("end", () => handleRequest(request, data, response));
   });
+
+  console.log("Regenerate nginx configuration");
+  updateConfiguration();
 
   console.log("Listening for requests");
   server.listen(Config.portnumber);
