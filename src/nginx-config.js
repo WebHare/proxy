@@ -12,6 +12,18 @@ const platformsupport = require('./platform/' + process.platform);
 let min_supported_version = 1;
 let max_supported_version = 1;
 
+function comparePorts(a, b)
+{
+  if (a.port !== b.port)
+    return a.port < b.port;
+  // The booleans might be undefined
+  if (!a.ipv6 !== !b.ipv6)
+    return !a.ipv6 ;
+  if (!a.ssl !== !b.ssl)
+    return !a.ssl;
+  return 0;
+}
+
 function generateNginxConfig(override_id, override_config)
 {
   let config = "";
@@ -45,6 +57,7 @@ http {
   server_names_hash_bucket_size 256;
 
 `;
+  let allports = [];
 
   Config.clients.forEach(client =>
   {
@@ -84,6 +97,10 @@ http {
       {
         config +=
             `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl":""};\n`;
+
+        let idx = allports.findIndex(a => (comparePorts(a, port) == 0));
+        if (idx === -1)
+          allports.push(port);
       });
 
       config +=
@@ -112,7 +129,21 @@ http {
   });
 
   config +=
+      "  server {\n";
+
+  allports.forEach(port =>
+  {
+    config +=
+        `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl":""} default_server;\n`;
+  });
+
+  config +=
+      "    server_name _;\n" +
+      "    return 404;\n" +
+      "  }\n" +
       "}\n";
+
+  console.log("allports:", allports);
 
   return config;
 }
