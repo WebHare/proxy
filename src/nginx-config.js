@@ -137,11 +137,16 @@ http {
         `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl":""} default_server;\n`;
   });
 
+  var ssl_config_dir = Tools.ensureStorageDir("ssl_config");
+
   config +=
-      "    server_name _;\n" +
-      "    return 404;\n" +
-      "  }\n" +
-      "}\n";
+      "    ssl_certificate " + ssl_config_dir + "/ssl.crt;\n"
+    + "    ssl_certificate_key " + ssl_config_dir + "/ssl.key;\n"
+    + "    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;\n"
+    + "    server_name _;\n"
+    + "    return 404;\n"
+    + "  }\n"
+    + "}\n";
 
   console.log("allports:", allports);
 
