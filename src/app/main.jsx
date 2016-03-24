@@ -36,7 +36,8 @@ const styles = {
     fontSize: "20px"
   },
   clientregistration: {
-    height: "calc(100% - 30px)"
+    height: "calc(100% - 30px)",
+    flex: "1"
   },
   paper: {
     height: "100%",
