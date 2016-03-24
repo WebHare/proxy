@@ -26,8 +26,7 @@ WantedBy=sockets.target
 
   child_process.execSync("systemctl daemon-reload");
   child_process.execSync("systemctl enable nginx-config-server");
-  child_process.execSync("systemctl start nginx-config-server");
-
+  child_process.execSync("systemctl restart nginx-config-server");
 }
 
 function uninstallService()
