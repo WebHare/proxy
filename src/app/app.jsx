@@ -42,6 +42,9 @@ async function updateUI()
     if (!jsonresponse || jsonresponse.error)
       throw new Error("Got invalid response or error");
 
+    if (state.currentversion && state.currentversion !== jsonresponse.result.currentversion)
+      window.location.reload();
+
     state.clients = jsonresponse.result.clients;
     state.counter = jsonresponse.result.counter;
     state.currentversion = jsonresponse.result.currentversion;
