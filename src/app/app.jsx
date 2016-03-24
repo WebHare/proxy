@@ -11,7 +11,7 @@ import "whatwg-fetch";
 injectTapEventPlugin();
 
 
-let state = { clients: [], counter: 0 };
+let state = { clients: [], counter: 0, currentversion: '' };
 
 async function updateUI()
 {
@@ -44,10 +44,11 @@ async function updateUI()
 
     state.clients = jsonresponse.result.clients;
     state.counter = jsonresponse.result.counter;
+    state.currentversion = jsonresponse.result.currentversion;
 
     // Render the main app react component into the app div.
     // For more details see: https://facebook.github.io/react/docs/top-level-api.html#react.render
-    ReactDOM.render(<Main clients={state.clients}/>, document.getElementById('app'));
+    ReactDOM.render(<Main clients={state.clients} currentversion={state.currentversion}/>, document.getElementById('app'));
 
     updateUI();
   }

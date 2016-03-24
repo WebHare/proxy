@@ -203,28 +203,31 @@ class Main extends React.Component
 //    console.log('render', this.props.clients);
 
     return (
-      <MuiThemeProvider muiTheme={muiTheme}>
-        <div style={{display: 'flex', height: '100%'}}>
-          <div>
-            <div style={{fontSize: "20px"}}>Clients</div>
-            <List>
-              { this.props.clients.map(name => { return <ListItem primaryText={name.id} key={name.id} onTouchTap={ () => this.selectClient(name.id) } />; })}
-            </List>
-          </div>
-          { sel
-              ? <ClientRegistration client={sel} />
-              : ""
-          }
-          <Dialog
-            title="No active registrations"
-            modal={true}
-            open={this.props.clients.length === 0}
-          >
-            There are no servers that have registered with this proxy.
-          </Dialog>
+      <div>
+        <div>Server version: {this.props.currentversion}</div>
+        <MuiThemeProvider muiTheme={muiTheme}>
+          <div style={{display: 'flex', height: '100%'}}>
+            <div>
+              <div style={{fontSize: "20px"}}>Clients</div>
+              <List>
+                { this.props.clients.map(name => { return <ListItem primaryText={name.id} key={name.id} onTouchTap={ () => this.selectClient(name.id) } />; })}
+              </List>
+            </div>
+            { sel
+                ? <ClientRegistration client={sel} />
+                : ""
+            }
+            <Dialog
+              title="No active registrations"
+              modal={true}
+              open={this.props.clients.length === 0}
+            >
+              There are no servers that have registered with this proxy.
+            </Dialog>
 
-        </div>
-      </MuiThemeProvider>
+          </div>
+        </MuiThemeProvider>
+      </div>
     );
   }
 }

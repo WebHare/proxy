@@ -10,6 +10,8 @@ const Config = require("./config");
 const Tools = require("./tools");
 const NginxConfig = require("./nginx-config");
 
+let currentversion = '';
+
 let verifyClient = co.wrap(function * verifyClient(reverseaddress, verificationurl)
 {
   let parsed_reverseaddr = url.parse(reverseaddress);
@@ -121,7 +123,6 @@ exports.getGUIState = co.wrap(function *(counter)
   setTimeout(() => resolve(), 10000);
 
   let r = yield promise;
-
   return (
       { success: true
       , counter: Config.counter
@@ -133,5 +134,14 @@ exports.getGUIState = co.wrap(function *(counter)
                       , hosts: c.hosts.map(host => ({ servernames: host.servernames, with_cert: !!host.ssl_keypair }))
                       });
                   })
+      , currentversion: currentversion
       });
 });
+
+try
+{
+  currentversion = fs.readFileSync(__dirname + "/../.git/refs/heads/master").toString();
+}
+catch(e)
+{
+}

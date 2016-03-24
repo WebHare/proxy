@@ -13,6 +13,8 @@ const RPCs = require('./rpc');
 const Tools = require("./tools");
 const RPCSupport = require("./rpcsupport");
 
+let currentversion = '';
+
 function handleRequest(req, postdata, res)
 {
   // Handle basic authentication
