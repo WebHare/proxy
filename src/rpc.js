@@ -44,10 +44,20 @@ let verifyClient = co.wrap(function * verifyClient(reverseaddress, verificationu
 });
 
 // Used to test connectivity
-exports.test = function()
+exports.test = co.wrap(function * test(reverseaddress, verificationurl)
 {
+  try
+  {
+    // Connect to the reverse address via the verification url
+    yield verifyClient(reverseaddress, verificationurl);
+  }
+  catch (e)
+  {
+    return { success: false, code: "verificationfailed" };
+  }
+
   return { success: true };
-}
+});
 
 // registerProxyClient is called by a webhare to register the hosts it needs forwarded
 exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
@@ -99,7 +109,7 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
 });
 
 // registerProxyClient is called by a webhare to register the hosts it needs forwarded
-exports.unregisterProxyClient = co.wrap(function * registerProxyClient(servername)
+exports.guiUnregisterProxyClient = co.wrap(function * registerProxyClient(servername)
 {
   if (arguments.length != 1)
     throw new Error("Expected one parameter");
@@ -112,6 +122,30 @@ exports.unregisterProxyClient = co.wrap(function * registerProxyClient(servernam
 
   console.log("Deleted server with id: " + servername);
   return { success: true, found: !!client };
+});
+
+exports.unregisterProxyClient = co.wrap(function * registerProxyClient(servername, reverseaddress, verificationurl)
+{
+  try
+  {
+    // Connect to the reverse address via the verification url
+    yield verifyClient(reverseaddress, verificationurl);
+  }
+  catch (e)
+  {
+    return { success: false, code: "verificationfailed" };
+  }
+
+  let client = Config.clients.find(i => i.id === servername);
+  if (!client)
+    return { success: false, code: "notfound" };
+
+  Config.clients.splice(Config.clients.indexOf(client), 1);
+
+  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
+
+  console.log("Deleted server with id: " + servername);
+  return { success: true, code: "ok" };
 });
 
 exports.getGUIState = co.wrap(function *(counter)

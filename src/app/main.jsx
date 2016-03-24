@@ -86,7 +86,7 @@ class ClientRegistration extends React.Component
           }
       , body: JSON.stringify(
           { id: 1
-          , method: "unregisterProxyClient"
+          , method: "guiUnregisterProxyClient"
           , params: [ this.props.client.id ]
           })
       });
