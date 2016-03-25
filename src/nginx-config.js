@@ -200,7 +200,7 @@ function applyNginxConfig(configdata, saveconfig)
     if (process_result != 0)
       throw new Error("Error reloading new configuration: " + output.stdout + output.stderr);
 
-    if (save)
+    if (saveconfig)
       Config.write();
   });
 }
