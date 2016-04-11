@@ -31,7 +31,7 @@ function generateNginxConfig(override_id, override_config)
   config += `
 user nginx;
 worker_processes auto;
-error_log ${platformsupport.getNginxErrorLogPath()};
+error_log ${platformsupport.getNginxErrorLogPath()} info;
 pid ${platformsupport.getNginxPidPath()};
 
 events {
