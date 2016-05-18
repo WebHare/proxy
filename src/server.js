@@ -156,3 +156,4 @@ function run()
 }
 
 exports.run = run;
+exports.updateConfiguration = updateConfiguration;

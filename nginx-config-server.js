@@ -14,6 +14,7 @@ let opt = require('node-getopt').create(
 [ ['' ,  'configfolder=FOLDER' , 'configfolder, defaults to ' + Config.data_storage_path ],
   ['p' , 'port=PORT'           , 'port, defaults to ' + Config.portnumber ],
   ['h' , 'help'                , 'display this help'],
+  ['',   'resetconfig'         , 'overwrite config and exit'],
   ['',   'install'             , 'install as service'],
   ['',   'uninstall'           , 'uninstall as service']
 ])              // create Getopt instance
@@ -26,7 +27,6 @@ if (parseInt(opt.options.port))
 if(opt.options.configfolder)
   Config.data_storage_path = opt.options.configfolder;
 
-
 if (opt.options.install)
 {
   platformsupport.installService(__filename, Config);
@@ -36,6 +36,10 @@ else if (opt.options.uninstall)
 {
   platformsupport.uninstallService();
   console.log("Service uninstalled");
+}
+else if(opt.options.resetconfig)
+{
+  Server.updateConfiguration().then(function() { console.log("done")});
 }
 else
 {

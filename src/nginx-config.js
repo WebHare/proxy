@@ -29,7 +29,7 @@ function generateNginxConfig(override_id, override_config)
   let config = "";
 
   config += `
-user nginx;
+user ${platformsupport.getNginxUserName()};
 worker_processes auto;
 error_log ${platformsupport.getNginxErrorLogPath()} info;
 pid ${platformsupport.getNginxPidPath()};
@@ -57,6 +57,10 @@ http {
 
   server_names_hash_bucket_size 256;
 
+  gzip on;
+  gzip_vary on;
+  gzip_proxied any;
+  gzip_types text/html text/xml application/json application/xml;
 `;
   let allports = [];
 
@@ -162,7 +166,7 @@ function testNginxConfig(configdata)
 
     // Run the process, catch the return code and output
     let process;
-    let output = new Promise(resolve => process = child_process.exec(platformsupport.getNginxPath() + " -t -c " + testpath, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+    let output = new Promise(resolve => process = child_process.exec(platformsupport.getNginxTestCommandline() + " " + testpath, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
     let process_result = yield new Promise(resolve => process.on("exit", resolve));
     output = yield output;
 

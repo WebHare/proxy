@@ -45,4 +45,6 @@ exports.getNginxAccessLogPath = function() { return "/var/log/nginx/access.log";
 exports.getNginxPidPath = function() { return "/var/run/nginx.pid"; }
 exports.getNginxConfigPath = function() { return "/etc/nginx/nginx-loadbalancer.conf"; }
 //ADDME on darwin we request nginx to reload itself, is that more useful on linux ?
+exports.getNginxTestCommandline = function() { return "/usr/sbin/nginx -t -c"; }
 exports.getNginxReloadCommandline = function() { return "service nginx reload"; }
+exports.getNginxUserName = function() { return "nginx"; }
