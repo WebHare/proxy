@@ -5,22 +5,22 @@
 
 
 import React from 'react';
-import RaisedButton from 'material-ui/lib/raised-button';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import Toolbar from 'material-ui/lib/toolbar/toolbar';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
-import {deepOrange500} from 'material-ui/lib/styles/colors';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
-import MuiThemeProvider from 'material-ui/lib/MuiThemeProvider';
-import SvgDeleteButton from 'material-ui/lib/svg-icons/action/delete';
-import FontIcon from 'material-ui/lib/font-icon';
-import Paper from 'material-ui/lib/paper';
-import Divider from 'material-ui/lib/divider';
-import VPNKey from 'material-ui/lib/svg-icons/communication/vpn-key';
-import FlatButton from 'material-ui/lib/flat-button';
-import Dialog from 'material-ui/lib/dialog';
+import RaisedButton from 'material-ui/RaisedButton';
+import List from 'material-ui/List';
+import ListItem from 'material-ui/List/ListItem';
+import Toolbar from 'material-ui/Toolbar';
+import ToolbarGroup from 'material-ui/Toolbar/ToolbarGroup';
+import ToolbarTitle from 'material-ui/Toolbar/ToolbarTitle';
+import {deepOrange500} from 'material-ui/styles/colors';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import SvgDeleteButton from 'material-ui/svg-icons/action/delete';
+import FontIcon from 'material-ui/FontIcon';
+import Paper from 'material-ui/Paper';
+import Divider from 'material-ui/Divider';
+import VPNKey from 'material-ui/svg-icons/communication/vpn-key';
+import FlatButton from 'material-ui/FlatButton';
+import Dialog from 'material-ui/Dialog';
 
 
 const styles = {
