@@ -40,6 +40,7 @@ exports.installService = installService;
 exports.uninstallService = uninstallService;
 exports.getNginxPath = function() { return "/usr/sbin/nginx"; }
 exports.getNginxMimetypesPath = function() { return "/etc/nginx/mime.types"; }
+exports.getNginxDHParamsPath = function() { return "/etc/nginx/webhare-proxy-dhparam.pem"; }
 exports.getNginxErrorLogPath = function() { return "/var/log/nginx/error.log"; }
 exports.getNginxAccessLogPath = function() { return "/var/log/nginx/access.log"; }
 exports.getNginxPidPath = function() { return "/var/run/nginx.pid"; }

@@ -57,6 +57,12 @@ http {
 
   server_names_hash_bucket_size 256;
 
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_dhparam ${platformsupport.getNginxDHParamsPath()};
+  ssl_prefer_server_ciphers on;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 10m;
+
   gzip on;
   gzip_vary on;
   gzip_proxied any;
@@ -101,7 +107,7 @@ http {
       host.ports.forEach(port =>
       {
         config +=
-            `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl":""};\n`;
+            `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl http2":""};\n`;
 
         let idx = allports.findIndex(a => (comparePorts(a, port) == 0));
         if (idx === -1)
@@ -118,7 +124,6 @@ http {
         config +=
             "    ssl_certificate " + cert.cert_path + ";\n"
           + "    ssl_certificate_key " + cert.key_path + ";\n"
-          + "    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;\n";
 
         if (client.ssl_ciphers)
         {
