@@ -166,7 +166,7 @@ function testNginxConfig(configdata)
   return co(function * testNginxConfig()
   {
     // Write the temporary config file
-    let testpath = Tools.ensureStorageDir() + "nginx.conf.test";
+    let testpath = Tools.ensureStorageDir() + "var/nginx.conf.test";
     fs.writeFileSync(testpath, configdata);
 
     // Run the process, catch the return code and output
@@ -189,7 +189,7 @@ function applyNginxConfig(configdata, saveconfig)
     let finalpath = platformsupport.getNginxConfigPath();
     let testpath = finalpath + ".apply_tmp";
 
-    let configsdir = Tools.ensureStorageDir("applied_configs");
+    let configsdir = Tools.ensureStorageDir("var/applied_configs");
     let datestr = new Date().toISOString().replace(/[-:.]/g, "");
     fs.writeFileSync(configsdir + `/nginx.${datestr}.conf`, configdata);
 

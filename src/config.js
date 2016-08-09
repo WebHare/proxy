@@ -23,7 +23,7 @@ function readSavedConfiguration(resave)
 {
   try
   {
-    let saved_config = fs.readFileSync(config.data_storage_path + "/config.json");
+    let saved_config = fs.readFileSync(config.data_storage_path + "/var/config.json");
     if (saved_config)
     {
       let parsed_config = JSON.parse(saved_config);
@@ -41,7 +41,7 @@ function readSavedConfiguration(resave)
 
   try
   {
-    config.secretkey = fs.readFileSync(config.data_storage_path + "/secret.key", "utf8").trim();
+    config.secretkey = fs.readFileSync(config.data_storage_path + "/etc/secret.key", "utf8").trim();
   }
   catch (e)
   {
@@ -63,8 +63,8 @@ function saveConfiguration()
       , counter: config.counter
       });
 
-  fs.writeFileSync(config.data_storage_path + "/config.json", saved_config);
-  fs.writeFileSync(config.data_storage_path + "/secret.key", config.secretkey + "\n");
+  fs.writeFileSync(config.data_storage_path + "/var/config.json", saved_config);
+  fs.writeFileSync(config.data_storage_path + "/etc/secret.key", config.secretkey + "\n");
 
   if (waitresolve)
   {

@@ -41,11 +41,11 @@ exports.uninstallService = uninstallService;
 exports.getNginxPath = function() { return "/usr/sbin/nginx"; }
 exports.getNginxMimetypesPath = function() { return "/etc/nginx/mime.types"; }
 exports.getNginxDHParamsPath = function() { return "/opt/webhare-proxy-data/etc/webhare-proxy-dhparam.pem"; }
-exports.getNginxErrorLogPath = function() { return "/var/log/nginx/error.log"; }
-exports.getNginxAccessLogPath = function() { return "/var/log/nginx/access.log"; }
+exports.getNginxErrorLogPath = function() { return "/opt/webhare-proxy-data/log/error.log"; }
+exports.getNginxAccessLogPath = function() { return "/opt/webhare-proxy-data/log/access.log"; }
 exports.getNginxPidPath = function() { return "/var/run/nginx.pid"; }
 exports.getNginxConfigPath = function() { return "/opt/webhare-proxy-data/etc/nginx.conf"; }
 //ADDME on darwin we request nginx to reload itself, is that more useful on linux ?
 exports.getNginxTestCommandline = function() { return "/usr/sbin/nginx -t -c"; }
-exports.getNginxReloadCommandline = function() { return "service nginx reload"; }
+exports.getNginxReloadCommandline = function() { return "/usr/sbin/nginx -s reload"; }
 exports.getNginxUserName = function() { return "nginx"; }
