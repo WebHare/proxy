@@ -44,7 +44,7 @@ exports.getNginxDHParamsPath = function() { return "/opt/webhare-proxy-data/etc/
 exports.getNginxErrorLogPath = function() { return "/var/log/nginx/error.log"; }
 exports.getNginxAccessLogPath = function() { return "/var/log/nginx/access.log"; }
 exports.getNginxPidPath = function() { return "/var/run/nginx.pid"; }
-exports.getNginxConfigPath = function() { return "/etc/nginx/nginx-loadbalancer.conf"; }
+exports.getNginxConfigPath = function() { return "/opt/webhare-proxy-data/etc/nginx.conf"; }
 //ADDME on darwin we request nginx to reload itself, is that more useful on linux ?
 exports.getNginxTestCommandline = function() { return "/usr/sbin/nginx -t -c"; }
 exports.getNginxReloadCommandline = function() { return "service nginx reload"; }
