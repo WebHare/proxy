@@ -6,6 +6,11 @@ This project contains the configuration server for a webhare reverse proxy.
 
 First, checkout this repository and read the README.
 
+- Create custom DH parameters
+  ```
+  openssl dhparam -out /etc/nginx/webhare-proxy-dhparam.pem 2048
+  ```
+
 - Make sure nginx is installed. On Centos7, adjust the configuration file /etc/nginx.conf so that the pid is stored at /run/nginx.pid, where systemd expexts it to be.
 
 - Make sure the node and npm are installed (and reasonably new versions at that)
