@@ -108,7 +108,7 @@ let updateConfiguration = co.wrap(function * updateConfiguration()
 /// Starts the RPC server, starts handling incoming RPCs
 function startServer()
 {
-  var ssl_config_dir = Tools.ensureStorageDir("ssl_config");
+  var ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
   let keyfile, certfile;
   try
   {

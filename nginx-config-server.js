@@ -26,7 +26,7 @@ if (parseInt(opt.options.port))
 
 if(opt.options.configfolder)
   Config.data_storage_path = opt.options.configfolder;
-
+/* noop in a dockerized proxy
 if (opt.options.install)
 {
   platformsupport.installService(__filename, Config);
@@ -37,9 +37,9 @@ else if (opt.options.uninstall)
   platformsupport.uninstallService();
   console.log("Service uninstalled");
 }
-else if(opt.options.resetconfig)
+else*/ if(opt.options.resetconfig)
 {
-  Server.updateConfiguration().then(function() { console.log("done")});
+  Server.updateConfiguration().then(function() { console.log("done")}).catch(e => console.error(e));
 }
 else
 {

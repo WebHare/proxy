@@ -147,7 +147,7 @@ http {
         `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl":""} default_server;\n`;
   });
 
-  var ssl_config_dir = Tools.ensureStorageDir("ssl_config");
+  var ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
 
   config +=
       "    ssl_certificate " + ssl_config_dir + "/ssl.crt;\n"
