@@ -33,7 +33,7 @@ worker_processes auto;
 error_log /opt/webhare-proxy-data/log/error.log info;
 pid /var/run/nginx.pid;
 
-include             /opt/webhare-proxy-data/etc/nginx-http/*;
+include             /opt/webhare-proxy-data/etc/nginx-other/*.conf;
 
 events {
   worker_connections 1024;
@@ -54,7 +54,7 @@ http {
   types_hash_max_size 2048;
 
   include             /etc/nginx/mime.types;
-  include             /opt/webhare-proxy-data/etc/nginx-http/*;
+  include             /opt/webhare-proxy-data/etc/nginx-http/*.conf;
   default_type        application/octet-stream;
 
   server_names_hash_bucket_size 256;
