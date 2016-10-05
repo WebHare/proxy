@@ -5,10 +5,9 @@
 const fs = require("fs");
 const child_process = require("child_process");
 
-const Server = require("./src/server");
-const Config = require("./src/config");
+const Server = require("./server");
+const Config = require("./config");
 const GetOpt = require('node-getopt');
-const platformsupport = require('./src/platform/' + process.platform);
 
 let opt = require('node-getopt').create(
 [ ['' ,  'configfolder=FOLDER' , 'configfolder, defaults to ' + Config.data_storage_path ],
@@ -26,18 +25,8 @@ if (parseInt(opt.options.port))
 
 if(opt.options.configfolder)
   Config.data_storage_path = opt.options.configfolder;
-/* noop in a dockerized proxy
-if (opt.options.install)
-{
-  platformsupport.installService(__filename, Config);
-  console.log("Service installed");
-}
-else if (opt.options.uninstall)
-{
-  platformsupport.uninstallService();
-  console.log("Service uninstalled");
-}
-else*/ if(opt.options.resetconfig)
+
+if(opt.options.resetconfig)
 {
   Server.updateConfiguration().then(function() { console.log("done")}).catch(e => console.error(e));
 }

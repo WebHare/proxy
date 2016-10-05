@@ -1,11 +1,11 @@
 var webpack = require('webpack');
 var path = require('path');
-var buildPath = path.resolve(__dirname, 'build');
-var nodeModulesPath = path.resolve(__dirname, 'node_modules');
+var buildPath = path.resolve(__dirname, '../build');
+var nodeModulesPath = path.resolve(__dirname, '../node_modules');
 var TransferWebpackPlugin = require('transfer-webpack-plugin');
 
 var config = {
-  entry: [path.join(__dirname, '/src/app/app.jsx')],
+  entry: [ 'babel-polyfill', path.join(__dirname, 'app/app.jsx')],
   resolve: {
     //When require, do not have to add these extensions to file's name
     extensions: ["", ".js", ".jsx"]
@@ -31,22 +31,23 @@ var config = {
     //Transfer Files
     new TransferWebpackPlugin([
       {from: 'www'}
-    ], path.resolve(__dirname,"src"))
+    ], __dirname,"../")
   ],
   module: {
     preLoaders: [
       {
         test: /\.(js|jsx)$/,
         loader: 'eslint-loader',
-        include: [path.resolve(__dirname, "src/app")],
+        include: [path.resolve(__dirname, "app")],
         exclude: [nodeModulesPath]
       },
     ],
     loaders: [
       {
         test: /\.(js|jsx)$/, //All .js and .jsx files
-        loaders: ['babel'], //react-hot is like browser sync and babel loads jsx and es6-7
-        exclude: [nodeModulesPath]
+        loader: 'babel', //react-hot is like browser sync and babel loads jsx and es6-7
+        exclude: [nodeModulesPath],
+        query: { presets: ["es2015", "stage-3", "react"]}
       }
     ]
   },

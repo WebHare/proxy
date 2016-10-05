@@ -7,7 +7,6 @@ const child_process = require("child_process");
 
 const Config = require("./config");
 const Tools = require("./tools");
-const platformsupport = require('./platform/' + process.platform);
 
 let min_supported_version = 1;
 let max_supported_version = 1;
@@ -29,10 +28,12 @@ function generateNginxConfig(override_id, override_config)
   let config = "";
 
   config += `
-user ${platformsupport.getNginxUserName()};
+user nginx;
 worker_processes auto;
-error_log ${platformsupport.getNginxErrorLogPath()} info;
-pid ${platformsupport.getNginxPidPath()};
+error_log /opt/webhare-proxy-data/log/error.log info;
+pid /var/run/nginx.pid;
+
+include             /opt/webhare-proxy-data/etc/nginx-http/*;
 
 events {
   worker_connections 1024;
@@ -44,7 +45,7 @@ http {
                     '"$http_user_agent" $host $server_port $content_length '
                     '"$http_x_forwarded_for" $sent_http_content_type $request_time';
 
-  access_log  ${platformsupport.getNginxAccessLogPath()}  main;
+  access_log /opt/webhare-proxy-data/log/access.log main;
 
   sendfile            on;
   tcp_nopush          on;
@@ -52,13 +53,14 @@ http {
   keepalive_timeout   65;
   types_hash_max_size 2048;
 
-  include             ${platformsupport.getNginxMimetypesPath()};
+  include             /etc/nginx/mime.types;
+  include             /opt/webhare-proxy-data/etc/nginx-http/*;
   default_type        application/octet-stream;
 
   server_names_hash_bucket_size 256;
 
   ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-  ssl_dhparam ${platformsupport.getNginxDHParamsPath()};
+  ssl_dhparam /opt/webhare-proxy-data/etc/webhare-proxy-dhparam.pem;
   ssl_prefer_server_ciphers on;
   ssl_session_cache shared:SSL:10m;
   ssl_session_timeout 10m;
@@ -106,6 +108,9 @@ http {
 
       host.ports.forEach(port =>
       {
+        if( (port.port===80 && port.ssl) || (port.port===443 && (!port.ssl || !host.ssl_keypair)))
+          return;
+
         config +=
             `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl http2":""};\n`;
 
@@ -143,6 +148,9 @@ http {
 
   allports.forEach(port =>
   {
+    if(port.port == 443 && !port.ssl)
+      return;
+
     config +=
         `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl":""} default_server;\n`;
   });
@@ -171,7 +179,7 @@ function testNginxConfig(configdata)
 
     // Run the process, catch the return code and output
     let process;
-    let output = new Promise(resolve => process = child_process.exec(platformsupport.getNginxTestCommandline() + " " + testpath, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+    let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -t -c" + " " + testpath, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
     let process_result = yield new Promise(resolve => process.on("exit", resolve));
     output = yield output;
 
@@ -186,7 +194,7 @@ function applyNginxConfig(configdata, saveconfig)
 {
   return co(function * applyNginxConfig()
   {
-    let finalpath = platformsupport.getNginxConfigPath();
+    let finalpath = "/opt/webhare-proxy-data/etc/nginx.conf";
     let testpath = finalpath + ".apply_tmp";
 
     let configsdir = Tools.ensureStorageDir("var/applied_configs");
@@ -201,7 +209,7 @@ function applyNginxConfig(configdata, saveconfig)
 
     // Reload the configuration of nginx
     let process;
-    let output = new Promise(resolve => process = child_process.exec(platformsupport.getNginxReloadCommandline(), (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+    let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -s reload", (e, stdout, stderr) => resolve({ e, stdout, stderr })));
     let process_result = yield new Promise(resolve => process.on("exit", resolve));
     output = yield output;
 

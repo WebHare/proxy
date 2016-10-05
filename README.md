@@ -2,6 +2,39 @@
 
 This project contains the configuration server for a webhare reverse proxy.
 
+## Packing etc
+we've removed the package from github.com from now. we may put it back once we've
+decided how we'll solve the gitlab-registry.b-lex.com/webhare_com/servermanagement:nginx-machine-latest dependency
+as we don't want to duplicate that work but don't want to publish the full webhare_com/servermanagement repository
+
+## Development
+All development that is done in the 'src' directory, can be run under a docker
+container. This allows development against the Linux versions under OSX (and makes
+sure your environment matches the live environment as close as possible)
+
+```
+cd ~/projects/nginx-proxy
+./docker.sh run
+```
+
+Then, go to https://127.0.0.1:45443/
+
+Set up in webhare and then access eg https://webhare.moe.sf.b-lex.com:41443/
+
+## Development subcommands
+Get the proxy key (used to connect)
+```
+./docker.sh getproxykey
+```
+
+## Customizing
+Extra nginx configuration files can be dropped as *.conf into /opt/webhare-proxy-data/etc/nginx-http/ - they will be included inside the 'http' section
+
+Extra configuration files can also be dropped as *.conf into /opt/webhare-proxy-data/etc/nginx-other/ - they will be included at the root level
+
+---8<------------------------------------------------
+
+
 # Installation
 
 First, checkout this repository and read the README.

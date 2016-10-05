@@ -227,7 +227,7 @@ class Main extends React.Component
 
           </div>
           <Toolbar>
-            <ToolbarTitle text={"Server version: " + this.props.currentversion} />
+            <ToolbarTitle text={"Server Version: " + this.props.currentversion} />
           </Toolbar>
         </div>
       </MuiThemeProvider>
