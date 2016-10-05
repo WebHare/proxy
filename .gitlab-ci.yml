@@ -10,5 +10,5 @@ before_script:
 buildmachine:
   stage: build
   script:
-    - ./docker.sh
+    - ./docker.sh build
     - docker push $TAG
