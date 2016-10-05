@@ -1,5 +1,5 @@
 #!/bin/sh
-mkdir -p /opt/webhare-proxy-data/{etc,etc/nginx-http/var,log}
+mkdir -p /opt/webhare-proxy-data/{etc,etc/nginx-http,var,log}
 
 if [ ! -f /opt/webhare-proxy-data/etc/webhare-proxy-dhparam.pem ]; then
   openssl dhparam -out /opt/webhare-proxy-data/etc/webhare-proxy-dhparam.pem 2048

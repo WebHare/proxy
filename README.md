@@ -18,6 +18,12 @@ Example docker calling syntax which assumes /dockers/my-nx/proxy-data/ will host
 The first time the container is started, it will generate new DH parameters. This may take quite a while.
 The management interface on port 5443 will not be available until this is done.
 
+## Customizing
+Extra nginx configuration files can be dropped as *.conf into /opt/webhare-proxy-data/etc/nginx-http/ - they will be included inside the 'http' section
+
+Extra configuration files can also be dropped as *.conf into /opt/webhare-proxy-data/etc/nginx-other/ - they will be included at the root level
+
+
 ## Development
 All development that is done in the 'src' directory, can be run under a docker
 container. This allows development against the Linux versions under OSX (and makes
@@ -38,7 +44,3 @@ Get the proxy key (used to connect)
 ./docker.sh getproxykey
 ```
 
-## Customizing
-Extra nginx configuration files can be dropped as *.conf into /opt/webhare-proxy-data/etc/nginx-http/ - they will be included inside the 'http' section
-
-Extra configuration files can also be dropped as *.conf into /opt/webhare-proxy-data/etc/nginx-other/ - they will be included at the root level
