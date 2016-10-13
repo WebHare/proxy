@@ -15,7 +15,7 @@ if [ "$1" == "getproxykey" ]; then
   exec docker exec $CONTAINERNAME /root/get-proxy-key.sh
 fi
 
-if [ "$1" != "build" -a $1" != push" -a "$1" != "run" -a "$1" != "runline" -a "$1" != "runshell" ]; then
+if [ "$1" != "build" -a "$1" != "push" -a "$1" != "run" -a "$1" != "runline" -a "$1" != "runshell" ]; then
   cat << HERE
 - shell:       Launch a shell in a running $CONTAINERNAME container
 - getproxykey: Get key for the proxy
