@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/sbin/nginx -c /opt/webhare-proxy-data/etc/nginx.conf -g 'daemon off;'

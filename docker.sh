@@ -5,8 +5,15 @@ CONTAINERNAME=testproxy
 if [ -z "$TAG" ]; then
   TAG=nginx-proxy
 fi
-DEVELOPRUNCMD="docker run -v `pwd`/runtimedata:/opt/webhare-proxy-data/ -v`pwd`/src:/opt/webhare-nginx-proxy/src -p 41080:80 -p 41443:443 -p 45443:5443 --name $CONTAINERNAME"
-LIVERUNCMD="docker run -v `pwd`/runtimedata:/opt/webhare-proxy-data/ -p 41080:80 -p 41443:443 -p 45443:5443 --name $CONTAINERNAME"
+
+DOCKERARGS="-v `pwd`/runtimedata:/opt/webhare-proxy-data/ -p 41080:80 -p 41443:443 -p 45443:5443 --name $CONTAINERNAME"
+if [ -n "$NGINX_BINDTO_IPV4" ]; then
+  DOCKERARGS="$DOCKERARGS -e NGINX_BINDTO_IPV4=$NGINX_BINDTO_IPV4"
+fi
+
+DEVELOPRUNCMD="docker run -v `pwd`/src:/opt/webhare-nginx-proxy/src $DOCKERARGS"
+LIVERUNCMD="docker run -v $DOCKERARGS"
+
 
 if [ "$1" == "shell" ]; then
   exec docker exec -ti $CONTAINERNAME /bin/bash

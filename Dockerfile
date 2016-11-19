@@ -1,4 +1,4 @@
-FROM       gitlab-registry.b-lex.com/webhare_com/servermanagement:nginx-machine-latest
+FROM       gitlab-registry.b-lex.com/webhare_com/servermanagement:base-phusion-latest
 MAINTAINER Arnold Hendriks <arnold@b-lex.nl>
 
 # To test, something like:  (you always want to persist a volume or you'll have to wait for DH parameter generation every test, which takes a LONG time)
@@ -12,22 +12,20 @@ MAINTAINER Arnold Hendriks <arnold@b-lex.nl>
 
 EXPOSE     80 443 5443
 VOLUME     /opt/webhare-proxy-data/
-CMD        [ "/root/launch.sh" ]
+CMD        [ "/sbin/my_init" ]
 
-RUN yum install -y git && yum clean all
+RUN        apt-get update && \
+           apt-get install -y nginx-full git && \
+           apt-get clean && rm -rf /tmp/* /var/tmp/*
 
-# Install nodejs...
-RUN curl -sL https://rpm.nodesource.com/setup_6.x | bash -
-# Lock to nodejs-6-3.1, they're supplying an unsigned 6.4
-RUN yum install -y nodejs-6.3.1 && yum clean all
-
-ADD package.json /opt/webhare-nginx-proxy/package.json
+ADD        package.json /opt/webhare-nginx-proxy/package.json
 
 RUN        cd /opt/webhare-nginx-proxy && \
            npm install && \
            npm cache clear #2016-08-09 23:52
 
 ADD        .eslintrc /opt/webhare-nginx-proxy
+
 ADD        src /opt/webhare-nginx-proxy/src
 
 # Running webpack through npm's script runner discarded exit codes

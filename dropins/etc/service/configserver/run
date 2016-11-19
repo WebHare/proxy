@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /opt/webhare-nginx-proxy/src/nginx-proxy.js --configfolder=/opt/webhare-proxy-data --port=5443

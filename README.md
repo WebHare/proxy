@@ -23,6 +23,7 @@ Extra nginx configuration files can be dropped as *.conf into /opt/webhare-proxy
 
 Extra configuration files can also be dropped as *.conf into /opt/webhare-proxy-data/etc/nginx-other/ - they will be included at the root level
 
+nginx can be told to bind to a specific IPv4 address by setting the NGINX_BINDTO_IPV4 environment variable
 
 ## Development
 All development that is done in the 'src' directory, can be run under a docker
@@ -43,4 +44,3 @@ Get the proxy key (used to connect)
 ```
 ./docker.sh getproxykey
 ```
-

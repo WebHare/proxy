@@ -28,7 +28,7 @@ function generateNginxConfig(override_id, override_config)
   let config = "";
 
   config += `
-user nginx;
+user www-data;
 worker_processes auto;
 error_log /opt/webhare-proxy-data/log/error.log info;
 pid /var/run/nginx.pid;
@@ -72,9 +72,13 @@ http {
 `;
   let allports = [];
 
+  let ip4bindto = process.env["NGINX_BINDTO_IPV4"] || '';
+  if(ip4bindto)
+    ip4bindto += ':';
+
   Config.clients.forEach(client =>
   {
-    if (client.id == override_id)
+    if (client.id === override_id)
       client = override_config;
 
     if (client.version < min_supported_version || client.version > max_supported_version)
@@ -112,7 +116,7 @@ http {
           return;
 
         config +=
-            `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl http2":""};\n`;
+            `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl http2":""};\n`;
 
         let idx = allports.findIndex(a => (comparePorts(a, port) == 0));
         if (idx === -1)
@@ -152,7 +156,7 @@ http {
       return;
 
     config +=
-        `    listen ${port.ipv6?"[::]:":""}${port.port}${port.ssl?" ssl":""} default_server;\n`;
+        `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl":""} default_server;\n`;
   });
 
   var ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");

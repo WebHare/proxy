@@ -13,7 +13,7 @@ let opt = require('node-getopt').create(
 [ ['' ,  'configfolder=FOLDER' , 'configfolder, defaults to ' + Config.data_storage_path ],
   ['p' , 'port=PORT'           , 'port, defaults to ' + Config.portnumber ],
   ['h' , 'help'                , 'display this help'],
-  ['',   'resetconfig'         , 'overwrite config and exit'],
+  ['',   'resetconfig'         , 'generate empty configuration and exit'],
   ['',   'install'             , 'install as service'],
   ['',   'uninstall'           , 'uninstall as service']
 ])              // create Getopt instance
