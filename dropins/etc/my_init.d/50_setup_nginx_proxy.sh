@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 mkdir -p /opt/webhare-proxy-data/{etc,etc/nginx-http,var,log}
 
 if [ ! -f /opt/webhare-proxy-data/etc/webhare-proxy-dhparam.pem ]; then
