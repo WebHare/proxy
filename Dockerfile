@@ -15,7 +15,7 @@ VOLUME     /opt/webhare-proxy-data/
 CMD        [ "/sbin/my_init" ]
 
 RUN        apt-get update && \
-           apt-get install -y nginx-full git && \
+           apt-get install -y nginx-full git logrotate && \
            apt-get clean && rm -rf /tmp/* /var/tmp/*
 
 ADD        package.json /opt/webhare-nginx-proxy/package.json
@@ -34,3 +34,4 @@ ADD        src /opt/webhare-nginx-proxy/src
 #           node_modules/.bin/webpack --config src/webpack-production.config.js --progress --bail
 
 ADD        dropins /
+RUN        chmod 644 /etc/logrotate.conf /etc/logrotate.d/webhare-nginx-proxy.conf

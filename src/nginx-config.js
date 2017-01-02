@@ -118,7 +118,7 @@ http {
         config +=
             `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl http2":""};\n`;
 
-        let idx = allports.findIndex(a => (comparePorts(a, port) == 0));
+        let idx = allports.findIndex(a => (comparePorts(a, port) === 0));
         if (idx === -1)
           allports.push(port);
       });
@@ -132,7 +132,7 @@ http {
 
         config +=
             "    ssl_certificate " + cert.cert_path + ";\n"
-          + "    ssl_certificate_key " + cert.key_path + ";\n"
+          + "    ssl_certificate_key " + cert.key_path + ";\n";
 
         if (client.ssl_ciphers)
         {
@@ -152,14 +152,14 @@ http {
 
   allports.forEach(port =>
   {
-    if(port.port == 443 && !port.ssl)
+    if(port.port === 443 && !port.ssl)
       return;
 
     config +=
         `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl":""} default_server;\n`;
   });
 
-  var ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
+  let ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
 
   config +=
       "    ssl_certificate " + ssl_config_dir + "/ssl.crt;\n"
@@ -190,7 +190,7 @@ function testNginxConfig(configdata)
     if (process_result !== 0)
       throw new Error("Validation error: " + output.stdout + output.stderr);
 
-    return process_result == 0;
+    return process_result === 0;
   });
 }
 
@@ -218,7 +218,7 @@ function applyNginxConfig(configdata, saveconfig)
     output = yield output;
 
     // Test if reload went ok
-    if (process_result != 0)
+    if (process_result !== 0)
       throw new Error("Error reloading new configuration: " + output.stdout + output.stderr);
 
     if (saveconfig)
