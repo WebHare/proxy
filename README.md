@@ -2,11 +2,6 @@
 
 This project contains the configuration server for a webhare reverse proxy.
 
-## Packaging etc
-We've removed the package from github.com from now. we may put it back once we've
-decided how we'll solve the gitlab-registry.b-lex.com/webhare_com/servermanagement:nginx-machine-latest dependency
-as we don't want to duplicate that work but don't want to publish the full webhare_com/servermanagement repository
-
 ## Installation
 You should set up a data dir for the /opt/webhare-proxy/data/ volume.
 

@@ -15,14 +15,14 @@ VOLUME     /opt/webhare-proxy-data/
 CMD        [ "/sbin/my_init" ]
 
 RUN        apt-get update && \
-           apt-get install -y nginx-full git logrotate && \
+           apt-get install -y nginx-full git && \
            apt-get clean && rm -rf /tmp/* /var/tmp/*
 
 ADD        package.json /opt/webhare-nginx-proxy/package.json
 
 RUN        cd /opt/webhare-nginx-proxy && \
            npm install && \
-           npm cache clear #2016-08-09 23:52
+           npm cache clear --force
 
 ADD        .eslintrc /opt/webhare-nginx-proxy
 
