@@ -14,7 +14,8 @@ EXPOSE     80 443 5443
 VOLUME     /opt/webhare-proxy-data/
 CMD        [ "/sbin/my_init" ]
 
-RUN        apt-get update && \
+RUN        ( curl -sL https://deb.nodesource.com/setup_8.x | bash - ) && \
+           apt-get update && \
            apt-get install -y nginx-full git nodejs && \
            apt-get clean && rm -rf /tmp/* /var/tmp/*
 
