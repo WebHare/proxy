@@ -2,15 +2,26 @@
 
 stages:
   - build
+  - deploy
 
+# the TAG variable is also used by the docker.sh script
 variables:
-  TAG: gitlab-registry.b-lex.com/$CI_PROJECT_PATH:$CI_BUILD_REF_NAME
+  TAG: $CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME
 
 before_script:
-  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN gitlab-registry.b-lex.com
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  - set | grep ^CI
 
 buildmachine:
   stage: build
   script:
     - ./docker.sh build
     - docker push $TAG
+
+taggedpush:
+  stage: deploy
+  only:
+    - tags
+  script:
+    - docker tag $TAG $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG

@@ -1,5 +1,5 @@
-FROM       gitlab-registry.b-lex.com/webhare_com/servermanagement:base-phusion-latest
-MAINTAINER Arnold Hendriks <arnold@b-lex.nl>
+FROM       phusion/baseimage:0.9.22
+MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 # To test, something like:  (you always want to persist a volume or you'll have to wait for DH parameter generation every test, which takes a LONG time)
 # docker run --rm -v ~/my-nginx-proxy/data:/opt/webhare-proxy-data/ -p 8081:80 -p 8082:443 -p 8083:5443 --name my-nginx-proxy gitlab-registry.b-lex.com/webhare_com/servermanagement:nginx-proxy-latest
@@ -15,10 +15,10 @@ VOLUME     /opt/webhare-proxy-data/
 CMD        [ "/sbin/my_init" ]
 
 RUN        apt-get update && \
-           apt-get install -y nginx-full git && \
+           apt-get install -y nginx-full git nodejs && \
            apt-get clean && rm -rf /tmp/* /var/tmp/*
 
-ADD        package.json /opt/webhare-nginx-proxy/package.json
+ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
 
 RUN        cd /opt/webhare-nginx-proxy && \
            npm install && \
