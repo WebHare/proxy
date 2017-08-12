@@ -46,6 +46,7 @@ http {
                     '"$http_x_forwarded_for" $sent_http_content_type $request_time';
 
   access_log /opt/webhare-proxy-data/log/access.log main;
+  large_client_header_buffers 4 16k;
 
   sendfile            on;
   tcp_nopush          on;
