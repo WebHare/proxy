@@ -36,5 +36,5 @@ dockerhubpush:
   only:
     - tags
   script:
-    - docker tag $TAG webhare/nginx-proxy:$CI_COMMITTAG
-    - docker push webhare/nginx-proxy:$CI_COMMITTAG
+    - docker tag $TAG webhare/nginx-proxy:$CI_COMMIT_TAG
+    - docker push webhare/nginx-proxy:$CI_COMMIT_TAG
