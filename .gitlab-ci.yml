@@ -35,6 +35,6 @@ dockerhubpush:
   stage: deploy
   only:
     - tags
-    script:
+  script:
     - docker tag $TAG webhare/nginx-proxy:$CI_COMMITTAG
     - docker push webhare/nginx-proxy:$CI_COMMITTAG
