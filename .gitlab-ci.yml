@@ -9,8 +9,7 @@ variables:
   TAG: $CI_REGISTRY_IMAGE:$CI_BUILD_REF_NAME
 
 after_script:
-  - docker logout $CI_REGISTRY
-  - docker logout
+  - docker logout $CI_REGISTRY ; docker logout ; true
 
 buildmachine:
   stage: build
