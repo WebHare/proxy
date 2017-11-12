@@ -3,6 +3,7 @@
 const co = require("co");
 const fs = require("fs");
 const crypto = require("crypto");
+const http = require("http");
 const https = require("https");
 const child_process = require("child_process");
 const BasicAuth = require('basic-auth');
@@ -135,18 +136,26 @@ function startServer()
       , cert: certfile
       };
 
-  let server = https.createServer(server_config, (request, response) =>
+  let servercallback = (request, response) =>
   {
     let data = "";
     request.on("data", bytes => data += bytes);
     request.on("end", () => handleRequest(request, data, response));
-  });
+  };
+
+  let server = https.createServer(server_config, servercallback);
+
+  let localhostserver = null;
+  if(Config.localhostport)
+    localhostserver = http.createServer({}, servercallback);
 
   console.log("Regenerate nginx configuration");
   updateConfiguration();
 
   console.log("Listening for requests");
   server.listen(Config.portnumber);
+  if(localhostserver)
+    localhostserver.listen(Config.localhostport, '127.0.0.1');
 }
 
 function run()
