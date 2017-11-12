@@ -147,7 +147,7 @@ function startServer()
 
   let localhostserver = null;
   if(Config.localhostport)
-    localhostserver = http.createServer({}, servercallback);
+    localhostserver = http.createServer(servercallback);
 
   console.log("Regenerate nginx configuration");
   updateConfiguration();

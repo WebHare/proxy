@@ -34,9 +34,19 @@ HERE
   exit 1
 fi
 
+if [ "$1" == "push" ]; then #undocumented as it hits our internal project repo anyway
+  TAG="gitlab-registry.b-lex.com/webhare/nginx-proxy:devbuild"
+fi
+
 if ! docker build --pull -t $TAG . ; then
   echo "Docker build failed"
   exit 1
+fi
+
+if [ "$1" == "push" ]; then
+  docker push $TAG
+  echo "Pushed $TAG"
+  exit 0
 fi
 
 if [ "$1" == "run" ]; then

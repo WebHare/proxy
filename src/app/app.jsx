@@ -18,7 +18,7 @@ async function updateUI()
   try
   {
 //    console.log("Fetch with counter:", state.counter);
-    let fetchresult = await fetch("/rpc",
+    let fetchresult = await fetch(location.origin + "/rpc", //location.origin to work around Request cannot be constructed from a URL that includes credentials
       { method: "post"
       , credentials: 'same-origin'
       , headers:

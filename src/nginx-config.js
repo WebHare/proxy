@@ -69,7 +69,7 @@ http {
   gzip on;
   gzip_vary on;
   gzip_proxied any;
-  gzip_types text/html text/xml application/json application/xml text/css application/javascript text/plain text/csv text/calendar text/x-vcard;
+  gzip_types text/xml application/json application/xml text/css application/javascript text/plain text/csv text/calendar text/x-vcard;
 `;
   let allports = [];
 

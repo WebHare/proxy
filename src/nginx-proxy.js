@@ -30,7 +30,7 @@ if (opt.options.localhostport)
     Config.localhostport = parseInt(opt.options.localhostport);
 }
 else if (process.env.NGINXPROXY_LOCALHOSTPORT)
-  Config.localhostport = parseInt(opt.options.localhostport);
+  Config.localhostport = parseInt(process.env.NGINXPROXY_LOCALHOSTPORT);
 
 if(opt.options.configfolder)
   Config.data_storage_path = opt.options.configfolder;
