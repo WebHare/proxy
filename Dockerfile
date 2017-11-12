@@ -16,7 +16,7 @@ CMD        [ "/sbin/my_init" ]
 
 RUN        ( curl -sL https://deb.nodesource.com/setup_8.x | bash - ) && \
            apt-get update && \
-           apt-get install -y nginx-full git nodejs && \
+           apt-get install -y nginx-full git nodejs tzdata && \
            apt-get clean && rm -rf /tmp/* /var/tmp/*
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
