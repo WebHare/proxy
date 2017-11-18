@@ -3,7 +3,7 @@ cd ${BASH_SOURCE%/*}
 
 CONTAINERNAME=testproxy
 if [ -z "$TAG" ]; then
-  TAG=nginx-proxy
+  TAG=webhare/nginx-proxy:devbuild
 fi
 
 DOCKERARGS="-v `pwd`/runtimedata:/opt/webhare-proxy-data/ -p 41080:80 -p 41443:443 -p 45443:5443 --name $CONTAINERNAME"

@@ -77,6 +77,8 @@ http {
   if(ip4bindto)
     ip4bindto += ':';
 
+  let serverprolog = "    server_tokens off;\n";
+
   Config.clients.forEach(client =>
   {
     if (client.id === override_id)
@@ -108,8 +110,7 @@ http {
 
     client.hosts.forEach(host =>
     {
-      config +=
-          "  server {\n";
+      config += "  server { \n" + serverprolog;
 
       host.ports.forEach(port =>
       {
@@ -148,8 +149,7 @@ http {
     });
   });
 
-  config +=
-      "  server {\n";
+  config += "  server { \n" + serverprolog;
 
   allports.forEach(port =>
   {
