@@ -1,4 +1,4 @@
-# https://gitlab.b-lex.com/webhare/nginx-proxy/pipelines
+# https://gitlab.webhare.com/webhare/nginx-proxy/pipelines
 
 stages:
   - build

@@ -35,7 +35,7 @@ HERE
 fi
 
 if [ "$1" == "push" ]; then #undocumented as it hits our internal project repo anyway
-  TAG="gitlab-registry.b-lex.com/webhare/nginx-proxy:devbuild"
+  TAG="gitlab-registry.webhare.com/webhare/nginx-proxy:devbuild"
 fi
 
 if ! docker build --pull -t $TAG . ; then

@@ -2,10 +2,10 @@ FROM       phusion/baseimage:0.9.22
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 # To test, something like:  (you always want to persist a volume or you'll have to wait for DH parameter generation every test, which takes a LONG time)
-# docker run --rm -v ~/my-nginx-proxy/data:/opt/webhare-proxy-data/ -p 8081:80 -p 8082:443 -p 8083:5443 --name my-nginx-proxy gitlab-registry.b-lex.com/webhare_com/servermanagement:nginx-proxy-latest
+# docker run --rm -v ~/my-nginx-proxy/data:/opt/webhare-proxy-data/ -p 8081:80 -p 8082:443 -p 8083:5443 --name my-nginx-proxy gitlab-registry.webhare.com/webhare_com/servermanagement:nginx-proxy-latest
 
 # to run a shell inside the container (debugging)
-# docker run --rm -v ~/my-nginx-proxy/data:/opt/webhare-proxy-data/ -p 8081:80 -p 8082:443 -p 8083:5443 --name my-nginx-proxy -ti gitlab-registry.b-lex.com/webhare_com/servermanagement:nginx-proxy-latest /bin/sh
+# docker run --rm -v ~/my-nginx-proxy/data:/opt/webhare-proxy-data/ -p 8081:80 -p 8082:443 -p 8083:5443 --name my-nginx-proxy -ti gitlab-registry.webhare.com/webhare_com/servermanagement:nginx-proxy-latest /bin/sh
 
 # to get the secret key from the container for setting up connections (and currently, management)
 # docker exec my-nginx-proxy /root/get-proxy-key.sh
