@@ -1,2 +1,2 @@
 #!/bin/bash
-cat /opt/webhare-proxy-data/etc/secret.key
+exec /opt/container/get-proxy-key.sh
