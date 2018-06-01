@@ -1,4 +1,4 @@
-FROM       phusion/baseimage:0.9.22
+FROM       unilynx/phusion-baseimage-1804:1.0.3
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 # To test, something like:  (you always want to persist a volume or you'll have to wait for DH parameter generation every test, which takes a LONG time)
@@ -14,10 +14,8 @@ EXPOSE     80 443 5443
 VOLUME     /opt/webhare-proxy-data/
 CMD        [ "/sbin/my_init" ]
 
-RUN        ( curl -sL https://deb.nodesource.com/setup_8.x | bash - ) && \
-           apt-get update && \
-           apt-get install -y nginx-full git nodejs tzdata && \
-           apt-get clean && rm -rf /tmp/* /var/tmp/*
+RUN        ( curl -sL https://deb.nodesource.com/setup_10.x | bash - ) && \
+           install_clean nginx-full git nodejs tzdata
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
 

@@ -32,11 +32,10 @@ cd ~/projects/nginx-proxy
 
 To get the proxy key, use
 ```
-./docker.sh getproxykey
+docker exec testproxy /opt/container/get-proxy-key.sh
 ```
 
-You can then access the management interface on https://127.0.0.1:45443/ using
-user 'webhare' and the proxykey obtained above
+You can then access the management interface on https://127.0.0.1:45443/ using user 'webhare' and the proxykey obtained above
 
 To connect this nginx-proxy back to WebHare on OSX:
 - Add an extra loopback address for testing, eg `sudo ifconfig lo0 alias 10.55.55.55` - machines in docker will be able to connect here
@@ -47,9 +46,3 @@ To connect this nginx-proxy back to WebHare on OSX:
 
 The docker container publishes its internal ports 80 and 443 on 41080 and 41443, so your sites
 should be available on these ports (eg https://webhare.moe.sf.b-lex.com:41443/ )
-
-## Development subcommands
-Get the proxy key (used to connect)
-```
-./docker.sh getproxykey
-```

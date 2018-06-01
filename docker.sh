@@ -19,7 +19,7 @@ if [ "$1" == "shell" ]; then
   exec docker exec -ti $CONTAINERNAME /bin/bash
 fi
 if [ "$1" == "getproxykey" ]; then
-  exec docker exec $CONTAINERNAME /root/get-proxy-key.sh
+  exec docker exec $CONTAINERNAME /opt/container/get-proxy-key.sh
 fi
 
 if [ "$1" != "build" -a "$1" != "push" -a "$1" != "run" -a "$1" != "runline" -a "$1" != "runshell" ]; then
@@ -32,10 +32,6 @@ if [ "$1" != "build" -a "$1" != "push" -a "$1" != "run" -a "$1" != "runline" -a 
 - runlive:     Build and run like live (no src/ mount)
 HERE
   exit 1
-fi
-
-if [ "$1" == "push" ]; then #undocumented as it hits our internal project repo anyway
-  TAG="gitlab-registry.webhare.com/webhare/nginx-proxy:devbuild"
 fi
 
 if ! docker build --pull -t $TAG . ; then

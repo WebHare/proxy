@@ -66,6 +66,9 @@ http {
   ssl_session_cache shared:SSL:10m;
   ssl_session_timeout 10m;
 
+  #20 m = about 160.000 keys
+  proxy_cache_path /opt/webhare-proxy-data/cache/maincache levels=1:2 keys_zone=maincache:20m max_size=10g inactive=240m use_temp_path=off;
+
   gzip on;
   gzip_vary on;
   gzip_proxied any;
