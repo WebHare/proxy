@@ -1,4 +1,4 @@
-FROM       unilynx/phusion-baseimage-1804:1.0.3
+FROM       phusion/baseimage:0.11
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 # To test, something like:  (you always want to persist a volume or you'll have to wait for DH parameter generation every test, which takes a LONG time)
