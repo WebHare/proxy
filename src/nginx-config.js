@@ -60,7 +60,7 @@ http {
 
   server_names_hash_bucket_size 256;
 
-  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_protocols TLSv1.2;
   ssl_dhparam /opt/webhare-proxy-data/etc/webhare-proxy-dhparam.pem;
   ssl_prefer_server_ciphers on;
   ssl_session_cache shared:SSL:10m;
@@ -168,7 +168,7 @@ http {
   config +=
       "    ssl_certificate " + ssl_config_dir + "/ssl.crt;\n"
     + "    ssl_certificate_key " + ssl_config_dir + "/ssl.key;\n"
-    + "    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;\n"
+    + "    ssl_protocols TLSv1.2;\n"
     + "    server_name _;\n"
     + "    return 404;\n"
     + "  }\n"
