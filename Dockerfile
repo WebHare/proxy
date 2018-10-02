@@ -12,7 +12,7 @@ MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 EXPOSE     80 443 5443
 VOLUME     /opt/webhare-proxy-data/
-CMD        [ "/sbin/my_init" ]
+CMD        [ "/opt/container/launch.sh" ]
 
 RUN        ( curl -sL https://deb.nodesource.com/setup_10.x | bash - ) && \
            install_clean nginx-full git nodejs tzdata
@@ -31,6 +31,9 @@ ADD        src /opt/webhare-nginx-proxy/src
 # We always start watch in the container, so it's fine
 #RUN        cd /opt/webhare-nginx-proxy && \
 #           node_modules/.bin/webpack --config src/webpack-production.config.js --progress --bail
+
+# Move logrotate state into container state
+RUN        rm -rf /var/lib/logrotate && ln -sf /opt/webhare-proxy-data/var/logrotate /var/lib/
 
 ADD        dropins /
 RUN        chmod 644 /etc/logrotate.conf /etc/logrotate.d/webhare-nginx-proxy.conf
