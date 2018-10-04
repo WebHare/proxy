@@ -15,7 +15,7 @@ VOLUME     /opt/webhare-proxy-data/
 CMD        [ "/opt/container/launch.sh" ]
 
 RUN        ( curl -sL https://deb.nodesource.com/setup_10.x | bash - ) && \
-           install_clean nginx-full git nodejs tzdata
+           install_clean nginx-full git nodejs tzdata letsencrypt
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
 
@@ -34,6 +34,13 @@ ADD        src /opt/webhare-nginx-proxy/src
 
 # Move logrotate state into container state
 RUN        rm -rf /var/lib/logrotate && ln -sf /opt/webhare-proxy-data/var/logrotate /var/lib/
+
+# Move letsencrypt data folders to permanent storage
+RUN        rm -rf /etc/letsencrypt /var/lib/letsencrypt /var/log/letsencrypt/ \
+            && ln -sf /opt/webhare-proxy-data/letsencrypt/etc /etc/letsencrypt \
+            && ln -sf /opt/webhare-proxy-data/letsencrypt/lib /var/lib/letsencrypt \
+            && ln -sf /opt/webhare-proxy-data/letsencrypt/log /var/log/letsencrypt
+
 
 ADD        dropins /
 RUN        chmod 644 /etc/logrotate.conf /etc/logrotate.d/webhare-nginx-proxy.conf

@@ -1,0 +1,3 @@
+MAILTO=
+
+0 5 * * Sun,Wed  root /opt/container/update-certbot.sh

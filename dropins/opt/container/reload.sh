@@ -7,4 +7,4 @@ fi
 
 # flush the authcache as it's convenient SV reconfigure <server> just fixes stuff
 rm -rf /opt/webhare-proxy-data/cache/authcache/*
-nginx -s reload
+nginx -s reload >/dev/null 2>&1
