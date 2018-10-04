@@ -40,10 +40,14 @@ events {
 }
 
 http {
+  resolver 8.8.8.8 8.8.4.4; # FIXME or use the parent machine's local unbound
+
+  # Alphabetical index of variables: http://nginx.org/en/docs/varindex.html
   log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                     '$status $body_bytes_sent "$http_referer" '
                     '"$http_user_agent" $host $server_port $content_length '
-                    '"$http_x_forwarded_for" $sent_http_content_type $request_time';
+                    '"$http_x_forwarded_for" "$sent_http_content_type" $upstream_addr '
+                    'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
 
   access_log /opt/webhare-proxy-data/log/access.log main;
   large_client_header_buffers 4 16k;
@@ -68,6 +72,7 @@ http {
 
   #20 m = about 160.000 keys
   proxy_cache_path /opt/webhare-proxy-data/cache/maincache levels=1:2 keys_zone=maincache:20m max_size=10g inactive=240m use_temp_path=off;
+  proxy_cache_path /opt/webhare-proxy-data/cache/authcache levels=1:2 keys_zone=authcache:10m max_size=1g  inactive=60m  use_temp_path=off;
 
   gzip on;
   gzip_vary on;
