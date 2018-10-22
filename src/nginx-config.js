@@ -47,6 +47,7 @@ http {
                     '$status $body_bytes_sent "$http_referer" '
                     '"$http_user_agent" $host $server_port $content_length '
                     '"$http_x_forwarded_for" "$sent_http_content_type" $upstream_addr '
+                    '$ssl_protocol $ssl_cipher'
                     'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
 
   access_log /opt/webhare-proxy-data/log/access.log main;
