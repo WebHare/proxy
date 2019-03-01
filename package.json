@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/WebHare/proxy.git"
   },
-  "author": "B-Lex IT BV",
+  "author": "WebHare bv",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/WebHare/proxy/issues"
@@ -43,5 +43,5 @@
     "material-ui": "^0.15.0"
   },
   "private": true,
-  "homepage": "https://github.com/WebHare/proxy#readme"
+  "homepage": "https://gitlab.com/webhare/proxy#readme"
 }
