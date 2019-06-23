@@ -1,32 +1,39 @@
-# https://gitlab.webhare.com/webhare/nginx-proxy/pipelines
+# Pipelines: https://gitlab.com/webhare/proxy/pipelines
+
+image: docker:latest
+
+services:
+  - docker:dind
 
 stages:
-  - build
-  - deploy
+- build
+# - test
+- push
 
-# the TAG variable is also used by the docker.sh script
-variables:
-  TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-
-before_script:
-  - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-
-after_script:
-  - docker logout $CI_REGISTRY
-  - docker logout
-
-buildmachine:
+buildimage:
+  artifacts:
+    paths:
+      - docker-images
   stage: build
   script:
-    - ./docker.sh build
-    - docker push $TAG
+    - mkdir docker-images
+    - docker build --pull --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG .
+    - docker save $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG > docker-images/app.tar
 
-taggedpush:
-  stage: deploy
+#testimage:
+#  stage: test
+#  script:
+#    - docker load -i docker-images/app.tar
+#    - docker run --rm -e CI_PROJECT_URL="$CI_PROJECT_URL" -e CI_COMMIT_SHA="$CI_COMMIT_SHA" $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG /root/test.sh
+
+pushimage:
+  stage: push
+  only:
+    - master
   except:
     - schedules
   script:
+    - docker load -i docker-images/app.tar
     - echo $DOCKERHUB_REGISTRY_PASSWORD | docker login -u $DOCKERHUB_REGISTRY_USER --password-stdin
-    - docker pull $TAG
-    - docker tag $TAG webhare/proxy:$CI_COMMIT_REF_NAME
-    - docker push webhare/proxy:$CI_COMMIT_REF_NAME
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+

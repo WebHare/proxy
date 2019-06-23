@@ -10,8 +10,9 @@ The proxy also allows you to host multiple instances of WebHare on the same prox
 You should set up a data dir for the /opt/webhare-proxy/data/ volume.
 
 Example docker calling syntax which assumes /dockers/my-nx/proxy-data/ will host the volume
+
 ```
-/usr/bin/docker run --name my-nx -p 80:80 -p 443:443 -p 5443:5443 -v /dockers/my-nx/proxy-data/:/opt/webhare-proxy-data/ webhare/proxy:master
+docker run --name my-nx -p 80:80 -p 443:443 -p 5443:5443 -v /dockers/my-nx/proxy-data/:/opt/webhare-proxy-data/ webhare/proxy:master
 ```
 
 Alternatively, you can run the docker container in the 'host' network namespace (`--network host`). You may find you need this to properly capture client's IP addresses, especially over IPv6.
@@ -27,3 +28,4 @@ Extra configuration files can also be dropped as `*.conf` into `/opt/webhare-pro
 
 If you're using the host network namespcae, nginx can be told to bind to a specific IPv4 address by setting the NGINX_BINDTO_IPV4 environment variable.
 
+FIXME - connectie met 5443 uitleggen, opvragen van keys uitleggen
