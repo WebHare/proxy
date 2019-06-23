@@ -17,23 +17,24 @@ buildimage:
   stage: build
   script:
     - mkdir docker-images
-    - docker build --pull --tag webhare/proxy:$CI_COMMIT_REF_SLUG .
-    - docker save webhare/proxy:$CI_COMMIT_REF_SLUG > docker-images/app.tar
+    - docker build --pull --tag webhare/proxy:$CI_COMMIT_REF_NAME .
+    - docker save webhare/proxy:$CI_COMMIT_REF_NAME > docker-images/app.tar
 
 #testimage:
 #  stage: test
 #  script:
 #    - docker load -i docker-images/app.tar
-#    - docker run --rm -e CI_PROJECT_URL="$CI_PROJECT_URL" -e CI_COMMIT_SHA="$CI_COMMIT_SHA" webhare/proxy:$CI_COMMIT_REF_SLUG /root/test.sh
+#    - docker run --rm -e CI_PROJECT_URL="$CI_PROJECT_URL" -e CI_COMMIT_SHA="$CI_COMMIT_SHA" webhare/proxy:$CI_COMMIT_REF_NAME /root/test.sh
 
 pushimage:
   stage: push
   only:
     - master
+    - tags
   except:
     - schedules
   script:
     - docker load -i docker-images/app.tar
     - echo $DOCKERHUB_REGISTRY_PASSWORD | docker login -u $DOCKERHUB_REGISTRY_USER --password-stdin
-    - docker push webhare/proxy:$CI_COMMIT_REF_SLUG
+    - docker push webhare/proxy:$CI_COMMIT_REF_NAME
 
