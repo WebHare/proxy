@@ -20,6 +20,11 @@ Alternatively, you can run the docker container in the 'host' network namespace 
 The first time the container is started, it will generate new DH parameters. This may take quite a while.
 The management interface on port 5443 will not be available until this is done.
 
+## Management
+The proxy offers a management interface on port 5443 which is reachable over https (and uses as self-signed certificate)
+
+You can login using the proxy key as the password
+
 ## Customizing
 
 Extra nginx configuration files can be dropped as `*.conf` into `/opt/webhare-proxy-data/etc/nginx-http/` - they will be included inside the 'http' section.
@@ -27,5 +32,3 @@ Extra nginx configuration files can be dropped as `*.conf` into `/opt/webhare-pr
 Extra configuration files can also be dropped as `*.conf` into `/opt/webhare-proxy-data/etc/nginx-other/` - they will be included at the root level.
 
 If you're using the host network namespcae, nginx can be told to bind to a specific IPv4 address by setting the NGINX_BINDTO_IPV4 environment variable.
-
-FIXME - connectie met 5443 uitleggen, opvragen van keys uitleggen
