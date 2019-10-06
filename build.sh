@@ -3,7 +3,7 @@ cd ${BASH_SOURCE%/*}
 
 # WebHare/SV integration
 
-export TAG="gitlab-registry.webhare.com/webhare/nginx-proxy:devbuild"
+export TAG="gitlab-registry.webhare.com/webhare/proxy:devbuild"
 if ! ./docker.sh build ; then
   echo Build failed
   exit
