@@ -76,7 +76,7 @@ http {
 
   gzip on;
   gzip_vary on;
-  gzip_proxied any;
+  gzip_proxied no_etag;
   gzip_types text/xml application/json application/xml text/css application/javascript text/plain text/csv text/calendar text/x-vcard;
 `;
   let allports = [];
