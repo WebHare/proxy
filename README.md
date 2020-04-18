@@ -1,10 +1,11 @@
 # WebHare Proxy
+https://gitlab.com/webhare/proxy
 
 This project contains the configuration server for a WebHare reverse proxy. This nginx based proxy can help to take
-some load off WebHare, implements SNI allowing you to host mulitple secure websites with separate SSL certificates on a single
+some load off WebHare and implements SNI allowing you to host mulitple secure websites with separate SSL certificates on a single
 IP address (which is not natively supported by the WebHare webserver).
 
-The proxy also allows you to host multiple instances of WebHare on the same proxy.
+The proxy also allows you to host multiple instances of WebHare on the same proxy and IP address.
 
 ## Installation
 You should set up a data dir for the /opt/webhare-proxy/data/ volume.
@@ -32,3 +33,6 @@ Extra nginx configuration files can be dropped as `*.conf` into `/opt/webhare-pr
 Extra configuration files can also be dropped as `*.conf` into `/opt/webhare-proxy-data/etc/nginx-other/` - they will be included at the root level.
 
 If you're using the host network namespcae, nginx can be told to bind to a specific IPv4 address by setting the NGINX_BINDTO_IPV4 environment variable.
+
+## Making a new release
+The CI scripts take care of deploying to Docker. Simply push a new tag
