@@ -10,13 +10,10 @@ if ! ./docker.sh build ; then
 fi
 
 if [ "$1" == "--push" ]; then
-  docker push $TAG
-  echo Pushed: $TAG
-fi
-
-if [ "$1" == "--push-if-pushed" ]; then
-  if [ "$CI_PIPELINE_SOURCE" == "push" ]; then
-    push=1
+  if ! docker push $TAG ; then
+    echo Push failed for tag: $TAG
+    echo You may need to login: docker login
+    exit 1
   fi
-  shift
+  echo Pushed: $TAG
 fi
