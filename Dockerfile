@@ -10,7 +10,7 @@ CMD        [ "/opt/container/launch.sh" ]
 # Add letsencrypt's repo - https://certbot.eff.org/lets-encrypt/ubuntubionic-other
 RUN        ( curl -sL https://deb.nodesource.com/setup_10.x | bash - ) && \
            apt-get update && \
-           apt-get install software-properties-common && \
+           apt-get --yes install software-properties-common && \
            add-apt-repository universe && \
            add-apt-repository ppa:certbot/certbot && \
            install_clean nginx-full git nodejs tzdata letsencrypt
