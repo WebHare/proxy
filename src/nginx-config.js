@@ -37,7 +37,6 @@ include             /opt/webhare-proxy-data/etc/nginx-other/*.conf;
 
 events {
   worker_connections 10000;
-  worker_processes auto;
 }
 
 http {
