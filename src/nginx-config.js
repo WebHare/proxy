@@ -36,7 +36,7 @@ pid /var/run/nginx.pid;
 include             /opt/webhare-proxy-data/etc/nginx-other/*.conf;
 
 events {
-  worker_connections 10000;
+  worker_connections 25000;
 }
 
 http {
