@@ -65,7 +65,7 @@ http {
   server_names_hash_bucket_size 256;
 
   ssl_protocols TLSv1.2;
-  ssl_dhparam /opt/webhare-proxy-data/etc/webhare-proxy-dhparam.pem;
+  ssl_dhparam /etc/ffdhe3072.pem;
   ssl_prefer_server_ciphers on;
   ssl_session_cache shared:SSL:10m;
   ssl_session_timeout 10m;
