@@ -12,6 +12,7 @@ const GetOpt = require('node-getopt');
 let opt = require('node-getopt').create(
 [ ['' ,  'configfolder=FOLDER' , 'configfolder, defaults to ' + Config.data_storage_path ],
   ['p' , 'port=PORT'           , 'port, defaults to ' + Config.portnumber ],
+  ['' ,  'localhostport=PORT'  , 'open http localhost-only port' ],
   ['h' , 'help'                , 'display this help'],
   ['',   'resetconfig'         , 'generate empty configuration and exit'],
   ['',   'install'             , 'install as service'],
@@ -21,7 +22,15 @@ let opt = require('node-getopt').create(
 .parseSystem(); // parse command line
 
 if (parseInt(opt.options.port))
-  Config.listenport = parseInt(opt.options.port);
+  Config.portnumber = parseInt(opt.options.port);
+
+if (opt.options.localhostport)
+{
+  if(parseInt(opt.options.localhostport))
+    Config.localhostport = parseInt(opt.options.localhostport);
+}
+else if (process.env.NGINXPROXY_LOCALHOSTPORT)
+  Config.localhostport = parseInt(process.env.NGINXPROXY_LOCALHOSTPORT);
 
 if(opt.options.configfolder)
   Config.data_storage_path = opt.options.configfolder;
@@ -32,5 +41,6 @@ if(opt.options.resetconfig)
 }
 else
 {
+  console.log("Running on port " + Config.portnumber);
   Server.run();
 }
