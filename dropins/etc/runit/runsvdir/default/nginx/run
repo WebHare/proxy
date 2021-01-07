@@ -1,2 +1,6 @@
 #!/bin/bash
+while [ ! -f /opt/webhare-proxy-data/etc/nginx.conf ]; do
+  echo "nginx is waiting for its config file to appear..."
+  sleep 300
+done
 exec /usr/sbin/nginx -c /opt/webhare-proxy-data/etc/nginx.conf -g 'daemon off;'

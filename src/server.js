@@ -110,23 +110,8 @@ let updateConfiguration = co.wrap(function * updateConfiguration()
 function startServer()
 {
   var ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
-  let keyfile, certfile;
-  try
-  {
-    keyfile = fs.readFileSync(ssl_config_dir + "/ssl.key").toString() || "";
-  }
-  catch (e)
-  {
-    fs.writeFileSync(ssl_config_dir + "/ssl.key", "");
-  }
-  try
-  {
-    certfile = fs.readFileSync(ssl_config_dir + "/ssl.crt").toString() || "";
-  }
-  catch (e)
-  {
-    fs.writeFileSync(ssl_config_dir + "/ssl.crt", "");
-  }
+  let keyfile  = fs.readFileSync(ssl_config_dir + "/ssl.key").toString() || "";
+  let certfile = fs.readFileSync(ssl_config_dir + "/ssl.crt").toString() || "";
 
   if (!keyfile || !certfile)
     throw new Error("Could not read SSL config from " + ssl_config_dir);

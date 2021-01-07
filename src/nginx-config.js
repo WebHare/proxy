@@ -85,6 +85,7 @@ http {
   if(ip4bindto)
     ip4bindto += ':';
 
+  let ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
   let serverprolog = "    server_tokens off;\n";
 
   Config.clients.forEach(client =>
@@ -168,7 +169,6 @@ http {
         `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl":""} default_server;\n`;
   });
 
-  let ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
 
   config +=
       "    ssl_certificate " + ssl_config_dir + "/ssl.crt;\n"
@@ -220,15 +220,27 @@ function applyNginxConfig(configdata, saveconfig)
 
     fs.writeFileSync(testpath, configdata);
 
-    // Reload the configuration of nginx
-    let process;
-    let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -s reload", (e, stdout, stderr) => resolve({ e, stdout, stderr })));
-    let process_result = yield new Promise(resolve => process.on("exit", resolve));
-    output = yield output;
+    // Reload the configuration of nginx if its running
+    let nginxpid;
+    try
+    {
+      nginxpid = fs.readFileSync("/var/run/nginx.pid");
+    }
+    catch(ignore)
+    {
 
-    // Test if reload went ok
-    if (process_result !== 0)
-      throw new Error("Error reloading new configuration: " + output.stdout + output.stderr);
+    }
+    if(nginxpid && nginxpid.toString())
+    {
+      let process;
+      let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -s reload", (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+      let process_result = yield new Promise(resolve => process.on("exit", resolve));
+      output = yield output;
+
+      // Test if reload went ok
+      if (process_result !== 0)
+        throw new Error("Error reloading new configuration: " + output.stdout + output.stderr);
+    }
 
     if (saveconfig)
       Config.write();

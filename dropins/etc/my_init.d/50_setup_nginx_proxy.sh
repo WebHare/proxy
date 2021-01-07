@@ -2,6 +2,7 @@
 mkdir -p /opt/webhare-proxy-data/etc/nginx-http /opt/webhare-proxy-data/{var,log,cache}
 chown www-data /opt/webhare-proxy-data/cache/
 
+mkdir -p /opt/webhare-proxy-data/etc/ssl_config
 if [ ! -f /opt/webhare-proxy-data/etc/nginx.conf ]; then
   echo "** Creating initial configuration"
   /opt/webhare-nginx-proxy/src/nginx-proxy.js --resetconfig
