@@ -41,4 +41,4 @@ RUN        rm -rf /etc/letsencrypt /var/lib/letsencrypt /var/log/letsencrypt/ \
 
 
 ADD        dropins /
-RUN        chmod 644 /etc/logrotate.conf /etc/logrotate.d/webhare-nginx-proxy.conf
+RUN        chmod 644 /etc/logrotate.conf /etc/logrotate.d/webhare-nginx-proxy.conf /etc/cron.d/*
