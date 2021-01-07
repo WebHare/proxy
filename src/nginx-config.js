@@ -88,6 +88,42 @@ http {
   let ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
   let serverprolog = "    server_tokens off;\n";
 
+  let adminhostname = process.env["WEBHAREPROXY_ADMINHOSTNAME"];
+  let certpath = `/etc/letsencrypt/live/${adminhostname}/fullchain.pem`;
+  let keypath = `/etc/letsencrypt/live/${adminhostname}/privkey.pem`;
+  if(!fs.existsSync(certpath))
+  {
+    certpath = `${ssl_config_dir}/${adminhostname}.crt`;
+    keypath = `${ssl_config_dir}/${adminhostname}.key`;
+  }
+
+  if(adminhostname)
+  {
+    config += `
+    server {
+      ${serverprolog}
+      listen [::]:80;
+      listen ${ip4bindto}80;
+      listen [::]:443 ssl http2;
+      listen ${ip4bindto}443 ssl http2;
+      server_name ${adminhostname};
+      ssl_certificate ${certpath};
+      ssl_certificate_key ${keypath};
+      ssl_protocols TLSv1.2;
+
+      #FIXME Update to webhare default list:
+      ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256;
+
+      proxy_http_version    1.1;
+    #  proxy_request_buffering off;
+    #  proxy_buffering off;
+      proxy_read_timeout    600s;
+      client_max_body_size  700m;
+      root /opt/adminhost/web/ ;
+    }
+`;
+  }
+
   Config.clients.forEach(client =>
   {
     if (client.id === override_id)
