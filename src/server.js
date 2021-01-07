@@ -109,18 +109,6 @@ let updateConfiguration = co.wrap(function * updateConfiguration()
 /// Starts the RPC server, starts handling incoming RPCs
 function startServer()
 {
-  var ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
-  let keyfile  = fs.readFileSync(ssl_config_dir + "/ssl.key").toString() || "";
-  let certfile = fs.readFileSync(ssl_config_dir + "/ssl.crt").toString() || "";
-
-  if (!keyfile || !certfile)
-    throw new Error("Could not read SSL config from " + ssl_config_dir);
-
-  let server_config =
-      { key: keyfile
-      , cert: certfile
-      };
-
   let servercallback = (request, response) =>
   {
     let data = "";
@@ -128,19 +116,13 @@ function startServer()
     request.on("end", () => handleRequest(request, data, response));
   };
 
-  let server = https.createServer(server_config, servercallback);
-
-  let localhostserver = null;
-  if(Config.localhostport)
-    localhostserver = http.createServer(servercallback);
+  let server = http.createServer(servercallback);
 
   console.log("Regenerate nginx configuration");
   updateConfiguration();
 
-  console.log("Listening for requests");
-  server.listen(Config.portnumber);
-  if(localhostserver)
-    localhostserver.listen(Config.localhostport, '127.0.0.1');
+  console.log("Listening for requests on " + Config.listenip + ":" + Config.listenport);
+  server.listen(Config.listenport, Config.listenip);
 }
 
 function run()

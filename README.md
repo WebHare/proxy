@@ -12,7 +12,7 @@ You should set up a data dir for the /opt/webhare-proxy/data/ volume.
 
 Example docker calling syntax which assumes /dockers/my-nx/proxy-data/ will host the volume
 
-```
+```bash
 docker run --name my-nx -p 80:80 -p 443:443 -p 5443:5443 -v /dockers/my-nx/proxy-data/:/opt/webhare-proxy-data/ webhare/proxy:master
 ```
 
@@ -22,15 +22,19 @@ The first time the container is started, it will generate new DH parameters. Thi
 The management interface on port 5443 will not be available until this is done.
 
 ## Management
-The proxy offers a management interface on port 5443 which is reachable over https (and uses as self-signed certificate)
+The proxy offers a management interface on 127.0.0.1:8080
 
 You can login using the proxy key as the password
+
+If you've configured WEBHAREPROXY_ADMINHOSTNAME and WEBHAREPROXY_LETSENCRYPTEMAIL, you can use `/opt/container/setup-adminhost-certbot.sh` to request a LetsEncrypt certificate for that hostname
 
 ## Customizing
 
 Extra nginx configuration files can be dropped as `*.conf` into `/opt/webhare-proxy-data/etc/nginx-http/` - they will be included inside the 'http' section.
 
 Extra configuration files can also be dropped as `*.conf` into `/opt/webhare-proxy-data/etc/nginx-other/` - they will be included at the root level.
+
+Configuration files dropped as `*.conf` into `/opt/webhare-proxy-data/etc/nginx-adminserver/` will be included on the admin hostname (configured by WEBHAREPROXY_ADMINHOSTNAME)
 
 If you're using the host network namespcae, nginx can be told to bind to a specific IPv4 address by setting the NGINX_BINDTO_IPV4 environment variable.
 

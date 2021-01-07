@@ -78,7 +78,7 @@ class ClientRegistration extends React.Component
   async gotDeleteClientSubmit()
   {
     // Delete the client registration. Main update loop will immediately update the app state
-    let fetchresult = await fetch(location.origin + "/rpc", //location.origin to work around Request cannot be constructed from a URL that includes credentials
+    let fetchresult = await fetch(location.origin + "/admin/rpc", //location.origin to work around Request cannot be constructed from a URL that includes credentials
       { method: "post"
       , credentials: 'same-origin'
       , headers:

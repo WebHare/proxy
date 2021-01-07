@@ -5,8 +5,8 @@ const fs = require("fs");
 
 let config =
   { data_storage_path: "/opt/webhare-proxy-data"
-  , portnumber: 5443
-  , localhostport: 0
+  , listenport: 5080
+  , listenip: "127.0.0.1"
 
   , secretkey: ""
 
