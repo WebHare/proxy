@@ -118,7 +118,7 @@ exports.guiUnregisterProxyClient = co.wrap(function * registerProxyClient(server
   if (client)
     Config.clients.splice(Config.clients.indexOf(client), 1);
 
-  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
+  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig(), true);
 
   console.log("Deleted server with id: " + servername);
   return { success: true, found: !!client };
