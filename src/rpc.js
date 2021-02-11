@@ -21,19 +21,51 @@ let verifyClient = co.wrap(function * verifyClient(reverseaddress, verificationu
       { protocol: parsed_reverseaddr.protocol
       , host: parsed_reverseaddr.hostname
       , port: parsed_reverseaddr.port
-      , path: verificationurl
-      , headers:  { Host: parsed_verificationurl.hostname }
+      , path: parsed_verificationurl.path
+      , headers:  { Host: parsed_verificationurl.hostname
+                  , "X-Forwarded-Proto": "https"
+                  }
       }
 
   console.log(options);
 
   return new Promise((resolve, reject) =>
   {
-    http.get(options, res => resolve()).on("error", e =>
+    const req = http.get(options, res =>
+    {
+      let body = "";
+      res.on("data", data => body += data);
+      res.on("end", () =>
+      {
+        console.log('<' + body + '>');
+        if (res.statusCode === 200 && body === "ok")
+          resolve();
+        else if (body === "Wrong proxy verification code")
+        {
+          console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed: wrong verification code");
+          reject(new Error("Proxy verification failed, wrong verification code"));
+        }
+        else if (res.statusCode === 404)
+        {
+          console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed: 404, domain probably not hosted on reverse address");
+          reject(new Error("Proxy verification failed, got 404"));
+        }
+        else
+        {
+          console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed: http code " + res.statusCode + " and unrecognized response");
+          reject(new Error("Proxy verification failed, http code " + res.statusCode + " and unrecognized response"));
+        }
+      })
+    });
+
+    // an error is always problematic
+    req.on("error", e =>
     {
       console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed:", e.message);
       reject(new Error(e.message));
     });
+
+    req.end();
 
     // Also set a timeout
     setTimeout(() =>
