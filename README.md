@@ -22,7 +22,7 @@ The first time the container is started, it will generate new DH parameters. Thi
 The management interface on port 5443 will not be available until this is done.
 
 ## Management
-The proxy offers a management interface on 127.0.0.1:8080
+The proxy offers a management interface on 127.0.0.1:5080
 
 You can login using the proxy key as the password
 
