@@ -7,9 +7,9 @@ const child_process = require("child_process");
 
 const Server = require("./server");
 const Config = require("./config");
-const GetOpt = require('node-getopt');
+const Getopt = require('node-getopt/lib/getopt.js');
 
-let opt = require('node-getopt').create(
+let opt = Getopt.create(
 [ ['' ,  'configfolder=FOLDER' , 'configfolder, defaults to ' + Config.data_storage_path ],
   ['p' , 'port=PORT'           , 'port, defaults to ' + Config.portnumber ],
   ['' ,  'localhostport=PORT'  , 'open http localhost-only port' ],

@@ -30,6 +30,8 @@ function handleRequest(req, postdata, res)
 
   if (req.method == "POST" && req.url.match(/^\/rpc(\?.*)?$/))
     return handleRPCRequest(req, postdata, res);
+  if (req.method == "POST" && req.url.match(/^\/admin\/rpc(\?.*)?$/))
+    return handleRPCRequest(req, postdata, res);
 
   let filename = (req.url.match(/^\/([^?]*)(\?.*)?$/) || [])[1];
   let contenttype = "application/octet-stream";
