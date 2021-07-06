@@ -8,14 +8,14 @@ VOLUME     /opt/webhare-proxy-data/
 CMD        [ "/opt/container/launch.sh" ]
 
 # Add letsencrypt's repo - https://certbot.eff.org/lets-encrypt/ubuntubionic-other
-RUN        ( curl -sL https://deb.nodesource.com/setup_10.x | bash - ) && \
+# Ensure the openssl secure renegotiation vulnerability is fixed
+RUN        ( curl -sL https://deb.nodesource.com/setup_14.x | bash - ) && \
            apt-get update && \
            apt-get --yes install software-properties-common && \
            add-apt-repository universe && \
            add-apt-repository ppa:certbot/certbot && \
-           install_clean nginx-full git nodejs tzdata letsencrypt  # 2021-07-06
-
-RUN        apt-get changelog openssl | grep -q CVE-2021-3449    # Ensure the CVE is known and fixed
+           ( apt-get changelog openssl | grep -q CVE-2021-3449 ) && \
+           install_clean nginx-full git nodejs tzdata letsencrypt
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
 
