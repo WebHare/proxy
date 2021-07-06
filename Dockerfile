@@ -13,7 +13,9 @@ RUN        ( curl -sL https://deb.nodesource.com/setup_10.x | bash - ) && \
            apt-get --yes install software-properties-common && \
            add-apt-repository universe && \
            add-apt-repository ppa:certbot/certbot && \
-           install_clean nginx-full git nodejs tzdata letsencrypt
+           install_clean nginx-full git nodejs tzdata letsencrypt  # 2021-07-06
+
+RUN        apt-get changelog openssl | grep -q CVE-2021-3449    # Ensure the CVE is known and fixed
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
 
