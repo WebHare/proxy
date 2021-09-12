@@ -62,7 +62,7 @@ function saveConfiguration()
   let saved_config = JSON.stringify(
       { clients: config.clients
       , counter: config.counter
-      });
+      }, null, 4); //prettify output
 
   fs.writeFileSync(config.data_storage_path + "/var/config.json", saved_config);
   fs.writeFileSync(config.data_storage_path + "/etc/secret.key", config.secretkey + "\n");

@@ -112,6 +112,7 @@ class ClientRegistration extends React.Component
       };
 
     let lastreg = (new Date(this.props.client.lastregistration)).toLocaleDateString('nl-NL', dtoptions);
+    let lastset = this.props.client.lastset ? (new Date(this.props.client.lastset)).toLocaleDateString('nl-NL', dtoptions) : '';
 
     const deletedialog_actions = [
       <FlatButton
@@ -138,7 +139,7 @@ class ClientRegistration extends React.Component
               <FontIcon className="material-icons" tooltip="Delete" onTouchTap={()=>this.gotDeleteClient()}>delete</FontIcon>
             </ToolbarGroup>
           </Toolbar>
-          <div style={styles.heading}>Last registration: {lastreg}</div>
+          <div style={styles.heading}>Last registration: {lastreg} {lastset ? "set: " + lastset : ""}</div>
           <div style={styles.heading}>Registered server names:</div>
           <List style={styles.hostslist}>
             { hosts.map(host =>
