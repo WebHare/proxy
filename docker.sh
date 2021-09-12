@@ -6,7 +6,7 @@ if [ -z "$TAG" ]; then
   TAG=webhare/nginx-proxy:devbuild
 fi
 
-DOCKERARGS="-v `pwd`/runtimedata:/opt/webhare-proxy-data/ -p 41080:80 -p 41443:443 -p 45443:5443 --name $CONTAINERNAME"
+DOCKERARGS="-v `pwd`/runtimedata:/opt/webhare-proxy-data/ -eWEBHAREPROXY_ADMINHOSTNAME=127.0.0.1 -p 41080:80 -p 41443:443 -p 45443:5443 --name $CONTAINERNAME"
 if [ -n "$NGINX_BINDTO_IPV4" ]; then
   DOCKERARGS="$DOCKERARGS -e NGINX_BINDTO_IPV4=$NGINX_BINDTO_IPV4"
 fi
