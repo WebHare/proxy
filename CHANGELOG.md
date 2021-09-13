@@ -1,4 +1,7 @@
 # Changelog
+## 3.2.0
+- Refuse settings from a WebHare if we already received 'newer' settings for that WebHare.
+  This prevents 'older' restored WebHares from overwriting the proxy configuration of the live server.
 
 ## 3.1.0 - 2021-07-06
 - Fix client verification (response wasn't checked thoroughly)
