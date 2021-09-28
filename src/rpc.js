@@ -132,8 +132,8 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
   if (!testresult)
     throw new Error("Configuration did not validate");
 
-  // Apply the changes to the client, and generate+deploy the final config
-  client = { ...client, ...new_rec };
+  // Apply the changes to the client, and generate+deploy the final config. Using object.assign to keep 'client' reference intact
+  Object.assign(client, new_rec);
   client.lastregistration = Date.now();
   yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig(), true);
 
