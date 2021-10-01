@@ -1,4 +1,4 @@
-FROM       phusion/baseimage:0.11
+FROM       ubuntu:20.04
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 # Documentation: https://gitlab.com/webhare/proxy#readme
@@ -9,14 +9,19 @@ CMD        [ "/opt/container/launch.sh" ]
 
 # Add letsencrypt's repo - https://certbot.eff.org/lets-encrypt/ubuntubionic-other
 # Ensure the openssl secure renegotiation vulnerability is fixed
-RUN        ( curl -sL https://deb.nodesource.com/setup_14.x | bash - ) && \
-           apt-get update && \
-           apt-get upgrade && \
-           apt-get --yes install software-properties-common && \
-           add-apt-repository universe && \
-           add-apt-repository ppa:certbot/certbot && \
-           ( apt-get changelog openssl | grep -q CVE-2021-3449 ) && \
-           install_clean nginx-full git nodejs tzdata letsencrypt
+RUN        apt-get -q update && \
+           DEBIAN_FRONTEND=noninteractive apt-get -qy install --no-install-recommends nginx-full git nodejs tzdata letsencrypt npm runit curl && \
+           apt-get -qy autoremove
+
+#RUN        apt-get update && \
+#           apt-get upgrade && \
+#           ( curl -sL https://deb.nodesource.com/setup_14.x | bash - ) && \
+#           apt-get update && \
+#           apt-get --yes install software-properties-common && \
+#           add-apt-repository universe && \
+#           add-apt-repository ppa:certbot/certbot && \
+#           ( apt-get changelog openssl | grep -q CVE-2021-3449 ) && \
+#           install_clean nginx-full git nodejs tzdata letsencrypt
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
 

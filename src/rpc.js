@@ -105,7 +105,7 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
 
   let client = Config.clients.find(i => i.id === config.id);
   if(client && client.lastset && !(config.lastset > config.lastset))
-    throw new Error(`Refusing configuration with registration timestamp '${config.lastset ?? 'not provided'}' as we already have a registration with '${client.lastset}'`);
+    throw new Error(`Refusing configuration with registration timestamp '${config.lastset || 'not provided'}' as we already have a registration with '${client.lastset}'`);
 
   // Connect to the reverse address via the verification url
   yield verifyClient(config.reverseaddress, config.verificationurl);
