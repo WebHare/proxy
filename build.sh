@@ -6,7 +6,7 @@ cd ${BASH_SOURCE%/*}
 export TAG="webhare/proxy:devbuild"
 if ! ./docker.sh build ; then
   echo Build failed
-  exit
+  exit 1
 fi
 
 if [ "$1" == "--push" ]; then
@@ -17,3 +17,5 @@ if [ "$1" == "--push" ]; then
   fi
   echo Pushed: $TAG
 fi
+
+exit 0

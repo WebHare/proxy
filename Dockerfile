@@ -11,6 +11,7 @@ CMD        [ "/opt/container/launch.sh" ]
 # Ensure the openssl secure renegotiation vulnerability is fixed
 RUN        ( curl -sL https://deb.nodesource.com/setup_14.x | bash - ) && \
            apt-get update && \
+           apt-get upgrade && \
            apt-get --yes install software-properties-common && \
            add-apt-repository universe && \
            add-apt-repository ppa:certbot/certbot && \
