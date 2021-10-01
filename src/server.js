@@ -112,16 +112,17 @@ let updateConfiguration = co.wrap(function * updateConfiguration()
 function startServer()
 {
   var ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
-  let keyfile  = fs.readFileSync(ssl_config_dir + "/ssl.key").toString() || "";
-  let certfile = fs.readFileSync(ssl_config_dir + "/ssl.crt").toString() || "";
+  let keyfile  = "", certfile ="";
 
-  if (!keyfile || !certfile)
-    throw new Error("Could not read SSL config from " + ssl_config_dir);
+  try
+  {
+    keyfile = fs.readFileSync(ssl_config_dir + "/ssl.key").toString() || "";
+    certfile = fs.readFileSync(ssl_config_dir + "/ssl.crt").toString() || "";
+  }
+  catch(ignore)
+  {
 
-  let server_config =
-      { key: keyfile
-      , cert: certfile
-      };
+  }
 
   let servercallback = (request, response) =>
   {
@@ -130,19 +131,32 @@ function startServer()
     request.on("end", () => handleRequest(request, data, response));
   };
 
-  let server = https.createServer(server_config, servercallback);
 
-  let localhostserver = null;
+  if(keyfile && certfile)
+  {
+    let server_config =
+        { key: keyfile
+        , cert: certfile
+        };
+
+    let server = https.createServer(server_config, servercallback);
+    server.listen(Config.portnumber);
+    console.log(`Listening for requests on secure port ${Config.portnumber}`);
+  }
+  else
+  {
+    console.error(`Not starting secure server on port ${Config.portnumber} as we don't have keys for it in ${ssl_config_dir}`);
+  }
+
   if(Config.localhostport)
-    localhostserver = http.createServer(servercallback);
+  {
+    let localhostserver = http.createServer(servercallback);
+    localhostserver.listen(Config.localhostport, '127.0.0.1');
+    console.log(`Listening for requests on insecure localhost port ${Config.localhostport}`);
+  }
 
   console.log("Regenerate nginx configuration");
   updateConfiguration();
-
-  console.log("Listening for requests");
-  server.listen(Config.portnumber);
-  if(localhostserver)
-    localhostserver.listen(Config.localhostport, '127.0.0.1');
 }
 
 function run()
