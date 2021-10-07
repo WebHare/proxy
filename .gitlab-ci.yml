@@ -14,6 +14,7 @@ buildimage:
   artifacts:
     paths:
       - docker-images
+    expire_in: 1 week
   stage: build
   script:
     - mkdir docker-images

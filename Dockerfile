@@ -1,27 +1,14 @@
-FROM       ubuntu:20.04
+FROM       webhare/baseimage:1.0.1
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 # Documentation: https://gitlab.com/webhare/proxy#readme
 
 EXPOSE     80 443 5443
 VOLUME     /opt/webhare-proxy-data/
-CMD        [ "/opt/container/launch.sh" ]
 
 # Add letsencrypt's repo - https://certbot.eff.org/lets-encrypt/ubuntubionic-other
 # Ensure the openssl secure renegotiation vulnerability is fixed
-RUN        apt-get -q update && \
-           DEBIAN_FRONTEND=noninteractive apt-get -qy install --no-install-recommends nginx-full git nodejs tzdata letsencrypt npm runit curl && \
-           apt-get -qy autoremove
-
-#RUN        apt-get update && \
-#           apt-get upgrade && \
-#           ( curl -sL https://deb.nodesource.com/setup_14.x | bash - ) && \
-#           apt-get update && \
-#           apt-get --yes install software-properties-common && \
-#           add-apt-repository universe && \
-#           add-apt-repository ppa:certbot/certbot && \
-#           ( apt-get changelog openssl | grep -q CVE-2021-3449 ) && \
-#           install_clean nginx-full git nodejs tzdata letsencrypt
+RUN        /opt/container/install.sh nginx-full git nodejs tzdata letsencrypt npm
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
 
@@ -38,15 +25,5 @@ ADD        src /opt/webhare-nginx-proxy/src
 #RUN        cd /opt/webhare-nginx-proxy && \
 #           node_modules/.bin/webpack --config src/webpack-production.config.js --progress --bail
 
-# Move logrotate state into container state
-RUN        rm -rf /var/lib/logrotate && ln -sf /opt/webhare-proxy-data/var/logrotate /var/lib/
-
-# Move letsencrypt data folders to permanent storage
-RUN        rm -rf /etc/letsencrypt /var/lib/letsencrypt /var/log/letsencrypt/ \
-            && ln -sf /opt/webhare-proxy-data/letsencrypt/etc /etc/letsencrypt \
-            && ln -sf /opt/webhare-proxy-data/letsencrypt/lib /var/lib/letsencrypt \
-            && ln -sf /opt/webhare-proxy-data/letsencrypt/log /var/log/letsencrypt
-
-
 ADD        dropins /
-RUN        chmod 644 /etc/logrotate.conf /etc/logrotate.d/webhare-nginx-proxy.conf /etc/cron.d/*
+RUN        ln -sf /opt/webhare-proxy-data/ /data
