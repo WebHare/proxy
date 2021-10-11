@@ -26,5 +26,4 @@ ADD        src /opt/webhare-nginx-proxy/src
 #           node_modules/.bin/webpack --config src/webpack-production.config.js --progress --bail
 
 ADD        dropins /
-ADD        .git/refs/heads/master /opt/container/currentversion
 RUN        ln -sf /opt/webhare-proxy-data/ /data

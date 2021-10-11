@@ -1,5 +1,7 @@
 #!/bin/bash
-cd ${BASH_SOURCE%/*}
+cd "${BASH_SOURCE%/*}" || exit 1
+
+cp -f .git/refs/heads/master dropins/opt/container/currentversion
 
 # WebHare/SV integration
 

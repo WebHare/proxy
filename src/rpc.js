@@ -214,11 +214,4 @@ try
 }
 catch(e)
 {
-  try
-  {
-    currentversion = fs.readFileSync(__dirname + "/../.git/refs/heads/master").toString();
-  }
-  catch(e)
-  {
-  }
 }
