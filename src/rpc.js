@@ -210,8 +210,15 @@ exports.getGUIState = co.wrap(function *(counter)
 
 try
 {
-  currentversion = fs.readFileSync(__dirname + "/../.git/refs/heads/master").toString();
+  currentversion = fs.readFileSync("/opt/container/currentversion").toString();
 }
 catch(e)
 {
+  try
+  {
+    currentversion = fs.readFileSync(__dirname + "/../.git/refs/heads/master").toString();
+  }
+  catch(e)
+  {
+  }
 }

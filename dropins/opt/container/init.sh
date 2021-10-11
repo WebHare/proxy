@@ -3,6 +3,7 @@ mkdir -p /opt/webhare-proxy-data/etc/ssl_config
 mkdir -p /opt/webhare-proxy-data/etc/nginx-http /opt/webhare-proxy-data/{var,log,cache}
 chown www-data /opt/webhare-proxy-data/cache/
 mkdir -p /opt/webhare-proxy-data/etc/ssl_config
+mkdir -p /var/log/nginx/
 
 ensurekey()
 {
