@@ -3,7 +3,8 @@ cd "${0%/*}" || exit 1
 
 mkdir -p dropins/opt/container/etc
 git rev-parse HEAD > dropins/opt/container/etc/proxy-version
-git branch --show-current > dropins/opt/container/etc/proxy-branch
+# CI checkouts break the actual branch reported by git, so in that case we take it from the vars
+echo "${CI_COMMIT_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}" > dropins/opt/container/etc/proxy-branch
 
 # WebHare/SV integration
 
