@@ -1,4 +1,5 @@
 node_modules
 build
 runtimedata
-dropins/opt/container/currentversion
+dropins/opt/container/etc/proxy-version
+dropins/opt/container/etc/proxy-branch

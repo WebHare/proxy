@@ -3,12 +3,17 @@
 image: docker:latest
 
 services:
-  - docker:dind
+- docker:dind
 
 stages:
 - build
 # - test
 - push
+
+default:
+  interruptible: true
+  before_script:
+    - ( which apk && apk add git ) || true    # executes on alpine only
 
 buildimage:
   artifacts:
@@ -18,7 +23,7 @@ buildimage:
   stage: build
   script:
     - mkdir docker-images
-    - docker build --pull --tag webhare/proxy:$CI_COMMIT_REF_NAME .
+    - ./build.sh
     - docker save webhare/proxy:$CI_COMMIT_REF_NAME > docker-images/app.tar
 
 #testimage:

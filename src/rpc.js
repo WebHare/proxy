@@ -210,7 +210,7 @@ exports.getGUIState = co.wrap(function *(counter)
 
 try
 {
-  currentversion = fs.readFileSync("/opt/container/currentversion").toString();
+  currentversion = fs.readFileSync("/opt/container/etc/proxy-branch").toString() + " " + fs.readFileSync("/opt/container/etc/proxy-version").toString();
 }
 catch(e)
 {

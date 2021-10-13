@@ -1,5 +1,5 @@
-#!/bin/bash
-cd ${BASH_SOURCE%/*}
+#!/bin/sh
+cd "${0%/*}" || exit 1
 
 CONTAINERNAME=testproxy
 if [ -z "$TAG" ]; then
@@ -15,14 +15,14 @@ DEVELOPRUNCMD="docker run -v $(pwd)/src:/opt/webhare-nginx-proxy/src $DOCKERARGS
 LIVERUNCMD="docker run -v $DOCKERARGS"
 
 
-if [ "$1" == "shell" ]; then
+if [ "$1" = "shell" ]; then
   exec docker exec -ti $CONTAINERNAME /bin/bash
 fi
-if [ "$1" == "getproxykey" ]; then
+if [ "$1" = "getproxykey" ]; then
   exec docker exec $CONTAINERNAME /opt/container/get-proxy-key.sh
 fi
 
-if [ "$1" != "build" -a "$1" != "push" -a "$1" != "run" -a "$1" != "runline" -a "$1" != "runshell" ]; then
+if [ "$1" != "build" ] && [ "$1" != "push" ] && [ "$1" != "run" ] && [ "$1" != "runline" ] && [ "$1" != "runshell" ]; then
   cat << HERE
 - shell:       Launch a shell in a running $CONTAINERNAME container
 - getproxykey: Get key for the proxy
@@ -39,25 +39,25 @@ if ! docker build --pull --progress plain -t $TAG . ; then
   exit 1
 fi
 
-if [ "$1" == "push" ]; then
+if [ "$1" = "push" ]; then
   docker push $TAG
   echo "Pushed $TAG"
   exit 0
 fi
 
-if [ "$1" == "run" ]; then
+if [ "$1" = "run" ]; then
   docker kill $CONTAINERNAME
   docker rm $CONTAINERNAME
   exec $DEVELOPRUNCMD -ti $TAG
 fi
 
-if [ "$1" == "runlive" ]; then
+if [ "$1" = "runlive" ]; then
   docker kill $CONTAINERNAME
   docker rm $CONTAINERNAME
   exec $LIVERUNCMD -ti $TAG
 fi
 
-if [ "$1" == "runshell" ]; then
+if [ "$1" = "runshell" ]; then
   docker kill $CONTAINERNAME
   docker rm $CONTAINERNAME
   exec $DEVELOPRUNCMD -ti $TAG /bin/bash
