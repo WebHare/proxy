@@ -14,5 +14,5 @@ if [ -d /etc/letsencrypt/live/$WEBHAREPROXY_ADMINHOSTNAME ]; then
   exit 1
 fi
 
-letsencrypt certonly -n --webroot -w /opt/adminhost/web -d "$WEBHAREPROXY_ADMINHOSTNAME" --agree-tos --email "$WEBHAREPROXY_LETSENCRYPTEMAIL"
+certbot certonly -n --webroot -w /opt/adminhost/web -d "$WEBHAREPROXY_ADMINHOSTNAME" --agree-tos --email $WEBHAREPROXY_CERTBOT_OPTIONS "$WEBHAREPROXY_LETSENCRYPTEMAIL"
 sv restart configserver

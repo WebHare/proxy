@@ -7,7 +7,7 @@ services:
 
 stages:
 - build
-# - test
+- test
 - push
 
 default:
@@ -26,11 +26,11 @@ buildimage:
     - ./build.sh
     - docker save webhare/proxy:$CI_COMMIT_REF_NAME > docker-images/app.tar
 
-#testimage:
-#  stage: test
-#  script:
-#    - docker load -i docker-images/app.tar
-#    - docker run --rm -e CI_PROJECT_URL="$CI_PROJECT_URL" -e CI_COMMIT_SHA="$CI_COMMIT_SHA" webhare/proxy:$CI_COMMIT_REF_NAME /root/test.sh
+testimage:
+  stage: test
+  script:
+    - docker load -i docker-images/app.tar
+    - TEST_PROXY_IMAGE=webhare/proxy:$CI_COMMIT_REF_NAME ./test.sh
 
 pushimage:
   stage: push
