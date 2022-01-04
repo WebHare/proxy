@@ -104,8 +104,8 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
     throw new Error("Require a reverse address and verificationurl");
 
   let client = Config.clients.find(i => i.id === config.id);
-  if(client && client.lastset && !(config.lastset > config.lastset))
-    throw new Error(`Refusing configuration with registration timestamp '${config.lastset || 'not provided'}' as we already have a registration with '${client.lastset}'`);
+  if(client && client.lastactivechange && !(client.lastactivechange > config.lastactivechange))
+    throw new Error(`Refusing configuration with registration timestamp '${config.lastactivechange || 'not provided'}' as we already have a registration with '${client.lastactivechange}'`);
 
   // Connect to the reverse address via the verification url
   yield verifyClient(config.reverseaddress, config.verificationurl);
@@ -200,7 +200,7 @@ exports.getGUIState = co.wrap(function *(counter)
                     return (
                       { id:   c.id
                       , lastregistration: parseInt(c.lastregistration)
-                      , lastset: c.lastset
+                      , lastactivechange: c.lastactivechange
                       , hosts: c.hosts.map(host => ({ servernames: host.servernames, with_cert: !!host.ssl_keypair }))
                       });
                   })
