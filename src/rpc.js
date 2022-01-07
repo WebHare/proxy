@@ -92,26 +92,33 @@ exports.test = co.wrap(function * test(reverseaddress, verificationurl)
 });
 
 // registerProxyClient is called by a webhare to register the hosts it needs forwarded
-exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
+exports.registerProxyClient = co.wrap(function * registerProxyClient(newconfig)
 {
   if (arguments.length != 1)
     throw new Error("Expected one parameter");
 
-  if (!config.id)
+  if (!newconfig.id)
     throw new Error("Require a installation id");
 
-  if (!config.reverseaddress || !config.verificationurl)
+  if (!newconfig.reverseaddress || !newconfig.verificationurl)
     throw new Error("Require a reverse address and verificationurl");
 
-  let client = Config.clients.find(i => i.id === config.id);
-  if(client && client.lastactivechange && !(client.lastactivechange > config.lastactivechange))
-    throw new Error(`Refusing configuration with registration timestamp '${config.lastactivechange || 'not provided'}' as we already have a registration with '${client.lastactivechange}'`);
+  let client = Config.clients.find(i => i.id === newconfig.id);
 
-  // Connect to the reverse address via the verification url
-  yield verifyClient(config.reverseaddress, config.verificationurl);
+  /* The clients update lastset whenever their proxy configuration is explicitly changed by a sysop
+     Zombie servers may exist (uncontrollable WebHares which still know about the proxy) which may know about lastset
+     By rejecting any changed made by servers with an older lastset than we saw earlier we protect the proxy against having
+     its configuration reverted by a zombie */
+  if(client && client.lastset) //we have a previous configuration that's protected by a timestamp
+    if(!newconfig.lastset || newconfig.lastset < client.lastset) //and this new configuration is older than that
+      throw new Error(`Refusing configuration with registration timestamp '${newconfig.lastset || 'not provided'}' as we already have a registration with '${client.lastset}'`);
 
-  // Remove id and secretkey from config
-  let new_rec = Object.assign({}, config);
+  /* Connect to the reverse address via the verification url. this protects us against servers which do not know their
+     own IP address/hostname, eg a 'restore' server which still has a valid lastset */
+  yield verifyClient(newconfig.reverseaddress, newconfig.verificationurl);
+
+  // Remove id and secretkey from newconfig
+  let new_rec = Object.assign({}, newconfig);
   delete new_rec.id;
   delete new_rec.secretkey;
   delete new_rec.reverseaddress;
@@ -119,27 +126,27 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(config)
 
   if (!client)
   {
-    // Insert default config, so the config generator will find the new client
-    client = { id: config.id, version: 1, hosts: [], certificates: [], ssl_ciphers: "", default_server_settings: "" };
+    // Insert default newconfig, so the newconfig generator will find the new client
+    client = { id: newconfig.id, version: 1, hosts: [], certificates: [], ssl_ciphers: "", default_server_settings: "" };
     Config.clients.push(client);
   }
 
-  // Generate the config from all last valid configs, but with the new config for this client
-  let configfile = NginxConfig.generateNginxConfig(config.id, new_rec);
+  // Generate the newconfig from all last valid configs, but with the new newconfig for this client
+  let configfile = NginxConfig.generateNginxConfig(newconfig.id, new_rec);
 
-  // Test that generated config file
+  // Test that generated newconfig file
   let testresult = yield NginxConfig.testNginxConfig(configfile);
   if (!testresult)
     throw new Error("Configuration did not validate");
 
-  // Apply the changes to the client, and generate+deploy the final config. Using object.assign to keep 'client' reference intact
+  // Apply the changes to the client, and generate+deploy the final newconfig. Using object.assign to keep 'client' reference intact
   Object.assign(client, new_rec);
   client.lastregistration = Date.now();
   yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig(), true);
 
   let local_ips = Tools.getLocalIPs();
 
-  console.log("Applied configuration from: " + config.id);
+  console.log("Applied configuration from: " + newconfig.id);
   return { success: true, local_ips: local_ips };
 });
 
@@ -200,7 +207,7 @@ exports.getGUIState = co.wrap(function *(counter)
                     return (
                       { id:   c.id
                       , lastregistration: parseInt(c.lastregistration)
-                      , lastactivechange: c.lastactivechange
+                      , lastset: c.lastset
                       , hosts: c.hosts.map(host => ({ servernames: host.servernames, with_cert: !!host.ssl_keypair }))
                       });
                   })
