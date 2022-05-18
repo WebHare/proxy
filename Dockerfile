@@ -1,4 +1,4 @@
-FROM       webhare/baseimage:ubuntu-22
+FROM       webhare/baseimage:ubuntu-20
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 # Documentation: https://gitlab.com/webhare/proxy#readme
