@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 cd "${0%/*}" || exit 1
 
 mkdir -p dropins/opt/container/etc
@@ -9,7 +9,7 @@ echo "${CI_COMMIT_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}" > dropins/opt/con
 # WebHare/SV integration
 
 if [ -n "$CI_COMMIT_REF_NAME" ]; then
-  export TAG="webhare/proxy:$CI_COMMIT_REF_NAME"
+  export TAG="webhare/proxy:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}"
 else
   export TAG="webhare/proxy:devbuild"
 fi
