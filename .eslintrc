@@ -1,4 +1,11 @@
 {
+  "parserOptions": {
+      "ecmaVersion": 8,
+      "sourceType": "module",
+      "ecmaFeatures": {
+          "jsx": true
+      }
+  },
   "env": {
     "es6": true,
     "browser": true,
@@ -23,11 +30,7 @@
     "consistent-return": 0,
     "strict": 0
   },
-  "parser": "babel-eslint",
   "plugins": [
     "react"
-  ],
-  "ecmaFeatures": {
-    "jsx": true
-  }
+  ]
 }

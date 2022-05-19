@@ -1,6 +1,5 @@
 "use strict";
 
-const co = require("co");
 const fs = require("fs");
 const crypto = require("crypto");
 const child_process = require("child_process");
@@ -225,69 +224,63 @@ http {
   return config;
 }
 
-function testNginxConfig(configdata)
+async function testNginxConfig(configdata)
 {
-  return co(function * testNginxConfig()
-  {
-    // Write the temporary config file
-    let testpath = Tools.ensureStorageDir() + "var/nginx.conf.test";
-    fs.writeFileSync(testpath, configdata);
+  // Write the temporary config file
+  let testpath = Tools.ensureStorageDir() + "var/nginx.conf.test";
+  fs.writeFileSync(testpath, configdata);
 
-    // Run the process, catch the return code and output
-    let process;
-    let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -t -c" + " " + testpath, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
-    let process_result = yield new Promise(resolve => process.on("exit", resolve));
-    output = yield output;
+  // Run the process, catch the return code and output
+  let process;
+  let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -t -c" + " " + testpath, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+  let process_result = await new Promise(resolve => process.on("exit", resolve));
+  output = await output;
 
-    if (process_result !== 0)
-      throw new Error("Validation error: " + output.stdout + output.stderr);
+  if (process_result !== 0)
+    throw new Error("Validation error: " + output.stdout + output.stderr);
 
-    return process_result === 0;
-  });
+  return process_result === 0;
 }
 
-function applyNginxConfig(configdata, saveconfig)
+async function applyNginxConfig(configdata, saveconfig)
 {
-  return co(function * applyNginxConfig()
+  let finalpath = "/opt/webhare-proxy-data/etc/nginx.conf";
+  let testpath = finalpath + ".apply_tmp";
+
+  let configsdir = Tools.ensureStorageDir("var/applied_configs");
+  let datestr = new Date().toISOString().replace(/[-:.]/g, "");
+  fs.writeFileSync(configsdir + `/nginx.${datestr}.conf`, configdata);
+
+  // Write the configuration file, and move it over the old file
+  fs.writeFileSync(testpath, configdata);
+  fs.renameSync(testpath, finalpath);
+
+  fs.writeFileSync(testpath, configdata);
+
+  // Reload the configuration of nginx if its running
+  let nginxpid;
+  try
   {
-    let finalpath = "/opt/webhare-proxy-data/etc/nginx.conf";
-    let testpath = finalpath + ".apply_tmp";
+    nginxpid = fs.readFileSync("/var/run/nginx.pid");
+  }
+  catch(ignore)
+  {
 
-    let configsdir = Tools.ensureStorageDir("var/applied_configs");
-    let datestr = new Date().toISOString().replace(/[-:.]/g, "");
-    fs.writeFileSync(configsdir + `/nginx.${datestr}.conf`, configdata);
+  }
+  if(nginxpid && nginxpid.toString())
+  {
+    let process;
+    let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -s reload", (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+    let process_result = await new Promise(resolve => process.on("exit", resolve));
+    output = await output;
 
-    // Write the configuration file, and move it over the old file
-    fs.writeFileSync(testpath, configdata);
-    fs.renameSync(testpath, finalpath);
+    // Test if reload went ok
+    if (process_result !== 0)
+      throw new Error("Error reloading new configuration: " + output.stdout + output.stderr);
+  }
 
-    fs.writeFileSync(testpath, configdata);
-
-    // Reload the configuration of nginx if its running
-    let nginxpid;
-    try
-    {
-      nginxpid = fs.readFileSync("/var/run/nginx.pid");
-    }
-    catch(ignore)
-    {
-
-    }
-    if(nginxpid && nginxpid.toString())
-    {
-      let process;
-      let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -s reload", (e, stdout, stderr) => resolve({ e, stdout, stderr })));
-      let process_result = yield new Promise(resolve => process.on("exit", resolve));
-      output = yield output;
-
-      // Test if reload went ok
-      if (process_result !== 0)
-        throw new Error("Error reloading new configuration: " + output.stdout + output.stderr);
-    }
-
-    if (saveconfig)
-      Config.write();
-  });
+  if (saveconfig)
+    Config.write();
 }
 
 

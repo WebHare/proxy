@@ -1,6 +1,5 @@
 "use strict";
 
-const co = require("co");
 const crypto = require("crypto");
 const http = require("http");
 const fs = require("fs");
@@ -12,7 +11,7 @@ const NginxConfig = require("./nginx-config");
 
 let currentversion = '';
 
-let verifyClient = co.wrap(function * verifyClient(reverseaddress, verificationurl)
+function verifyClient(reverseaddress, verificationurl)
 {
   let parsed_reverseaddr = url.parse(reverseaddress);
   let parsed_verificationurl = url.parse(verificationurl);
@@ -73,15 +72,15 @@ let verifyClient = co.wrap(function * verifyClient(reverseaddress, verificationu
       reject(new Error("Timeout for retrieving verification (waited 10 seconds)"))
     }, 10000);
   });
-});
+};
 
 // Used to test connectivity
-exports.test = co.wrap(function * test(reverseaddress, verificationurl)
+exports.test = async function test(reverseaddress, verificationurl)
 {
   try
   {
     // Connect to the reverse address via the verification url
-    yield verifyClient(reverseaddress, verificationurl);
+    await verifyClient(reverseaddress, verificationurl);
   }
   catch (e)
   {
@@ -89,12 +88,12 @@ exports.test = co.wrap(function * test(reverseaddress, verificationurl)
   }
 
   return { success: true };
-});
+};
 
 // registerProxyClient is called by a webhare to register the hosts it needs forwarded
-exports.registerProxyClient = co.wrap(function * registerProxyClient(newconfig)
+exports.registerProxyClient = async function registerProxyClient(newconfig)
 {
-  if (arguments.length != 1)
+  if (arguments.length !== 1)
     throw new Error("Expected one parameter");
 
   if (!newconfig.id)
@@ -115,7 +114,7 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(newconfig)
 
   /* Connect to the reverse address via the verification url. this protects us against servers which do not know their
      own IP address/hostname, eg a 'restore' server which still has a valid lastset */
-  yield verifyClient(newconfig.reverseaddress, newconfig.verificationurl);
+  await verifyClient(newconfig.reverseaddress, newconfig.verificationurl);
 
   // Remove id and secretkey from newconfig
   let new_rec = Object.assign({}, newconfig);
@@ -135,43 +134,43 @@ exports.registerProxyClient = co.wrap(function * registerProxyClient(newconfig)
   let configfile = NginxConfig.generateNginxConfig(newconfig.id, new_rec);
 
   // Test that generated newconfig file
-  let testresult = yield NginxConfig.testNginxConfig(configfile);
+  let testresult = await NginxConfig.testNginxConfig(configfile);
   if (!testresult)
     throw new Error("Configuration did not validate");
 
   // Apply the changes to the client, and generate+deploy the final newconfig. Using object.assign to keep 'client' reference intact
   Object.assign(client, new_rec);
   client.lastregistration = Date.now();
-  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig(), true);
+  await NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig(), true);
 
   let local_ips = Tools.getLocalIPs();
 
   console.log("Applied configuration from: " + newconfig.id);
   return { success: true, local_ips: local_ips };
-});
+}
 
 // registerProxyClient is called by a webhare to register the hosts it needs forwarded
-exports.guiUnregisterProxyClient = co.wrap(function * registerProxyClient(servername)
+exports.guiUnregisterProxyClient = async function guiUnregisterProxyClient(servername)
 {
-  if (arguments.length != 1)
+  if (arguments.length !== 1)
     throw new Error("Expected one parameter");
 
   let client = Config.clients.find(i => i.id === servername);
   if (client)
     Config.clients.splice(Config.clients.indexOf(client), 1);
 
-  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig(), true);
+  await NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig(), true);
 
   console.log("Deleted server with id: " + servername);
   return { success: true, found: !!client };
-});
+}
 
-exports.unregisterProxyClient = co.wrap(function * registerProxyClient(servername, reverseaddress, verificationurl)
+exports.unregisterProxyClient = async function unregisterProxyClient(servername, reverseaddress, verificationurl)
 {
   try
   {
     // Connect to the reverse address via the verification url
-    yield verifyClient(reverseaddress, verificationurl);
+    await verifyClient(reverseaddress, verificationurl);
   }
   catch (e)
   {
@@ -184,13 +183,13 @@ exports.unregisterProxyClient = co.wrap(function * registerProxyClient(servernam
 
   Config.clients.splice(Config.clients.indexOf(client), 1);
 
-  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
+  await NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
 
   console.log("Deleted server with id: " + servername);
   return { success: true, code: "ok" };
-});
+}
 
-exports.getGUIState = co.wrap(function *(counter)
+exports.getGUIState = async function getGUIState(counter)
 {
   let resolve = null;
   let promise = new Promise(r => resolve = r );
@@ -198,7 +197,7 @@ exports.getGUIState = co.wrap(function *(counter)
   Config.waitForChange(counter).then(resolve);
   setTimeout(() => resolve(), 10000);
 
-  let r = yield promise;
+  let r = await promise;
   return (
       { success: true
       , counter: Config.counter
@@ -213,7 +212,7 @@ exports.getGUIState = co.wrap(function *(counter)
                   })
       , currentversion: currentversion
       });
-});
+}
 
 try
 {

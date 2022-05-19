@@ -1,6 +1,5 @@
 "use strict";
 
-const co = require("co");
 const fs = require("fs");
 const crypto = require("crypto");
 const http = require("http");
@@ -94,19 +93,19 @@ function handleRPCRequest(req, jsondata, res)
       .then(result => RPCSupport.sendReply(res, null, result, decoded.id), error => RPCSupport.sendReply(res, { code: -32604, message: error.stack }));
 }
 
-let updateConfiguration = co.wrap(function * updateConfiguration()
+async function updateConfiguration()
 {
   // Generate the config
   let configfile = NginxConfig.generateNginxConfig();
 
   // Test that generated config file
-  let testresult = yield NginxConfig.testNginxConfig(configfile);
+  let testresult = await NginxConfig.testNginxConfig(configfile);
   if (!testresult)
     console.log("Initial configuration did not validate");
 
-  yield NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
+  await NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
   console.log("Nginx configuration updated");
-});
+}
 
 /// Starts the RPC server, starts handling incoming RPCs
 function startServer()
