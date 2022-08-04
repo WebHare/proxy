@@ -118,6 +118,7 @@ http {
   gzip_proxied no_etag;
   gzip_types text/xml application/json application/xml text/css application/javascript text/plain text/csv text/calendar text/x-vcard;
 
+  # Detect text/html, only those have use for IP info
   map $upstream_http_content_type $upstream_content_type
   {
     "~^text/html" html;
@@ -125,18 +126,19 @@ http {
   }
   map "$upstream_content_type:$upstream_http_x_webhare_proxyoptions" $servertiming
   {
+    # Look for word (\b..\b) 'addremoteip' option (X-WebHare-ProxyOptions) enabled on a HTML (text/html) file. If set, we'll add the remote address
     ~^html:.*\\baddremoteip\\b "remoteip;desc=$remote_addr";
     default "";
   }
 `;
   let allports = [];
 
-  let ip4bindto = process.env["WEBHARE_PROXY_BINDTO_IPV4"] || '';
+  let ip4bindto = process.env["WEBHAREPROXY_BINDTO_IPV4"] || '';
   if(ip4bindto)
     ip4bindto += ':';
 
-  let port_insecure = parseInt(process.env["WEBHARE_PROXY_INSECUREPORT"]) || 80;
-  let port_secure = parseInt(process.env["WEBHARE_PROXY_SECUREPORT"]) || 443;
+  let port_insecure = parseInt(process.env["WEBHAREPROXY_INSECUREPORT"]) || 80;
+  let port_secure = parseInt(process.env["WEBHAREPROXY_SECUREPORT"]) || 443;
 
   let ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
   let serverprolog = "    server_tokens off;\n";
@@ -259,7 +261,7 @@ http {
 
       if (client.proxyid && client.reverseaddress)
         config += generateLocationConfig(client, host);
-      else
+      else //FIXME block this path if we're sure no servers use it
         config += (host.server_settings || client.default_server_settings || "") + "\n";
 
       config +=
