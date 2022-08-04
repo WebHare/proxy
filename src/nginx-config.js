@@ -22,6 +22,44 @@ function comparePorts(a, b)
   return 0;
 }
 
+function generateLocationConfig(client, host)
+{
+  // client_max_body_size: html5 uploads only require 10m, but module pushes need more. we'll settle for this for webdav too then
+  return `
+    proxy_http_version    1.1;
+    proxy_request_buffering off;
+    proxy_buffering off;
+    proxy_read_timeout    600s;
+    client_max_body_size  700m;\
+
+    location /
+    {
+      proxy_set_header      Connection "";
+      proxy_pass            ${client.reverseaddress};
+      proxy_set_header      Host $http_host;
+      proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header      X-Forwarded-Proto $scheme;
+      proxy_set_header      X-WebHare-Proxy "${client.proxyid}";
+      add_header            X-Accel-Redirect $upstream_http_x_next_accel_redirect;
+      proxy_hide_header     X-Next-Accel-Redirect;
+      add_header            X-Accel-Buffering $upstream_http_x_next_accel_buffering;
+      proxy_hide_header     X-Next-Accel-Buffering;
+    }
+    location ~* \.whsock$
+    {
+      proxy_http_version    1.1;
+      proxy_set_header      Upgrade $http_upgrade;
+      proxy_set_header      Connection "upgrade";
+      proxy_pass            ${client.reverseaddress};
+      proxy_set_header      Host $http_host;
+      proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header      X-Forwarded-Proto $scheme;
+      proxy_set_header      X-WebHare-Proxy "${client.proxyid}";
+    }
+`;
+}
+
+
 function generateNginxConfig(override_id, override_config)
 {
   let config = "";
@@ -80,9 +118,12 @@ http {
 `;
   let allports = [];
 
-  let ip4bindto = process.env["NGINX_BINDTO_IPV4"] || '';
+  let ip4bindto = process.env["WEBHARE_PROXY_BINDTO_IPV4"] || '';
   if(ip4bindto)
     ip4bindto += ':';
+
+  let port_insecure = parseInt(process.env["WEBHARE_PROXY_INSECUREPORT"]) || 80;
+  let port_secure = parseInt(process.env["WEBHARE_PROXY_SECUREPORT"]) || 443;
 
   let ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
   let serverprolog = "    server_tokens off;\n";
@@ -101,10 +142,10 @@ http {
     config += `
     server {
       ${serverprolog}
-      listen [::]:80;
-      listen ${ip4bindto}80;
-      listen [::]:443 ssl http2;
-      listen ${ip4bindto}443 ssl http2;
+      listen [::]:${port_insecure};
+      listen ${ip4bindto}${port_insecure};
+      listen [::]:${port_secure} ssl http2;
+      listen ${ip4bindto}${port_secure} ssl http2;
       server_name ${adminhostname};
       ssl_certificate ${certpath};
       ssl_certificate_key ${keypath};
@@ -168,6 +209,15 @@ http {
         if( (port.port===80 && port.ssl) || (port.port===443 && (!port.ssl || !host.ssl_keypair)))
           return;
 
+        // Only allow port 80 and 443 and remap them
+        let portnr;
+        if (port.port == 80)
+          portnr = port_insecure;
+        else if (port.port == 443)
+          portnr = port_secure;
+        else
+          return;
+
         config +=
             `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl http2":""};\n`;
 
@@ -194,7 +244,11 @@ http {
         }
       }
 
-      config += (host.server_settings || client.default_server_settings) + "\n";
+      if (client.proxyid && client.reverseaddress)
+        config += generateLocationConfig(client, host);
+      else
+        config += (host.server_settings || client.default_server_settings || "") + "\n";
+
       config +=
         "  }\n\n";
     });

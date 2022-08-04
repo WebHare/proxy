@@ -36,7 +36,9 @@ Extra configuration files can also be dropped as `*.conf` into `/opt/webhare-pro
 
 Configuration files dropped as `*.conf` into `/opt/webhare-proxy-data/etc/nginx-adminserver/` will be included on the admin hostname (configured by WEBHAREPROXY_ADMINHOSTNAME)
 
-If you're using the host network namespcae, nginx can be told to bind to a specific IPv4 address by setting the NGINX_BINDTO_IPV4 environment variable.
+If you're using the host network namespcae, nginx can be told to bind to a specific IPv4 address by setting the WEBHARE_PROXY_BINDTO_IPV4 environment variable.
+
+If you want to remap the listen ports, set the environment variables WEBHARE_PROXY_INSECUREPORT and WEBHARE_PROXY_SECUREPORT.
 
 ## Making a new release
 The CI scripts take care of deploying to Docker. Simply push a new tag

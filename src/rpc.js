@@ -120,13 +120,12 @@ exports.registerProxyClient = async function registerProxyClient(newconfig)
   let new_rec = Object.assign({}, newconfig);
   delete new_rec.id;
   delete new_rec.secretkey;
-  delete new_rec.reverseaddress;
   delete new_rec.verificationurl;
 
   if (!client)
   {
-    // Insert default newconfig, so the newconfig generator will find the new client
-    client = { id: newconfig.id, version: 1, hosts: [], certificates: [], ssl_ciphers: "", default_server_settings: "" };
+    // Insert default newconfig, so the newconfig generator will find the new client. Only id is used for lookup.
+    client = { id: newconfig.id };
     Config.clients.push(client);
   }
 
