@@ -126,8 +126,8 @@ http {
   }
   map "$upstream_content_type:$upstream_http_x_webhare_proxyoptions" $servertiming
   {
-    # Look for word (\b..\b) 'addremoteip' option (X-WebHare-ProxyOptions) enabled on a HTML (text/html) file. If set, we'll add the remote address
-    ~^html:.*\\baddremoteip\\b "remoteip;desc=$remote_addr";
+    # Look for word (\b..\b) 'addremoteip' option (X-WebHare-ProxyOptions) enabled on a HTML (text/html) file. If set, we'll add the remote address. Quoted so it doesn't get truncated at ipv6 :
+    ~^html:.*\\baddremoteip\\b 'remoteip;desc="$remote_addr"';
     default "";
   }
 `;

@@ -161,7 +161,7 @@ async function test()
     , method: 'GET'
     });
 
-  let expect_servertiming = `remoteip;desc=${config.EXPECTSEENCONNECTIP || config.CONNECTIP}`;
+  let expect_servertiming = `remoteip;desc="${config.EXPECTSEENCONNECTIP || config.CONNECTIP}"`;
   if (response.headers["server-timing"] != expect_servertiming)
     throw new Error(`Server-timing returned header is not as expected, expect ${JSON.stringify(expect_servertiming)}, got ${JSON.stringify(response.headers["server-timing"])}`);
 }
