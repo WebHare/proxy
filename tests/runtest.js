@@ -66,6 +66,12 @@ function requestListener(req, res)
   }
   else
   {
+    if (/addremoteip/.exec(req.url))
+    {
+      res.setHeader("content-type", "text/html");
+      res.setHeader("x-webhare-proxyoptions", ",addremoteip,");
+    }
+
     res.writeHead(200);
     res.end("Hello world: " + req.url);
   }
@@ -149,6 +155,15 @@ async function test()
 
   if (response.statusCode != 200 || response.body != "Hello world: /normalrequest")
     throw new Error(`Unexpected status return code ${response.statusCode}`);
+
+  response = await doRequest(`http://${config.PROXYIP}:${config.PORT_80}/normalrequest/addremoteip`,
+    { headers : { host : 'test.example.com' }
+    , method: 'GET'
+    });
+
+  let expect_servertiming = `remoteip;desc=${config.EXPECTSEENCONNECTIP || config.CONNECTIP}`;
+  if (response.headers["server-timing"] != expect_servertiming)
+    throw new Error(`Server-timing returned header is not as expected, expect ${JSON.stringify(expect_servertiming)}, got ${JSON.stringify(response.headers["server-timing"])}`);
 }
 
 console.log(config);

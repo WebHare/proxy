@@ -44,6 +44,8 @@ function generateLocationConfig(client, host)
       proxy_hide_header     X-Next-Accel-Redirect;
       add_header            X-Accel-Buffering $upstream_http_x_next_accel_buffering;
       proxy_hide_header     X-Next-Accel-Buffering;
+      proxy_hide_header     X-WebHare-ProxyOptions;
+      add_header            Server-Timing $servertiming;\n
     }
     location ~* \.whsock$
     {
@@ -115,6 +117,17 @@ http {
   gzip_vary on;
   gzip_proxied no_etag;
   gzip_types text/xml application/json application/xml text/css application/javascript text/plain text/csv text/calendar text/x-vcard;
+
+  map $upstream_http_content_type $upstream_content_type
+  {
+    "~^text/html" html;
+    default "";
+  }
+  map "$upstream_content_type:$upstream_http_x_webhare_proxyoptions" $servertiming
+  {
+    ~^html:.*\\baddremoteip\\b "remoteip;desc=$remote_addr";
+    default "";
+  }
 `;
   let allports = [];
 
