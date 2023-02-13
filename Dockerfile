@@ -1,14 +1,23 @@
 FROM       webhare/baseimage:ubuntu-20
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
+ENV LC_ALL=C \
+  WEBHAREPROXY_IN_DOCKER=1 \
+  WEBHAREPROXY_DATAROOT=/data/ \
+  WEBHAREPROXY_FSROOT=/ \
+  WEBHAREPROXY_PORT_HTTP=80 \
+  WEBHAREPROXY_PORT_HTTPS=443 \
+  WEBHAREPROXY_MGMT_HTTP=5080 \
+  WEBHAREPROXY_MGMT_HTTPS=5443
 
 # Documentation: https://gitlab.com/webhare/proxy#readme
 
 EXPOSE     80 443 5443
 VOLUME     /opt/webhare-proxy-data/
 
-# Add letsencrypt's repo - https://certbot.eff.org/lets-encrypt/ubuntubionic-other
-# Ensure the openssl secure renegotiation vulnerability is fixed
-RUN        /opt/container/install.sh nginx-full git nodejs tzdata letsencrypt npm
+RUN --mount=type=bind,source=/setup-imagebase.sh,target=/setup-imagebase.sh \
+    --mount=type=cache,id=webhareproxy1,target=/var/cache/apt \
+    --mount=type=cache,id=webhareproxy2,target=/var/lib/apt \
+    /bin/bash /setup-imagebase.sh # 2023-02-13
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
 

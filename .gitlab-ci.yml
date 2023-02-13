@@ -1,5 +1,9 @@
 # Pipelines: https://gitlab.com/webhare/proxy/pipelines
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  DOCKER_BUILDKIT: 1  # needed for cache mounts
+
 image: docker:latest
 
 services:

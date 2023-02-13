@@ -4,8 +4,8 @@ const crypto = require("crypto");
 const fs = require("fs");
 
 let config =
-  { data_storage_path: "/opt/webhare-proxy-data"
-  , listenport: 5080
+  { data_storage_path: process.env["WEBHAREPROXY_DATAROOT"]
+  , listenport: Number(process.env["WEBHAREPROXY_MGMT_HTTP"])
   , listenip: "127.0.0.1"
 
   , secretkey: ""

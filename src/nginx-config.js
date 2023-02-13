@@ -22,7 +22,7 @@ function comparePorts(a, b)
   return 0;
 }
 
-function generateLocationConfig(client, host)
+function generateLocationConfig(client, host, upstreamurl)
 {
   // client_max_body_size: html5 uploads only require 10m, but module pushes need more. we'll settle for this for webdav too then
   return `
@@ -35,7 +35,7 @@ function generateLocationConfig(client, host)
     location /
     {
       proxy_set_header      Connection "";
-      proxy_pass            ${client.reverseaddress};
+      proxy_pass            ${upstreamurl};
       proxy_set_header      Host $http_host;
       proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header      X-Forwarded-Proto $scheme;
@@ -52,7 +52,7 @@ function generateLocationConfig(client, host)
       proxy_http_version    1.1;
       proxy_set_header      Upgrade $http_upgrade;
       proxy_set_header      Connection "upgrade";
-      proxy_pass            ${client.reverseaddress};
+      proxy_pass            ${upstreamurl};
       proxy_set_header      Host $http_host;
       proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header      X-Forwarded-Proto $scheme;
@@ -69,10 +69,10 @@ function generateNginxConfig(override_id, override_config)
   config += `
 user www-data;
 worker_processes auto;
-error_log /opt/webhare-proxy-data/log/error.log info;
+error_log ${Config.data_storage_path}/log/error.log info;
 pid /var/run/nginx.pid;
 
-include             /opt/webhare-proxy-data/etc/nginx-other/*.conf;
+include             ${Config.data_storage_path}/etc/nginx-other/*.conf;
 
 events {
   worker_connections 25000;
@@ -88,7 +88,7 @@ http {
                     '"$sent_http_content_type" $upstream_addr $ssl_protocol $ssl_cipher'
                     'rqt=$request_time uct=$upstream_connect_time uht=$upstream_header_time urt=$upstream_response_time';
 
-  access_log /opt/webhare-proxy-data/log/access.log main;
+  access_log ${Config.data_storage_path}/log/access.log main;
   large_client_header_buffers 4 16k;
 
   sendfile            on;
@@ -98,7 +98,7 @@ http {
   types_hash_max_size 2048;
 
   include             /etc/nginx/mime.types;
-  include             /opt/webhare-proxy-data/etc/nginx-http/*.conf;
+  include             ${Config.data_storage_path}/etc/nginx-http/*.conf;
   default_type        application/octet-stream;
 
   server_names_hash_bucket_size 256;
@@ -110,8 +110,8 @@ http {
   ssl_session_timeout 10m;
 
   #20 m = about 160.000 keys
-  proxy_cache_path /opt/webhare-proxy-data/cache/maincache levels=1:2 keys_zone=maincache:20m max_size=10g inactive=240m use_temp_path=off;
-  proxy_cache_path /opt/webhare-proxy-data/cache/authcache levels=1:2 keys_zone=authcache:10m max_size=1g  inactive=60m  use_temp_path=off;
+  proxy_cache_path ${Config.data_storage_path}/cache/maincache levels=1:2 keys_zone=maincache:20m max_size=10g inactive=240m use_temp_path=off;
+  proxy_cache_path ${Config.data_storage_path}/cache/authcache levels=1:2 keys_zone=authcache:10m max_size=1g  inactive=60m  use_temp_path=off;
 
   gzip on;
   gzip_vary on;
@@ -126,7 +126,7 @@ http {
   }
   map "$upstream_content_type:$upstream_http_x_webhare_proxyoptions" $servertiming
   {
-    # Look for word (\b..\b) 'addremoteip' option (X-WebHare-ProxyOptions) enabled on a HTML (text/html) file. If set, we'll add the remote address. Quoted so it doesn't get truncated at ipv6 :
+    # Look for word (\\b..\\b) 'addremoteip' option (X-WebHare-ProxyOptions) enabled on a HTML (text/html) file. If set, we'll add the remote address. Quoted so it doesn't get truncated at ipv6 :
     ~^html:.*\\baddremoteip\\b 'remoteip;desc="$remote_addr"';
     default "";
   }
@@ -181,7 +181,7 @@ http {
         proxy_pass http://127.0.0.1:5080/;
       }
 
-      include /opt/webhare-proxy-data/etc/nginx-adminserver/*.conf;
+      include ${Config.data_storage_path}/etc/nginx-adminserver/*.conf;
     }
 `;
   }
@@ -195,6 +195,20 @@ http {
     {
       console.log('version problem');
       throw new Error("This Nginx installation does not support request format " + client.version + ", allowed are " + min_supported_version + "-" + max_supported_version);
+    }
+
+    let upstreamurl = '';
+    if (client.proxyid && client.reverseaddress) {
+      const upstreamname = client.reverseaddress.replaceAll(/[:.-/]/g, '_');
+      //recreate a http:// or https:// url to match the original address
+      upstreamurl = client.reverseaddress.split(':')[0] + "://" + upstreamname;
+
+      config += `
+  upstream ${upstreamname} {
+    server ${new URL(client.reverseaddress).host};
+    keepalive 60;
+  }
+`;
     }
 
     // Process all the certificates from this client
@@ -226,9 +240,9 @@ http {
 
         // Only allow port 80 and 443 and remap them
         let portnr;
-        if (port.port == 80)
+        if (port.port === 80)
           portnr = port_insecure;
-        else if (port.port == 443)
+        else if (port.port === 443)
           portnr = port_secure;
         else
           return;
@@ -260,7 +274,7 @@ http {
       }
 
       if (client.proxyid && client.reverseaddress)
-        config += generateLocationConfig(client, host);
+        config += generateLocationConfig(client, host, upstreamurl);
       else //FIXME block this path if we're sure no servers use it
         config += (host.server_settings || client.default_server_settings || "") + "\n";
 
@@ -313,7 +327,7 @@ async function testNginxConfig(configdata)
 
 async function applyNginxConfig(configdata, saveconfig)
 {
-  let finalpath = "/opt/webhare-proxy-data/etc/nginx.conf";
+  let finalpath = `${Config.data_storage_path}/etc/nginx.conf`;
   let testpath = finalpath + ".apply_tmp";
 
   let configsdir = Tools.ensureStorageDir("var/applied_configs");

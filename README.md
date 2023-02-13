@@ -8,7 +8,7 @@ IP address (which is not natively supported by the WebHare webserver).
 The proxy also allows you to host multiple instances of WebHare on the same proxy and IP address.
 
 ## Installation
-You should set up a data dir for the /opt/webhare-proxy/data/ volume.
+You should set up a data dir for the /opt/webhare-proxy-data/ volume.
 
 Example docker calling syntax which assumes /dockers/my-nx/proxy-data/ will host the volume
 
