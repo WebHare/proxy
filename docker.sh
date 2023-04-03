@@ -13,9 +13,9 @@ elif [ -n "$WEBHARE_PROXY_BINDTO_IPV4" ]; then # Legacy users
   DOCKERARGS="$DOCKERARGS -e WEBHAREPROXY_BINDTO_IPV4=$WEBHARE_PROXY_BINDTO_IPV4"
 fi
 
+export DOCKER_BUILDKIT=1
 DEVELOPRUNCMD="docker run -v $(pwd)/src:/opt/webhare-nginx-proxy/src $DOCKERARGS"
 LIVERUNCMD="docker run -v $DOCKERARGS"
-
 
 if [ "$1" = "shell" ]; then
   exec docker exec -ti $CONTAINERNAME /bin/bash
