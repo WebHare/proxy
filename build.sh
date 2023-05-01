@@ -1,6 +1,40 @@
 #!/bin/bash
 cd "${0%/*}" || exit 1
 
+USEPODMAN=""
+DOCKERBUILDOPTS=()
+
+while [[ $1 =~ ^-.* ]]; do
+  if [ "$1" == "--podman" ]; then
+    USEPODMAN="1"
+    DOCKERBUILDOPTS+=(--podman)
+  else
+    echo "Illegal option $1"
+    exit 1
+  fi
+  shift
+done
+
+RunBuilder()
+{
+  local retval
+  if [ -z "$USEPODMAN" ]; then
+    echo "$(date) docker" "$@" >&2
+    docker "$@" ; retval="$?"
+    if [ "$retval" != "0" ]; then
+      echo "$(date) docker returned errorcode $retval" >&2
+    fi
+    return $retval
+  else
+    echo "$(date) podman" "$@" >&2
+    podman "$@" ; retval="$?"
+    if [ "$retval" != "0" ]; then
+      echo "$(date) podman returned errorcode $retval" >&2
+    fi
+    return $retval
+  fi
+}
+
 mkdir -p dropins/opt/container/etc
 git rev-parse HEAD > dropins/opt/container/etc/proxy-version
 # CI checkouts break the actual branch reported by git, so in that case we take it from the vars
@@ -9,18 +43,18 @@ echo "${CI_COMMIT_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}" > dropins/opt/con
 # WebHare/SV integration
 
 if [ -n "$CI_COMMIT_REF_NAME" ]; then
-  export TAG="webhare/proxy:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}"
+  export TAG="docker.io/webhare/proxy:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}"
 else
-  export TAG="webhare/proxy:devbuild"
+  export TAG="docker.io/webhare/proxy:devbuild"
 fi
 
-if ! ./docker.sh build ; then
+if ! ./docker.sh "${DOCKERBUILDOPTS[@]}" build; then
   echo Build failed
   exit 1
 fi
 
 if [ "$1" = "--push" ]; then
-  if ! docker push $TAG ; then
+  if ! RunBuilder push $TAG ; then
     echo Push failed for tag: $TAG
     echo You may need to login: docker login
     exit 1

@@ -1,4 +1,4 @@
-FROM       webhare/baseimage:ubuntu-20
+FROM       docker.io/webhare/baseimage:ubuntu-20
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 ENV LC_ALL=C \
   WEBHAREPROXY_IN_DOCKER=1 \

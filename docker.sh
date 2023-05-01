@@ -1,5 +1,37 @@
-#!/bin/sh
+#!/bin/bash
 cd "${0%/*}" || exit 1
+
+USEPODMAN=""
+
+while [[ $1 =~ ^-.* ]]; do
+  if [ "$1" == "--podman" ]; then
+    USEPODMAN="1"
+  else
+    echo "Illegal option $1"
+    exit 1
+  fi
+  shift
+done
+
+RunBuilder()
+{
+  local retval
+  if [ -z "$USEPODMAN" ]; then
+    echo "$(date) docker" "$@" >&2
+    docker "$@" ; retval="$?"
+    if [ "$retval" != "0" ]; then
+      echo "$(date) docker returned errorcode $retval" >&2
+    fi
+    return $retval
+  else
+    echo "$(date) podman" "$@" >&2
+    podman "$@" ; retval="$?"
+    if [ "$retval" != "0" ]; then
+      echo "$(date) podman returned errorcode $retval" >&2
+    fi
+    return $retval
+  fi
+}
 
 CONTAINERNAME=testproxy
 if [ -z "$TAG" ]; then
@@ -14,14 +46,14 @@ elif [ -n "$WEBHARE_PROXY_BINDTO_IPV4" ]; then # Legacy users
 fi
 
 export DOCKER_BUILDKIT=1
-DEVELOPRUNCMD="docker run -v $(pwd)/src:/opt/webhare-nginx-proxy/src $DOCKERARGS"
-LIVERUNCMD="docker run -v $DOCKERARGS"
+DEVELOPRUNCMD="RunBuilder run -v $(pwd)/src:/opt/webhare-nginx-proxy/src $DOCKERARGS"
+LIVERUNCMD="RunBuilder run -v $DOCKERARGS"
 
 if [ "$1" = "shell" ]; then
-  exec docker exec -ti $CONTAINERNAME /bin/bash
+  exec RunBuilder exec -ti $CONTAINERNAME /bin/bash
 fi
 if [ "$1" = "getproxykey" ]; then
-  exec docker exec $CONTAINERNAME /opt/container/get-proxy-key.sh
+  exec RunBuilder exec $CONTAINERNAME /opt/container/get-proxy-key.sh
 fi
 
 if [ "$1" != "build" ] && [ "$1" != "push" ] && [ "$1" != "run" ] && [ "$1" != "runline" ] && [ "$1" != "runshell" ]; then
@@ -36,31 +68,31 @@ HERE
   exit 1
 fi
 
-if ! docker build --pull --progress plain -t $TAG . ; then
+if ! RunBuilder build --pull --progress plain -t $TAG . ; then
   echo "Docker build failed"
   exit 1
 fi
 
 if [ "$1" = "push" ]; then
-  docker push $TAG
+  RunBuilder push $TAG
   echo "Pushed $TAG"
   exit 0
 fi
 
 if [ "$1" = "run" ]; then
-  docker kill $CONTAINERNAME
-  docker rm $CONTAINERNAME
+  RunBuilder kill $CONTAINERNAME
+  RunBuilder rm $CONTAINERNAME
   exec $DEVELOPRUNCMD -ti $TAG
 fi
 
 if [ "$1" = "runlive" ]; then
-  docker kill $CONTAINERNAME
-  docker rm $CONTAINERNAME
+  RunBuilder kill $CONTAINERNAME
+  RunBuilder rm $CONTAINERNAME
   exec $LIVERUNCMD -ti $TAG
 fi
 
 if [ "$1" = "runshell" ]; then
-  docker kill $CONTAINERNAME
-  docker rm $CONTAINERNAME
+  RunBuilder kill $CONTAINERNAME
+  RunBuilder rm $CONTAINERNAME
   exec $DEVELOPRUNCMD -ti $TAG /bin/bash
 fi
