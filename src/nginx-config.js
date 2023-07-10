@@ -224,8 +224,10 @@ http {
       let ssl_path_key = keys_dir + "/" + hash + ".key";
       let ssl_path_cert = keys_dir + "/" + hash + ".crt";
 
-      fs.writeFileSync(ssl_path_key, cert.keyfile);
-      fs.writeFileSync(ssl_path_cert, cert.chainfile);
+      fs.writeFileSync(ssl_path_key + ".tmp", cert.keyfile);
+      fs.renameFileSync(ssl_path_key + ".tmp", ssl_path_key);
+      fs.writeFileSync(ssl_path_cert + ".tmp", cert.chainfile);
+      fs.renameFileSync(ssl_path_cert + ".tmp", ssl_path_cert);
 
       certs[cert.name] = { cert_path: ssl_path_cert, key_path: ssl_path_key };
     });
