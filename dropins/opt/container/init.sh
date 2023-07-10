@@ -30,10 +30,8 @@ if [ -n "$WEBHAREPROXY_ADMINHOSTNAME" ]; then
   ensurekey "${WEBHAREPROXY_ADMINHOSTNAME}" "${WEBHAREPROXY_ADMINHOSTNAME}"
 fi
 
-if [ ! -f /opt/webhare-proxy-data/etc/nginx.conf ]; then
-  echo "** Creating initial configuration"
-  /opt/webhare-nginx-proxy/src/nginx-proxy.js --resetconfig
-fi
+echo "** Updating/creating initial configuration"
+/opt/webhare-nginx-proxy/src/nginx-proxy.js --regenerate
 
 
 if [ -n "$WEBHAREPROXY_ADMINHOSTNAME" -a -n "$WEBHAREPROXY_LETSENCRYPTEMAIL" -a ! -d /etc/letsencrypt/live/$WEBHAREPROXY_ADMINHOSTNAME ]; then

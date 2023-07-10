@@ -96,14 +96,26 @@ function handleRPCRequest(req, jsondata, res)
 async function updateConfiguration()
 {
   // Generate the config
-  let configfile = NginxConfig.generateNginxConfig();
+  const configfile = NginxConfig.generateNginxConfig();
 
   // Test that generated config file
-  let testresult = await NginxConfig.testNginxConfig(configfile);
+  const testresult = await NginxConfig.testNginxConfig(configfile);
   if (!testresult)
-    console.log("Initial configuration did not validate");
+    throw new Error("Initial configuration did not validate");
 
-  await NginxConfig.applyNginxConfig(NginxConfig.generateNginxConfig());
+  await NginxConfig.applyNginxConfig(configfile);
+  console.log("Nginx configuration updated");
+}
+
+async function regenerateConfiguration() {
+  Config.read();
+  const configfile = NginxConfig.generateNginxConfig();
+
+  const testresult = await NginxConfig.testNginxConfig(configfile);
+  if (!testresult)
+    throw new Error("Generated configuration did not validate");
+
+  await NginxConfig.applyNginxConfig(configfile);
   console.log("Nginx configuration updated");
 }
 
@@ -166,3 +178,4 @@ function run()
 
 exports.run = run;
 exports.updateConfiguration = updateConfiguration;
+exports.regenerateConfiguration = regenerateConfiguration;

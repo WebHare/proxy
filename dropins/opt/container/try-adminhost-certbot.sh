@@ -13,7 +13,8 @@ for i in $(seq 1 10); do
 done
 
 if [ -z "$CONNECTED" ]; then
-  echo Failed to connect. Sleeping for 1 hour and then retrying
+  echo ""
+  echo "[try-adminhost-certbot] Failed to connect. Sleeping for 1 hour and then retrying (this is normal when running locally)"
   sleep 3600
   exec $0
   exit 1

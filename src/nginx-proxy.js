@@ -15,6 +15,7 @@ let opt = Getopt.create(
   ['' ,  'localhostport=PORT'  , 'open http localhost-only port' ],
   ['h' , 'help'                , 'display this help'],
   ['',   'resetconfig'         , 'generate empty configuration and exit'],
+  ['',   'regenerate'          , 'regenerate configuration and exit'],
   ['',   'install'             , 'install as service'],
   ['',   'uninstall'           , 'uninstall as service']
 ])              // create Getopt instance
@@ -35,12 +36,11 @@ else if (process.env.NGINXPROXY_LOCALHOSTPORT)
 if(opt.options.configfolder)
   Config.data_storage_path = opt.options.configfolder;
 
-if(opt.options.resetconfig)
-{
-  Server.updateConfiguration().then(function() { console.log("done")}).catch(e => console.error(e));
-}
-else
-{
+if(opt.options.resetconfig) {
+  Server.updateConfiguration().then(function() { console.log("configuration reset")}).catch(e => console.error(e));
+} else if(opt.options.regenerate) {
+  Server.regenerateConfiguration().then(function() { console.log("regenerated configuration")}).catch(e => console.error(e));
+} else {
   console.log("Running on port " + Config.portnumber);
   Server.run();
 }
