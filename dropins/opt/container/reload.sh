@@ -15,6 +15,9 @@ if ! nginx -c /opt/webhare-proxy-data/etc/nginx.conf -t ; then
   exit 1
 fi
 
+# Reset emergency log file
+mv /data/log/emerg.log /data/log/emerg.log-previous 2>/dev/null
+
 # flush the authcache as it's convenient SV reconfigure <server> just fixes stuff
 rm -rf /opt/webhare-proxy-data/cache/authcache/*
 nginx -s reload >/dev/null 2>&1

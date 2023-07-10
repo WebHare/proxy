@@ -3,16 +3,20 @@ cd "${0%/*}" || exit 1
 
 USEPODMAN=""
 DOCKERBUILDOPTS=()
+PUSH=""
 
 while [[ $1 =~ ^-.* ]]; do
   if [ "$1" == "--podman" ]; then
     USEPODMAN="1"
     DOCKERBUILDOPTS+=(--podman)
+    shift
+  elif [ "$1" == "--push" ]; then
+    PUSH=1
+    shift
   else
     echo "Illegal option $1"
     exit 1
   fi
-  shift
 done
 
 RunBuilder()
@@ -53,7 +57,7 @@ if ! ./docker.sh "${DOCKERBUILDOPTS[@]}" build; then
   exit 1
 fi
 
-if [ "$1" = "--push" ]; then
+if [ "$PUSH" == "1" ]; then
   if ! RunBuilder push $TAG ; then
     echo Push failed for tag: $TAG
     echo You may need to login: docker login
