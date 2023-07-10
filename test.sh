@@ -67,6 +67,7 @@ if ! docker cp "$TESTDIR/" "$DOCKERBASENAME-testscript:/"; then
   exit 1
 fi
 
+echo "** running testscript"
 if ! docker start -a "$DOCKERBASENAME-testscript"; then
   echo "Test failed"
   exit 1
