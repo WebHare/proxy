@@ -3,3 +3,5 @@ build
 runtimedata
 dropins/opt/container/etc/proxy-version
 dropins/opt/container/etc/proxy-branch
+# WebHare will manage the tsconfig.json for the project
+/tsconfig.json
