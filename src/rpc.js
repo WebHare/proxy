@@ -74,6 +74,10 @@ function verifyClient(reverseaddress, verificationurl)
   });
 };
 
+exports.ping = async function ping(echo) {
+  return echo;
+}
+
 // Used to test connectivity
 exports.test = async function test(reverseaddress, verificationurl)
 {

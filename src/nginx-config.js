@@ -261,10 +261,9 @@ http {
       config +=
           `    server_name ${host.servernames.join(" ")};\n`;
 
-      if (host.ssl_keypair)
+      let cert = certs[host.ssl_keypair];
+      if (cert) //if the referred cert was actually shipped.. (WH pre-5.4 would mention a nonexisting 'fallback' certificate)
       {
-        let cert = certs[host.ssl_keypair];
-
         config +=
             "    ssl_certificate " + cert.cert_path + ";\n"
           + "    ssl_certificate_key " + cert.key_path + ";\n";

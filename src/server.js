@@ -50,7 +50,6 @@ function handleRequest(req, postdata, res)
 
   let path = Path.join(__dirname, '../build/' + filename);
   let stat = fs.statSync(path);
-  console.log(path, stat.size);
 
   res.writeHead(200,
     { "Content-Type":     contenttype
@@ -152,27 +151,29 @@ function startServer()
 
     let server = https.createServer(server_config, servercallback);
     server.listen(Config.portnumber);
-    console.log(`Listening for requests on secure port ${Config.portnumber}`);
+    console.log(`[configserver] Listening for requests on secure port ${Config.portnumber}`);
   }
   else
   {
-    console.error(`Not starting secure server on port ${Config.portnumber} as we don't have keys for it in ${ssl_config_dir}`);
+    console.error(`[configserver] Not starting secure server on port ${Config.portnumber} as we don't have keys for it in ${ssl_config_dir}`);
   }
 
   if(Config.localhostport)
   {
     let localhostserver = http.createServer(servercallback);
     localhostserver.listen(Config.localhostport, '127.0.0.1');
-    console.log(`Listening for requests on insecure localhost port ${Config.localhostport}`);
+    console.log(`[configserver] Listening for requests on insecure localhost port ${Config.localhostport}`);
   }
 
-  console.log("Regenerate nginx configuration");
+  console.log("[configserver] Regenerate nginx configuration");
   updateConfiguration();
 }
 
 function run()
 {
+  console.log("[configserver] run");
   Config.read();
+  console.log("[configserver] startServer");
   startServer();
 }
 

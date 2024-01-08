@@ -32,7 +32,7 @@ function readSavedConfiguration(resave)
       {
         config.clients = parsed_config.clients;
         config.counter = parsed_config.counter || 1;
-        console.log("Read persistent configuration from disk");
+        console.log("[configserver] Read persistent configuration from disk");
       }
     }
   }
@@ -74,7 +74,7 @@ function saveConfiguration()
     waitresolve = null;
   }
 
-  console.log('Saved config', config.counter, config.clients.map(c => c.id));
+  console.log('Saved config counter=', config.counter, 'clients=', config.clients.map(c => c.id));
 }
 
 function waitForConfigChange(counter)
