@@ -24,7 +24,7 @@ The management interface on port 5443 will not be available until this is done.
 ## Management
 The proxy offers a management interface on 127.0.0.1:5080
 
-You can login using the proxy key as the password
+You can login using the proxy key as the password. To get the proxy key execute `/opt/container/get-proxy-key.sh`
 
 If you've configured WEBHAREPROXY_ADMINHOSTNAME and WEBHAREPROXY_LETSENCRYPTEMAIL, you can use `/opt/container/setup-adminhost-certbot.sh` to request a LetsEncrypt certificate for that hostname
 

@@ -7,7 +7,7 @@ set -eo pipefail
 rm -f /etc/apt/apt.conf.d/docker-clean
 echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
-( curl -sL https://deb.nodesource.com/setup_18.x | bash - )
+( curl -sL https://deb.nodesource.com/setup_20.x | bash - )
 
 apt-get update
 apt-get install -y software-properties-common curl gnupg2

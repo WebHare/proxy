@@ -4,6 +4,8 @@ if [ -z "$TEST_PROXY_IMAGE" ]; then
   TEST_PROXY_IMAGE=webhare/proxy:devbuild
 fi
 
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+
 DOCKERBASENAME="testproxy$RANDOM"
 
 if ! docker run -l webharecitype=testdocker --rm -i --name $DOCKERBASENAME \
@@ -24,13 +26,14 @@ trap cleanup EXIT
 
 
 cleanup
-if ! docker create -l webharecitype=testdocker --rm -i --name $DOCKERBASENAME -e WEBHAREPROXY_CERTBOT_OPTIONS=--staging -e WEBHAREPROXY_ADMINHOSTNAME=admin.example.com $TEST_PROXY_IMAGE; then
+if ! docker create -l webharecitype=testdocker --rm --name $DOCKERBASENAME -e WEBHAREPROXY_CERTBOT_OPTIONS=--staging -e WEBHAREPROXY_ADMINHOSTNAME=admin.example.com $TEST_PROXY_IMAGE; then
   echo "Test failed"
   exit 1
 fi
 
 docker start $DOCKERBASENAME
-# docker logs -f $DOCKERBASENAME &
+docker logs -f $DOCKERBASENAME &
+DOCKER_LOG_PID=$!
 
 export PROXYIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $DOCKERBASENAME)
 if [[ $OSTYPE == 'darwin'* ]]; then
@@ -55,7 +58,7 @@ fi
 if ! docker create --rm -w /tests --name "$DOCKERBASENAME-testscript" \
     -e PROXYIP="$PROXYIP" \
     -e PROXYKEY="$PROXYKEY" \
-    node node /tests/runtest.js ; then
+    node /tests/runtest.sh ; then
   echo "Setup node runner failed"
   exit 1
 fi

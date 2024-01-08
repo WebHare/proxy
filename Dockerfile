@@ -25,8 +25,6 @@ RUN        cd /opt/webhare-nginx-proxy && \
            npm install && \
            npm cache clear --force
 
-ADD        .eslintrc /opt/webhare-nginx-proxy
-
 ADD        src /opt/webhare-nginx-proxy/src
 
 # Running webpack through npm's script runner discarded exit codes
