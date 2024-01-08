@@ -34,14 +34,6 @@ var config = {
     ], __dirname,"../")
   ],
   module: {
-    preLoaders: [
-      {
-        test: /\.(js|jsx)$/,
-        loader: 'eslint-loader',
-        include: [path.resolve(__dirname, "app")],
-        exclude: [nodeModulesPath]
-      },
-    ],
     loaders: [
       {
         test: /\.(js|jsx)$/, //All .js and .jsx files
