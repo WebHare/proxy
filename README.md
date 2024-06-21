@@ -10,7 +10,7 @@ The proxy also allows you to host multiple instances of WebHare on the same prox
 ## Installation
 You should set up a data dir for the /opt/webhare-proxy-data/ volume.
 
-Example docker calling syntax which assumes /dockers/my-nx/proxy-data/ will host the volume
+Example docker calling syntax which assumes /dockers/my-nx/proxy-data/ will host the volume, publishing management port 5443.
 
 ```bash
 docker run --name my-nx -p 80:80 -p 443:443 -p 5443:5443 -v /dockers/my-nx/proxy-data/:/opt/webhare-proxy-data/ webhare/proxy:master
@@ -18,15 +18,16 @@ docker run --name my-nx -p 80:80 -p 443:443 -p 5443:5443 -v /dockers/my-nx/proxy
 
 Alternatively, you can run the docker container in the 'host' network namespace (`--network host`). You may find you need this to properly capture client's IP addresses, especially over IPv6.
 
-The first time the container is started, it will generate new DH parameters. This may take quite a while.
-The management interface on port 5443 will not be available until this is done.
+The first time the container is started, it will generate new DH parameters. This may take a while.
 
 ## Management
-The proxy offers a management interface on 127.0.0.1:5080
+The proxy offers a management interface on http://127.0.0.1:5080 and https://127.0.0.1:5443/
 
 You can login using the proxy key as the password. To get the proxy key execute `/opt/container/get-proxy-key.sh`
 
-If you've configured WEBHAREPROXY_ADMINHOSTNAME and WEBHAREPROXY_LETSENCRYPTEMAIL, you can use `/opt/container/setup-adminhost-certbot.sh` to request a LetsEncrypt certificate for that hostname
+If you've configured WEBHAREPROXY_ADMINHOSTNAME and WEBHAREPROXY_LETSENCRYPTEMAIL the proxy will set up a secured management interace on `https://$WEBHAREPROXY_ADMINHOSTNAME/` (ie it can then
+share port 80/443 with the hosted webservers). We recommend setting WEBHAREPROXY_ADMINHOSTNAME to the server's hostname. The server will request a LetsEncrypt certificate at startup but you can
+force it by invoking `/opt/container/setup-adminhost-certbot.sh`.
 
 ## Customizing
 
