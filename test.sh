@@ -4,8 +4,6 @@ if [ -z "$TEST_PROXY_IMAGE" ]; then
   TEST_PROXY_IMAGE=webhare/proxy:devbuild
 fi
 
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
-
 DOCKERBASENAME="testproxy$RANDOM"
 
 if ! docker run -l webharecitype=testdocker --rm -i --name $DOCKERBASENAME \
