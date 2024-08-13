@@ -10,6 +10,9 @@ while [[ $1 =~ ^-.* ]]; do
     USEPODMAN="1"
     DOCKERBUILDOPTS+=(--podman)
     shift
+  elif [ "$1" == "--nopull" ]; then
+    DOCKERBUILDOPTS+=(--nopull)
+    shift
   elif [ "$1" == "--push" ]; then
     PUSH=1
     shift

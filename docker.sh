@@ -2,16 +2,24 @@
 cd "${0%/*}" || exit 1
 
 USEPODMAN=""
+BUILDOPTIONS=()
+NOPULL=
 
 while [[ $1 =~ ^-.* ]]; do
   if [ "$1" == "--podman" ]; then
     USEPODMAN="1"
+    BUILDOPTIONS=(--security-opt label=disable)
+    shift
+  elif [ "$1" == "--nopull" ]; then
+    NOPULL=1
+    shift
   else
     echo "Illegal option $1"
     exit 1
   fi
-  shift
 done
+
+[ -z "$NOPULL" ] && BUILDOPTIONS+=(--pull)
 
 RunBuilder()
 {
@@ -68,7 +76,7 @@ HERE
   exit 1
 fi
 
-if ! RunBuilder build --pull --progress plain -t $TAG . ; then
+if ! RunBuilder build "${BUILDOPTIONS[@]}" --progress plain -t $TAG . ; then
   echo "Docker build failed"
   exit 1
 fi
