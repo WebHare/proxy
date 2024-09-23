@@ -114,6 +114,9 @@ http {
   proxy_cache_path ${Config.data_storage_path}/cache/maincache levels=1:2 keys_zone=maincache:20m max_size=10g inactive=240m use_temp_path=off;
   proxy_cache_path ${Config.data_storage_path}/cache/authcache levels=1:2 keys_zone=authcache:10m max_size=1g  inactive=60m  use_temp_path=off;
 
+  # Ensure Range support for file/image cache requests (they would return 200 on first hit was SendWebFile doesn't do Range)
+  proxy_force_ranges on ;
+
   gzip on;
   gzip_vary on;
   gzip_proxied no_etag;
