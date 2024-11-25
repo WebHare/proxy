@@ -9,7 +9,7 @@ if [ ! -f "${WEBHAREPROXY_DATAROOT}var/nginx.pid" ]; then
   exit 0
 fi
 
-if ! nginx -c "${WEBHAREPROXY_DATAROOT}etc/nginx.conf" -t ; then
+if ! "${WEBHAREPROXY_NGINX}" -c "${WEBHAREPROXY_DATAROOT}etc/nginx.conf" -t ; then
   echo "CONFIG INCORRECT!"
   exit 1
 fi
@@ -19,4 +19,4 @@ mv "${WEBHAREPROXY_DATAROOT}/log/emerg.log" "${WEBHAREPROXY_DATAROOT}/log/emerg.
 
 # flush the authcache as it's convenient SV reconfigure <server> just fixes stuff
 rm -rf "${WEBHAREPROXY_DATAROOT}cache/authcache"/*
-nginx -s reload >/dev/null 2>&1
+"${WEBHAREPROXY_NGINX}" -c "${WEBHAREPROXY_DATAROOT}etc/nginx.conf" -s reload >/dev/null 2>&1

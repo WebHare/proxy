@@ -12,8 +12,8 @@ else
   exit 1
 fi
 
-export WEBHAREPROXY_FSROOT=/dev/null/unavailable/ # anything that expects a full docker FS should fail. give a path we can't rm -rf either
-export WEBHAREPROXY_DATAROOT="$WEBHAREPROXY_CODEROOT/localdata/"
+export WEBHAREPROXY_FSROOT="${WEBHAREPROXY_CODEROOT}dropins/"
+export WEBHAREPROXY_DATAROOT="${WEBHAREPROXY_CODEROOT}localdata/"
 export WEBHAREPROXY_PORT_HTTP=80
 export WEBHAREPROXY_PORT_HTTPS=443
 export WEBHAREPROXY_MGMT_HTTP=5080
@@ -25,7 +25,7 @@ echo "Data root: $WEBHAREPROXY_DATAROOT"
 
 # TODO dynamic brew configuration, see chatplane? or webhare' rb
 if ! hash runsv ; then
-  echo "install runsv"
+  echo "install runsv (brew install runit)"
   exit 1
 fi
 
