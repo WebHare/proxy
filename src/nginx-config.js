@@ -365,9 +365,9 @@ async function applyNginxConfig(configdata, saveconfig)
   }
   if(nginxpid && nginxpid.toString())
   {
-    let process;
-    let output = new Promise(resolve => process = child_process.exec(`${process.env.WEBHAREPROXY_FSROOT}opt/container/reload.sh`, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
-    let process_result = await new Promise(resolve => process.on("exit", resolve));
+    let proc;
+    let output = new Promise(resolve => proc = child_process.exec(`${process.env.WEBHAREPROXY_FSROOT}opt/container/reload.sh`, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+    let process_result = await new Promise(resolve => proc.on("exit", resolve));
     output = await output;
 
     // Test if reload went ok
