@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-FILENAME="/opt/webhare-proxy-data/etc/nginx-adminserver/$1.conf"
+FILENAME="${WEBHAREPROXY_DATAROOT}/etc/nginx-adminserver/$1.conf"
 cat > "$FILENAME"
 
 if [ ! -s "$FILENAME" ]; then
@@ -15,7 +15,7 @@ if [ ! -s "$FILENAME" ]; then
   rm "$FILENAME"
 else
   echo "Testing new configuration file"
-  if ! /usr/sbin/nginx -t -c /opt/webhare-proxy-data/etc/nginx.conf; then
+  if ! "$WEBHAREPROXY_NGINX" -t -c "${WEBHAREPROXY_DATAROOT}/etc/nginx.conf"; then
     echo "Configuration test failed, configuration file $1.conf has been removed"
     rm "$FILENAME"
     exit 1

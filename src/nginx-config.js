@@ -3,6 +3,7 @@
 const fs = require("fs");
 const crypto = require("crypto");
 const child_process = require("child_process");
+const process = require("process");
 
 const Config = require("./config");
 const Tools = require("./tools");
@@ -71,7 +72,7 @@ user www-data;
 worker_processes auto;
 error_log ${Config.data_storage_path}/log/error.log info;
 error_log ${Config.data_storage_path}/log/emerg.log emerg;
-pid /var/run/nginx.pid;
+pid ${Config.data_storage_path}/var/nginx.pid;
 
 include             ${Config.data_storage_path}/etc/nginx-other/*.conf;
 
@@ -98,14 +99,15 @@ http {
   keepalive_timeout   65;
   types_hash_max_size 2048;
 
-  include             /etc/nginx/mime.types;
+  include             ${process.env.WEBHAREPROXY_CODEROOT}src/data/mime.types;
   include             ${Config.data_storage_path}/etc/nginx-http/*.conf;
   default_type        application/octet-stream;
 
   server_names_hash_bucket_size 256;
 
   ssl_protocols TLSv1.2 TLSv1.3;
-  ssl_dhparam /etc/ffdhe3072.pem;
+  ssl_dhparam ${process.env.WEBHAREPROXY_CODEROOT}src/data/ffdhe3072.pem;
+
   ssl_prefer_server_ciphers on;
   ssl_session_cache shared:SSL:10m;
   ssl_session_timeout 10m;
@@ -324,9 +326,10 @@ async function testNginxConfig(configdata)
   fs.writeFileSync(testpath, configdata);
 
   // Run the process, catch the return code and output
-  let process;
-  let output = new Promise(resolve => process = child_process.exec("/usr/sbin/nginx -t -c" + " " + testpath, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
-  let process_result = await new Promise(resolve => process.on("exit", resolve));
+  let process2;
+  //FIXME don't rely on shell arg parser
+  let output = new Promise(resolve => process2 = child_process.exec(`${process.env.WEBHAREPROXY_NGINX} -t -c ${testpath}`, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+  let process_result = await new Promise(resolve => process2.on("exit", resolve));
   output = await output;
 
   if (process_result !== 0)
@@ -354,7 +357,7 @@ async function applyNginxConfig(configdata, saveconfig)
   let nginxpid;
   try
   {
-    nginxpid = fs.readFileSync("/var/run/nginx.pid");
+    nginxpid = fs.readFileSync(`${process.env.WEBHAREPROXY_DATAROOT}var/nginx.pid`);
   }
   catch(ignore)
   {

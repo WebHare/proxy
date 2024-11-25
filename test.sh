@@ -31,7 +31,6 @@ fi
 
 docker start $DOCKERBASENAME
 docker logs -f $DOCKERBASENAME &
-DOCKER_LOG_PID=$!
 
 export PROXYIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $DOCKERBASENAME)
 if [[ $OSTYPE == 'darwin'* ]]; then

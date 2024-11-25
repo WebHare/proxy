@@ -1,23 +1,22 @@
 #!/bin/bash
 
-if [ ! -f /opt/webhare-proxy-data/etc/nginx.conf ]; then
+if [ ! -f "${WEBHAREPROXY_DATAROOT}etc/nginx.conf" ]; then
   echo "reload requested but configuration does not exist yet"
   exit 0
 fi
-if [ ! -f /var/run/nginx.pid ]; then
+if [ ! -f "${WEBHAREPROXY_DATAROOT}var/nginx.pid" ]; then
   echo "reload requested but nginx not running yet"
   exit 0
 fi
 
-
-if ! nginx -c /opt/webhare-proxy-data/etc/nginx.conf -t ; then
+if ! nginx -c "${WEBHAREPROXY_DATAROOT}etc/nginx.conf" -t ; then
   echo "CONFIG INCORRECT!"
   exit 1
 fi
 
 # Reset emergency log file
-mv /data/log/emerg.log /data/log/emerg.log-previous 2>/dev/null
+mv "${WEBHAREPROXY_DATAROOT}/log/emerg.log" "${WEBHAREPROXY_DATAROOT}/log/emerg.log-previous" 2>/dev/null
 
 # flush the authcache as it's convenient SV reconfigure <server> just fixes stuff
-rm -rf /opt/webhare-proxy-data/cache/authcache/*
+rm -rf "${WEBHAREPROXY_DATAROOT}cache/authcache"/*
 nginx -s reload >/dev/null 2>&1

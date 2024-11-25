@@ -2,8 +2,10 @@ FROM       docker.io/webhare/baseimage:ubuntu-20
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 ENV LC_ALL=C \
   WEBHAREPROXY_IN_DOCKER=1 \
+  WEBHAREPROXY_CODEROOT=/opt/webhare-nginx-proxy/ \
   WEBHAREPROXY_DATAROOT=/data/ \
   WEBHAREPROXY_FSROOT=/ \
+  WEBHAREPROXY_NGINX=/usr/sbin/nginx \
   WEBHAREPROXY_PORT_HTTP=80 \
   WEBHAREPROXY_PORT_HTTPS=443 \
   WEBHAREPROXY_MGMT_HTTP=5080 \

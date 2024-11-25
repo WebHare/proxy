@@ -44,6 +44,9 @@ If you want to remap the listen ports, set the environment variables WEBHAREPROX
 ## Making a new release
 The CI scripts take care of deploying to Docker. Simply push a new tag
 
+## Running the proxy from the source tree
+Use `./ronlocal.sh` to start the proxy locally
+
 ## Troubleshooting
 The nginx configuration is generated as `/data/nginx.conf`. If you patch this file use `/opt/container/reload.sh` to reload it.
 Use `/opt/webhare-nginx-proxy/src/nginx-proxy.js --regenerate` to regenerate the configuration file.
