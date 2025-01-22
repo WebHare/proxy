@@ -1,7 +1,13 @@
 node_modules
 build
-runtimedata
+
 dropins/opt/container/etc/proxy-version
 dropins/opt/container/etc/proxy-branch
-# WebHare will manage the tsconfig.json for the project
+dropins/opt/container/services/*/supervise
+
 /tsconfig.json
+
+# used by docker run, i think?
+runtimedata
+# used when running from source tree
+/localdata
