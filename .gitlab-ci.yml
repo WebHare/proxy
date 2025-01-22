@@ -1,5 +1,6 @@
 # Pipelines: https://gitlab.webhare.com/webhare-opensource/proxy/pipelines
 # About CI variables: https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+# Registry contents: https://gitlab.webhare.com/webhare-opensource/proxy/container_registry
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
