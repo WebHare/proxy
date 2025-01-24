@@ -130,7 +130,7 @@ exports.registerProxyClient = async function registerProxyClient(newconfig)
   {
     // Insert default newconfig, so the newconfig generator will find the new client. Only id is used for lookup.
     client = { id: newconfig.id };
-    Config.clients.push(client);
+    Config.clients.push(client); //FIXME don't mutate, we have a problem if nginx configuration fails as then Config.clients is 'stuck' with the client
   }
 
   // Generate the newconfig from all last valid configs, but with the new newconfig for this client
