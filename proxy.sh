@@ -56,8 +56,33 @@ else
   export TAG="docker.io/webhare/proxy:devbuild"
 fi
 
-if ! ./docker.sh "${DOCKERBUILDOPTS[@]}" build; then
-  echo Build failed
+if [ -z "$CI_COMMIT_SHA" ]; then
+  # Not a CI build, try to get git commit and branch
+  # Also note that Runkit expects a com.webhare.webhare.git-commit-ref label to be present to recognize the image as a WebHare image
+  # so this is the path used by Escrow builds to actually set this information
+  CI_COMMIT_SHA="$(git rev-parse HEAD 2> /dev/null)"
+  CI_COMMIT_REF_NAME="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
+  if [ -n "$CI_COMMIT_SHA$CI_COMMIT_REF_NAME" ]; then
+    echo "Building from git, branch '$CI_COMMIT_REF_NAME', commit '$CI_COMMIT_SHA'"
+  fi
+fi
+
+# Record CI information so we can verify eg. if this image really matches the most recent build
+DOCKERBUILDOPTS+=(--build-arg)
+DOCKERBUILDOPTS+=("CI_COMMIT_SHA=$CI_COMMIT_SHA")
+DOCKERBUILDOPTS+=(--build-arg)
+DOCKERBUILDOPTS+=("CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME")
+DOCKERBUILDOPTS+=(--build-arg)
+DOCKERBUILDOPTS+=("CI_PIPELINE_ID=$CI_PIPELINE_ID")
+#DOCKERBUILDOPTS+=(--build-arg)
+#DOCKERBUILDOPTS+=("WEBHAREPROXY_VERSION=..")
+DOCKERBUILDOPTS+=(--tag)
+DOCKERBUILDOPTS+=("$TAG")
+DOCKERBUILDOPTS+=(--progress)
+DOCKERBUILDOPTS+=(plain)
+
+if ! RunBuilder build "${DOCKERBUILDOPTS[@]}" . ; then
+  echo "Docker build failed"
   exit 1
 fi
 

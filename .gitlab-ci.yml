@@ -30,7 +30,7 @@ buildimage:
   stage: build
   script:
     - mkdir docker-images
-    - ./build.sh
+    - ./proxy.sh build
     - docker save webhare/proxy:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG} > docker-images/app.tar
 
 testimage:
