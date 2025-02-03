@@ -5,12 +5,12 @@ container. This allows development against the proper nginx version, even under 
 
 ```bash
 cd ~/projects/proxy
-./docker.sh run
+./proxy.sh run
 ```
 
 To get the proxy key, use
 ```bash
-docker exec testproxy /opt/container/get-proxy-key.sh
+./proxy.sh getproxykey
 ```
 The reverse proxy will be available on http://127.0.0.1:41080/ and https://127.0.0.1:41443/
 
@@ -20,7 +20,7 @@ You can access the management interface on https://127.0.0.1:41443/admin/ using 
 
 To get a shell inside the proxy
 ```bash
-docker exec -ti testproxy /bin/bash
+./proxy.sh shell
 ```
 
 To restart the admin interface process (after changing its code)
