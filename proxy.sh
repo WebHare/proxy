@@ -71,18 +71,12 @@ if [ "$1" == "build" ]; then
   fi
 
   # Record CI information so we can verify eg. if this image really matches the most recent build
-  DOCKERBUILDOPTS+=(--build-arg)
-  DOCKERBUILDOPTS+=("CI_COMMIT_SHA=$CI_COMMIT_SHA")
-  DOCKERBUILDOPTS+=(--build-arg)
-  DOCKERBUILDOPTS+=("CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME")
-  DOCKERBUILDOPTS+=(--build-arg)
-  DOCKERBUILDOPTS+=("CI_PIPELINE_ID=$CI_PIPELINE_ID")
-  #DOCKERBUILDOPTS+=(--build-arg)
-  #DOCKERBUILDOPTS+=("WEBHAREPROXY_VERSION=..")
-  DOCKERBUILDOPTS+=(--tag)
-  DOCKERBUILDOPTS+=("$TAG")
-  DOCKERBUILDOPTS+=(--progress)
-  DOCKERBUILDOPTS+=(plain)
+  DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_SHA=$CI_COMMIT_SHA")
+  DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME")
+  DOCKERBUILDOPTS+=(--build-arg "CI_PIPELINE_ID=$CI_PIPELINE_ID")
+  DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_TAG=$CI_COMMIT_TAG")
+  DOCKERBUILDOPTS+=(--tag "$TAG")
+  DOCKERBUILDOPTS+=(--progress plain)
 
   export DOCKER_BUILDKIT=1
 

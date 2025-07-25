@@ -25,7 +25,7 @@ The proxy offers a management interface on http://127.0.0.1:5080 and https://127
 
 You can login using the proxy key as the password. To get the proxy key execute `/opt/container/get-proxy-key.sh`
 
-If you've configured WEBHAREPROXY_ADMINHOSTNAME and WEBHAREPROXY_LETSENCRYPTEMAIL the proxy will set up a secured management interace on `https://$WEBHAREPROXY_ADMINHOSTNAME/` (ie it can then
+If you've configured WEBHAREPROXY_ADMINHOSTNAME and WEBHAREPROXY_LETSENCRYPTEMAIL the proxy will set up a secured management interface on `https://$WEBHAREPROXY_ADMINHOSTNAME/` (ie it can then
 share port 80/443 with the hosted webservers). We recommend setting WEBHAREPROXY_ADMINHOSTNAME to the server's hostname. The server will request a LetsEncrypt certificate at startup but you can
 force it by invoking `/opt/container/setup-adminhost-certbot.sh`.
 
@@ -43,3 +43,7 @@ If you want to remap the listen ports, set the environment variables WEBHAREPROX
 
 ## Making a new release
 The CI scripts take care of deploying to Docker. Simply push a new tag
+
+## Troubleshooting
+The nginx configuration is generated as `/data/nginx.conf`. If you patch this file use `/opt/container/reload.sh` to reload it.
+Use `/opt/webhare-nginx-proxy/src/nginx-proxy.js --regenerate` to regenerate the configuration file.

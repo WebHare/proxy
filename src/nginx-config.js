@@ -122,6 +122,11 @@ http {
   gzip_proxied no_etag;
   gzip_types text/xml application/json application/xml text/css application/javascript text/plain text/csv text/calendar text/x-vcard;
 
+  # Support larger headers and upstream responses. Larger headers were needed to deal with larger data in wrdauth JWT and frontend data.
+  proxy_buffer_size          128k;
+  proxy_buffers              4 256k;
+  proxy_busy_buffers_size    256k;
+
   # Detect text/html, only those have use for IP info
   map $upstream_http_content_type $upstream_content_type
   {

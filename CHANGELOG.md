@@ -1,4 +1,13 @@
 # Changelog
+## 3.4.2
+- Increase upstream accepted header sizes (to support larger wrdauth cookies)
+
+## 3.4.0
+- Fixes to range support
+
+## 3.3.0
+- Put IP info in server timing headers
+
 ## 3.2.0
 - Refuse settings from a WebHare if we already received 'newer' settings for that WebHare.
   This prevents 'older' restored WebHares from overwriting the proxy configuration of the live server.
