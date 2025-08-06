@@ -6,6 +6,7 @@ DOCKERBUILDOPTS=()
 PUSH=""
 CONTAINERNAME=testproxy
 RUNBUILDER_PREFIX=""
+NOPULL=
 
 while [[ $1 =~ ^-.* ]]; do
   if [ "$1" == "--podman" ]; then
@@ -13,7 +14,7 @@ while [[ $1 =~ ^-.* ]]; do
     DOCKERBUILDOPTS+=(--security-opt label=disable)
     shift
   elif [ "$1" == "--nopull" ]; then
-    DOCKERBUILDOPTS+=(--nopull)
+    NOPULL="1"
     shift
   elif [ "$1" == "--push" ]; then
     PUSH=1
@@ -23,6 +24,14 @@ while [[ $1 =~ ^-.* ]]; do
     exit 1
   fi
 done
+
+if [ -z "$NOPULL" ]; then
+  if [ -n "$USEPODMAN" ]; then
+    DOCKERBUILDOPTS+=(--pull newer)
+  else
+    DOCKERBUILDOPTS+=(--pull)
+  fi
+fi
 
 RunBuilder()
 {
