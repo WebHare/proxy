@@ -74,7 +74,7 @@ async function test() {
 
   //wait for it to be pingable
   for (let i = 0; i < 600; ++i) {
-    console.log(`[runtests] Waiting for underyling service, try ${i}`);
+    console.log(`[runtests] Waiting for underlying service, try ${i}`);
     const response = await undici.request(`http://${config.PROXYIP}:${config.PORT_80}/admin/rpc`,
       {
         headers: {

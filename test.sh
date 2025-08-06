@@ -1,14 +1,14 @@
 #!/bin/bash
 
 if [ -z "$TEST_PROXY_IMAGE" ]; then
-  TEST_PROXY_IMAGE=webhare/proxy:devbuild
+  TEST_PROXY_IMAGE="webhare/proxy:devbuild"
 fi
 
 DOCKERBASENAME="testproxy$RANDOM"
 
-if ! docker run -l webharecitype=testdocker --rm -i --name $DOCKERBASENAME \
+if ! docker run -l webharecitype=testdocker --rm -i --name "$DOCKERBASENAME" \
   -e WEBHAREPROXY_CERTBOT_OPTIONS=--staging \
-  $TEST_PROXY_IMAGE \
+  "$TEST_PROXY_IMAGE" \
   /opt/container/launch-and-run-tests.sh ; then
     echo 'TESTS FAILED!'
     exit 1
@@ -24,7 +24,7 @@ trap cleanup EXIT
 
 
 cleanup
-if ! docker create -l webharecitype=testdocker --rm --name $DOCKERBASENAME -e WEBHAREPROXY_CERTBOT_OPTIONS=--staging -e WEBHAREPROXY_ADMINHOSTNAME=admin.example.com $TEST_PROXY_IMAGE; then
+if ! docker create -l webharecitype=testdocker --rm --name $DOCKERBASENAME -e WEBHAREPROXY_CERTBOT_OPTIONS=--staging -e WEBHAREPROXY_ADMINHOSTNAME=admin.example.com "$TEST_PROXY_IMAGE"; then
   echo "Test failed"
   exit 1
 fi
@@ -32,10 +32,12 @@ fi
 docker start $DOCKERBASENAME
 docker logs -f $DOCKERBASENAME &
 
-export PROXYIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $DOCKERBASENAME)
+PROXYIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $DOCKERBASENAME)
+export PROXYIP
 if [[ $OSTYPE == 'darwin'* ]]; then
   # mac Docker Desktop can't directly route to docker containers, it sees the gateway ip addr as remote IP
-  export EXPECTSEENCONNECTIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.Gateway}}{{end}}' $DOCKERBASENAME)
+  EXPECTSEENCONNECTIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.Gateway}}{{end}}' $DOCKERBASENAME)
+  export EXPECTSEENCONNECTIP
 fi
 
 export PROXYKEY;
