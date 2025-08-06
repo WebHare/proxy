@@ -14,7 +14,7 @@ apt-get install -y software-properties-common curl gnupg2
 
 apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 7FCC7D46ACCC4CF8 #Postgres key
 
-add-apt-repository 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main'
+add-apt-repository 'deb http://apt-archive.postgresql.org/pub/repos/apt/ focal-pgdg main'
 
 # in-container debugging: jq tcpdump
 # envsubst: gettext-base
