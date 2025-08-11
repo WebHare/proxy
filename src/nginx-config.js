@@ -104,7 +104,7 @@ http {
 
   server_names_hash_bucket_size 256;
 
-  ssl_protocols TLSv1.2;
+  ssl_protocols TLSv1.2 TLSv1.3;
   ssl_dhparam /etc/ffdhe3072.pem;
   ssl_prefer_server_ciphers on;
   ssl_session_cache shared:SSL:10m;
@@ -173,7 +173,7 @@ http {
       server_name ${adminhostname};
       ssl_certificate ${certpath};
       ssl_certificate_key ${keypath};
-      ssl_protocols TLSv1.2;
+      ssl_protocols TLSv1.2 TLSv1.3;
 
       #WebHare 4.30 default cipher list:
       ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA;
@@ -308,7 +308,7 @@ http {
   config +=
       "    ssl_certificate " + ssl_config_dir + "/ssl.crt;\n"
     + "    ssl_certificate_key " + ssl_config_dir + "/ssl.key;\n"
-    + "    ssl_protocols TLSv1.2;\n"
+    + "    ssl_protocols TLSv1.2 TLSv1.3;\n"
     + "    server_name _;\n"
     + "    return 404;\n"
     + "  }\n"
