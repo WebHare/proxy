@@ -2,8 +2,7 @@
 set -x
 mkdir -p "${WEBHAREPROXY_DATAROOT}/etc/ssl_config" "${WEBHAREPROXY_DATAROOT}/cache/" "${WEBHAREPROXY_DATAROOT}/log/"
 
-ensurekey()
-{
+function ensurekey() {
   local BASENAME BASEPATH HOSTNAME
 
   BASENAME="$1"

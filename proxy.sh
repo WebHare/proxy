@@ -117,14 +117,6 @@ DOCKERARGS="-v $(pwd)/runtimedata:/opt/webhare-proxy-data/ -eWEBHAREPROXY_ADMINH
 DEVELOPRUNCMD="RunBuilder run -v $(pwd)/src:/opt/webhare-nginx-proxy/src $DOCKERARGS"
 LIVERUNCMD="RunBuilder run $DOCKERARGS"
 
-if [ "$1" = "shell" ]; then
-  RUNBUILDER_PREFIX="exec" RunBuilder exec -ti $CONTAINERNAME /bin/bash
-fi
-
-if [ "$1" = "getproxykey" ]; then
-  RUNBUILDER_PREFIX="exec" RunBuilder exec $CONTAINERNAME /opt/container/get-proxy-key.sh
-fi
-
 if [ "$1" = "run" ]; then
   RunBuilder kill $CONTAINERNAME
   RunBuilder rm $CONTAINERNAME
@@ -161,6 +153,7 @@ if [ "$1" = "runlocal" ]; then
   export WEBHAREPROXY_PORT_HTTPS=443
   export WEBHAREPROXY_MGMT_HTTP=5080
   export WEBHAREPROXY_MGMT_HTTPS=5443
+  export WEBHAREPROXY_ADMINHOSTNAME=localhost
 
   export WEBHAREPROXY_CODEROOT WEBHAREPROXY_NGINX
 

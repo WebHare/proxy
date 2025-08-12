@@ -185,7 +185,7 @@ http {
       #  proxy_buffering off;
       proxy_read_timeout    600s;
       client_max_body_size  700m;
-      root /opt/adminhost/web/ ;
+      root ${process.env.WEBHAREPROXY_FSROOT}/opt/adminhost/web/ ;
 
       location /admin/
       {
