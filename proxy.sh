@@ -27,7 +27,7 @@ done
 
 if [ -z "$NOPULL" ]; then
   if [ -n "$USEPODMAN" ]; then
-    DOCKERBUILDOPTS+=(--pull newer)
+    DOCKERBUILDOPTS+=(--pull=newer)
   else
     DOCKERBUILDOPTS+=(--pull)
   fi
