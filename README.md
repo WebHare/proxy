@@ -45,7 +45,9 @@ If you want to remap the listen ports, set the environment variables WEBHAREPROX
 The CI scripts take care of deploying to Docker. Simply push a new tag
 
 ## Running the proxy from the source tree
-Use `./ronlocal.sh` to start the proxy locally
+Use `./proxy.sh runlocal` to start the proxy locally. Consider using WebHare runkit with `runkit run-proxy --nocontainer`
+
+See the [developer documentation](DEVELOEPRS.MD) for more details and recipes
 
 ## Troubleshooting
 The nginx configuration is generated as `/data/nginx.conf`. If you patch this file use `/opt/container/reload.sh` to reload it.
