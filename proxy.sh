@@ -136,7 +136,7 @@ if [ "$1" = "runshell" ]; then
 fi
 
 if [ "$1" = "runlocal" ]; then
-  WEBHAREPROXY_CODEROOT="$(cd "${BASH_SOURCE%/*}" || exit; pwd)/"
+  [ -n "$WEBHAREPROXY_CODEROOT" ] || WEBHAREPROXY_CODEROOT="$(cd "${BASH_SOURCE%/*}" || exit; pwd)/"
 
   if [ -x /opt/homebrew/bin/nginx ]; then
     WEBHAREPROXY_NGINX=/opt/homebrew/bin/nginx
@@ -148,7 +148,7 @@ if [ "$1" = "runlocal" ]; then
   fi
 
   export WEBHAREPROXY_FSROOT="${WEBHAREPROXY_CODEROOT}dropins/"
-  export WEBHAREPROXY_DATAROOT="${WEBHAREPROXY_CODEROOT}localdata/"
+  [ -n "$WEBHAREPROXY_DATAROOT" ] || export WEBHAREPROXY_DATAROOT="${WEBHAREPROXY_CODEROOT}localdata/"
   export WEBHAREPROXY_PORT_HTTP=80
   export WEBHAREPROXY_PORT_HTTPS=443
   export WEBHAREPROXY_MGMT_HTTP=5080
