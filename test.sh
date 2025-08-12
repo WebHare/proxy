@@ -41,7 +41,7 @@ if [[ $OSTYPE == 'darwin'* ]]; then
 fi
 
 export PROXYKEY;
-for i in { 1..60 }; do
+for _ in {1..60}; do
   PROXYKEY=$(docker exec $DOCKERBASENAME /root/get-proxy-key.sh)
   if [ -n "$PROXYKEY" ]; then
     break
