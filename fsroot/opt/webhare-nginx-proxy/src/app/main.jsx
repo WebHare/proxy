@@ -206,7 +206,7 @@ class Main extends React.Component
 
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
-        <div style={{height: '100%',display: 'flex', height: '100%',flexDirection:"column"}}>
+        <div style={{display: 'flex', height: '100%',flexDirection:"column"}}>
           <div style={{display: 'flex', height: 'calc(100% - 40px)'}}>
             <div>
               <div style={{fontSize: "20px"}}>Clients</div>
