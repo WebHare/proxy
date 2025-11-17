@@ -2,8 +2,8 @@
 
 import { throwError } from "@webhare/std";
 import { currentConfig } from "./config.ts";
-import fs from "fs";
-import os from 'os';
+import * as fs from "fs";
+import * as os from 'os';
 import { join } from "path";
 
 export function ensureDir(path: string) {

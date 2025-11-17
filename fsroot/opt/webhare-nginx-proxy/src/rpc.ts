@@ -1,7 +1,5 @@
-"use strict";
-
-import http from "http";
-import fs from "fs";
+import * as http from "http";
+import * as fs from "fs";
 
 import { currentConfig, type Client, waitForConfigChange } from "./config.ts";
 import * as Tools from "./tools.ts";
@@ -24,8 +22,6 @@ function verifyClient(reverseaddress: string, verificationurl: string) {
       "X-Forwarded-Proto": "https"
     }
   };
-
-  console.log(options);
 
   return new Promise<void>((resolve, reject) => {
     const req = http.get(options, res => {
@@ -115,7 +111,7 @@ export async function registerProxyClient(newconfig: Client & { secretkey: strin
   if (!testresult)
     throw new Error("Configuration did not validate");
 
-  // Apply the changes to the client, and generate+deploy the final newconfig. Using object.assign to keep 'client' reference intact
+  // Apply the changes to the client, and generate+deploy the final newconfig
   const clientIdx = currentConfig.clients.findIndex(i => i.id === newconfig.id);
   new_client.lastregistration = Date.now();
   if (clientIdx === -1)
@@ -131,7 +127,6 @@ export async function registerProxyClient(newconfig: Client & { secretkey: strin
   return { success: true, local_ips: local_ips };
 }
 
-// registerProxyClient is called by a webhare to register the hosts it needs forwarded
 export async function guiUnregisterProxyClient(servername: string) {
   if (arguments.length !== 1)
     throw new Error("Expected one parameter");

@@ -1,7 +1,5 @@
-"use strict";
-
-import crypto from "crypto";
-import fs from "fs";
+import * as crypto from "crypto";
+import * as fs from "fs";
 
 export type ClientHost = {
   ports: Array<{

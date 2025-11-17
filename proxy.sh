@@ -1,4 +1,6 @@
 #!/bin/bash
+
+set -eo pipefail
 cd "${0%/*}" || exit 1
 
 USEPODMAN=""
@@ -61,7 +63,7 @@ else
 fi
 
 
-if [ "$1" == "build" ] || [ "$1" == "runlocal" ]; then
+if [ "$1" == "build" ] || [ "$1" == "runlocal" ] || [ "$1" == "check" ]; then
   # Ensures our packages are up to date
   "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
   # Verify code first
@@ -209,6 +211,11 @@ if [ "$1" = "runlocal" ]; then
   trap terminate EXIT INT TERM HUP
 
   wait "$RUNSVDIR_GROUP_PID"
+  exit 0
+fi
+
+if [ "$1" == "check" ]; then
+  echo "Code check passed"
   exit 0
 fi
 

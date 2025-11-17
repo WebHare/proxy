@@ -5,7 +5,9 @@
     "noEmit": true,
     "target": "es2022",
     "allowImportingTsExtensions": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "nodenext",
+    "module": "nodenext"
   },
   "include": [
     "fsroot/opt/webhare-nginx-proxy/src/**/*.ts",

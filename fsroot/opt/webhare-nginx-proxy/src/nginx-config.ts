@@ -1,9 +1,8 @@
-"use strict";
 
-import fs from "fs";
-import crypto from "crypto";
-import child_process from "child_process";
-import process from "process";
+import * as fs from "fs";
+import * as crypto from "crypto";
+import * as child_process from "child_process";
+import * as process from "process";
 
 import * as config from "./config.ts";
 import * as Tools from "./tools.ts";

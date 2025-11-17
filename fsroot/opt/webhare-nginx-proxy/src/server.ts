@@ -1,8 +1,9 @@
-import fs from "fs";
-import http, { type IncomingMessage, type ServerResponse } from "http";
-import https from "https";
+import * as fs from "fs";
+import { type IncomingMessage, type ServerResponse } from "http";
+import * as http from "http";
+import * as https from "https";
 import BasicAuth from 'basic-auth';
-import Path from 'path';
+import * as Path from 'path';
 
 import { currentConfig, readSavedConfiguration } from './config.ts';
 import * as RPCs from './rpc.ts';
