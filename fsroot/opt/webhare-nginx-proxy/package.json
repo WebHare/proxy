@@ -5,6 +5,7 @@
   "bin": {
     "nginx-config-server": "nginx-config-server.js"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://gitlab.webhare.com/webhare-opensource/proxy.git"
