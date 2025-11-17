@@ -152,7 +152,7 @@ http {
   let port_secure = parseInt(process.env["WEBHAREPROXY_SECUREPORT"]) || 443;
 
   let ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
-  let serverprolog = "    server_tokens off;\n";
+  let serverprolog = "    server_tokens off;\n    http2 on;\n";
 
   let adminhostname = process.env["WEBHAREPROXY_ADMINHOSTNAME"];
   let certpath = `/etc/letsencrypt/live/${adminhostname}/fullchain.pem`;
@@ -170,8 +170,8 @@ http {
       ${serverprolog}
       listen [::]:${port_insecure};
       listen ${ip4bindto}${port_insecure};
-      listen [::]:${port_secure} ssl http2;
-      listen ${ip4bindto}${port_secure} ssl http2;
+      listen [::]:${port_secure} ssl;
+      listen ${ip4bindto}${port_secure} ssl;
       server_name ${adminhostname};
       ssl_certificate ${certpath};
       ssl_certificate_key ${keypath};

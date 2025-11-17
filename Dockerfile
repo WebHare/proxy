@@ -41,7 +41,6 @@ ARG CI_COMMIT_SHA
 ARG CI_COMMIT_REF_NAME
 ARG CI_PIPELINE_ID
 ARG CI_COMMIT_TAG
-ARG WEBHARE_VERSION
 LABEL dev.webhare.proxy.git-commit-sha="$CI_COMMIT_SHA" \
       dev.webhare.proxy.git-commit-ref="$CI_COMMIT_REF_NAME" \
       dev.webhare.proxy.pipelineid="$CI_PIPELINE_ID" \
