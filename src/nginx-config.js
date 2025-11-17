@@ -68,7 +68,7 @@ function generateNginxConfig(override_id, override_config)
   let config = "";
 
   config += `
-user www-data;
+user nginx;
 worker_processes auto;
 error_log ${Config.data_storage_path}/log/error.log info;
 error_log ${Config.data_storage_path}/log/emerg.log emerg;

@@ -1,5 +1,6 @@
-FROM       docker.io/webhare/baseimage:ubuntu-20
+FROM       almalinux/10-base
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
+
 ENV LC_ALL=C \
   WEBHAREPROXY_IN_DOCKER=1 \
   WEBHAREPROXY_CODEROOT=/opt/webhare-nginx-proxy/ \
@@ -17,9 +18,7 @@ EXPOSE     80 443 5443
 VOLUME     /opt/webhare-proxy-data/
 
 RUN --mount=type=bind,source=/setup-imagebase.sh,target=/setup-imagebase.sh \
-    --mount=type=cache,id=webhareproxy1,target=/var/cache/apt \
-    --mount=type=cache,id=webhareproxy2,target=/var/lib/apt \
-    /bin/bash /setup-imagebase.sh # 2023-02-13
+    /bin/bash /setup-imagebase.sh # 2025-11-17
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
 
@@ -47,3 +46,6 @@ LABEL dev.webhare.proxy.git-commit-sha="$CI_COMMIT_SHA" \
       dev.webhare.proxy.git-commit-ref="$CI_COMMIT_REF_NAME" \
       dev.webhare.proxy.pipelineid="$CI_PIPELINE_ID" \
       dev.webhare.proxy.version="$CI_COMMIT_TAG"
+
+
+CMD        [ "/opt/container/launch.sh" ]

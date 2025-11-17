@@ -18,3 +18,10 @@ runkit run-proxy --image docker.io/webhare/proxy:devbuild
 PROXY_PASSWORD="$(podman exec runkit-proxy /opt/container/get-proxy-key.sh)"
 wh cli addproxy https://runkit.XX.YY.webhare.dev "$PROXY_PASSWORD" http://10.55.55.55:13684
 ```
+
+## Container development
+to buikd
+
+```bash
+./proxy.sh build --podman
+```
