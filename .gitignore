@@ -4,6 +4,7 @@ build
 fsroot/opt/container/etc/proxy-version
 fsroot/opt/container/etc/proxy-branch
 fsroot/opt/container/services/*/supervise
+fsroot/opt/adminhost/web/admin/assetpack
 
 /tsconfig.json
 
