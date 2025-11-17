@@ -5,7 +5,6 @@
   "bin": {
     "nginx-config-server": "nginx-config-server.ts"
   },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://gitlab.webhare.com/webhare-opensource/proxy.git"
@@ -18,7 +17,10 @@
   "dependencies": {
     "@tsconfig/recommended": "^1.0.3",
     "@types/basic-auth": "^1.1.8",
+    "@types/material-ui": "^0.15.37",
     "@types/node": "^20.10.7",
+    "@types/react": "^15.7.35",
+    "@types/react-dom": "^15.5.22",
     "@typescript-eslint/eslint-plugin": "^6.18.0",
     "@webhare/cli": "^0.509.0",
     "@webhare/eslint-config": "^0.509.0",
@@ -26,7 +28,6 @@
     "basic-auth": "^1.0.4",
     "esbuild": "^0.27.0",
     "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-tsdoc": "^0.2.17",
     "material-ui": "^0.15.0",
     "react": "15.1.0",
     "react-dom": "15.1.0",

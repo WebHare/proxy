@@ -1,7 +1,10 @@
+/** @jsx React.createElement */
+
 import React from 'react';
 import ReactDOM from 'react-dom';
+//@ts-expect-error we lack types
 import injectTapEventPlugin from 'react-tap-event-plugin';
-import Main from './main'; // Our custom react component
+import Main from './main.tsx'; // Our custom react component
 import "./main.css";
 
 //Needed for onTouchTap
@@ -13,22 +16,23 @@ injectTapEventPlugin();
 
 let state = { clients: [], counter: 0, currentversion: '' };
 
-async function updateUI()
-{
-  try
-  {
-//    console.log("Fetch with counter:", state.counter);
+async function updateUI() {
+  try {
+    //    console.log("Fetch with counter:", state.counter);
     let fetchresult = await fetch(location.origin + "/admin/rpc", //location.origin to work around Request cannot be constructed from a URL that includes credentials
-      { method: "post"
-      , credentials: 'same-origin'
-      , headers:
-          { 'Accept': 'application/json'
+      {
+        method: "post"
+        , credentials: 'same-origin'
+        , headers:
+        {
+          'Accept': 'application/json'
           , 'Content-Type': 'application/json'
-          }
-      , body: JSON.stringify(
-          { id: 1
-          , method: "getGUIState"
-          , params: [ state.counter ]
+        }
+        , body: JSON.stringify(
+          {
+            id: 1
+            , method: "getGUIState"
+            , params: [state.counter]
           })
       });
 
@@ -51,13 +55,12 @@ async function updateUI()
 
     // Render the main app react component into the app div.
     // For more details see: https://facebook.github.io/react/docs/top-level-api.html#react.render
-    ReactDOM.render(<Main clients={state.clients} currentversion={state.currentversion}/>, document.getElementById('app'));
+    ReactDOM.render(<Main clients={state.clients} currentversion={state.currentversion} />, document.getElementById('app'));
 
     updateUI();
   }
-  catch (e)
-  {
-    console.log(e.stack);
+  catch (e) {
+    console.log((e as Error).stack);
     setTimeout(updateUI, 2000);
   }
 };

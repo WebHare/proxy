@@ -49,6 +49,7 @@ pushimage_our_registry:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin ${CI_REGISTRY}
     - docker tag webhare/proxy:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG} ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
     - docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
+    - echo "To install, SV install -s ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG} <server>"
 
 pushimage_docker_hub:
   stage: push_dockerhub
