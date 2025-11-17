@@ -4,7 +4,7 @@ import https from "https";
 import BasicAuth from 'basic-auth';
 import Path from 'path';
 
-import { currentConfig, read } from './config.ts';
+import { currentConfig, readSavedConfiguration } from './config.ts';
 import * as RPCs from './rpc.ts';
 import * as Tools from "./tools.ts";
 import * as RPCSupport from "./rpcsupport.ts";
@@ -100,7 +100,7 @@ export async function updateConfiguration() {
 }
 
 export async function regenerateConfiguration() {
-  read();
+  readSavedConfiguration();
   const configfile = NginxConfig.generateNginxConfig();
 
   const testresult = await NginxConfig.testNginxConfig(configfile);
@@ -156,7 +156,7 @@ function startServer() {
 
 export function run() {
   console.log("[configserver] run");
-  read();
+  readSavedConfiguration();
   console.log("[configserver] startServer");
   startServer();
 }

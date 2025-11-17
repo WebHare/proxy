@@ -63,7 +63,7 @@ let waitpromise: Promise<number> | null = null;
 let waitresolve: ((value: number) => void) | null = null;
 
 /// Read the last valid configuration from disk
-function readSavedConfiguration() {
+export function readSavedConfiguration() {
   try {
     const saved_config = fs.readFileSync(currentConfig.data_storage_path + "/var/config.json", "utf-8");
     if (saved_config) {
@@ -88,7 +88,7 @@ function readSavedConfiguration() {
   saveConfiguration();
 }
 
-function saveConfiguration() {
+export function saveConfiguration() {
   ++currentConfig.counter;
 
   // Save the current valid config to disk
@@ -110,16 +110,10 @@ function saveConfiguration() {
   console.log('Saved config counter=', currentConfig.counter, 'clients=', currentConfig.clients.map(c => c.id));
 }
 
-function waitForConfigChange(counter: number) {
+export function waitForConfigChange(counter: number) {
   if (counter != currentConfig.counter)
     return Promise.resolve(currentConfig.counter);
   if (!waitpromise)
     waitpromise = new Promise(resolve => waitresolve = resolve);
   return waitpromise;
 }
-
-export {
-  readSavedConfiguration as read,
-  saveConfiguration as write,
-  waitForConfigChange as waitForChange
-};

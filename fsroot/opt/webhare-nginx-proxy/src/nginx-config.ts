@@ -8,8 +8,8 @@ import process from "process";
 import * as config from "./config.ts";
 import * as Tools from "./tools.ts";
 
-const min_supported_version = 1;
-const max_supported_version = 1;
+export const min_supported_version = 1;
+export const max_supported_version = 1;
 
 function comparePorts(a: { port: number; ipv6: boolean; ssl: boolean }, b: { port: number; ipv6: boolean; ssl: boolean }) {
   if (a.port !== b.port)
@@ -61,7 +61,7 @@ function generateLocationConfig(client: config.Client, host: config.ClientHost, 
 }
 
 
-function generateNginxConfig(override_client?: config.Client) {
+export function generateNginxConfig(override_client?: config.Client) {
   let configFile = "";
 
   configFile += `
@@ -318,7 +318,7 @@ type ChildProcessOutput = {
   stderr: string;
 };
 
-async function testNginxConfig(configdata: string) {
+export async function testNginxConfig(configdata: string) {
   // Write the temporary config file
   const testpath = Tools.ensureStorageDir() + "var/nginx.conf.test";
   fs.writeFileSync(testpath, configdata);
@@ -336,7 +336,7 @@ async function testNginxConfig(configdata: string) {
   return process_result === 0;
 }
 
-async function applyNginxConfig(configdata: string, saveconfig?: boolean) {
+export async function applyNginxConfig(configdata: string, saveconfig?: boolean) {
   const finalpath = `${config.currentConfig.data_storage_path}/etc/nginx.conf`;
   const testpath = finalpath + ".apply_tmp";
 
@@ -369,13 +369,5 @@ async function applyNginxConfig(configdata: string, saveconfig?: boolean) {
   }
 
   if (saveconfig)
-    config.write();
+    config.saveConfiguration();
 }
-
-export {
-  generateNginxConfig,
-  testNginxConfig,
-  applyNginxConfig,
-  min_supported_version,
-  max_supported_version
-};

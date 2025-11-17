@@ -3,7 +3,7 @@
 import http from "http";
 import fs from "fs";
 
-import { currentConfig, type Client, waitForChange } from "./config.ts";
+import { currentConfig, type Client, waitForConfigChange } from "./config.ts";
 import * as Tools from "./tools.ts";
 import * as NginxConfig from "./nginx-config.ts";
 import { omit, sleep } from "@webhare/std";
@@ -167,7 +167,7 @@ export async function unregisterProxyClient(servername: string, reverseaddress: 
 }
 
 export async function getGUIState(counter: number) {
-  await Promise.race([waitForChange(counter), sleep(10000)]);
+  await Promise.race([waitForConfigChange(counter), sleep(10000)]);
 
   return (
     {
