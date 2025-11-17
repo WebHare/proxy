@@ -3,6 +3,18 @@
 import crypto from "crypto";
 import fs from "fs";
 
+export type ClientHost = {
+  ports: Array<{
+    port: number;
+    ipv6: boolean;
+    ssl: boolean;
+  }>;
+  ssl_keypair: string;
+  servernames: string[];
+  /// @deprecated When proxyid is set, this is ignored
+  server_settings?: string;
+};
+
 export type Client = {
   id: string;
   proxyid: string;
@@ -15,17 +27,7 @@ export type Client = {
     keyfile: string;
     chainfile: string;
   }>;
-  hosts: Array<{
-    ports: Array<{
-      port: number;
-      ipv6: boolean;
-      ssl: boolean;
-    }>;
-    ssl_keypair: string;
-    servernames: string[];
-    /// @deprecated When proxyid is set, this is ignored
-    server_settings?: string;
-  }>;
+  hosts: ClientHost[];
   ssl_ciphers?: string;
 
   /// @deprecated When proxyid is set, this is ignored

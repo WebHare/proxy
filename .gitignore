@@ -6,8 +6,6 @@ fsroot/opt/container/etc/proxy-branch
 fsroot/opt/container/services/*/supervise
 fsroot/opt/adminhost/web/admin/assetpack
 
-/tsconfig.json
-
 # used by docker run, i think?
 runtimedata
 # used when running from source tree

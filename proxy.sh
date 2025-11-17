@@ -7,6 +7,7 @@ PUSH=""
 CONTAINERNAME=testproxy
 RUNBUILDER_PREFIX=""
 NOPULL=
+export WEBHAREPROXY_FSROOT="${BASH_SOURCE%/*}/fsroot/"
 
 while [[ $1 =~ ^-.* ]]; do
   if [ "$1" == "--podman" ]; then
@@ -59,7 +60,19 @@ else
   export TAG="docker.io/webhare/proxy:devbuild"
 fi
 
+
+if [ "$1" == "build" ] || [ "$1" == "runlocal" ]; then
+  # Ensures our packages are up to date
+  "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
+  # Verify code first
+  if ! "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/node_modules/.bin/tsc" --project "${BASH_SOURCE%/*}/tsconfig.json" ; then
+    echo "TypeScript compilation failed"
+    exit 1
+  fi
+fi
+
 if [ "$1" == "build" ]; then
+
   mkdir -p fsroot/opt/container/etc
   git rev-parse HEAD > fsroot/opt/container/etc/proxy-version
 
@@ -136,8 +149,6 @@ if [ "$1" = "runshell" ]; then
 fi
 
 if [ "$1" = "runlocal" ]; then
-  [ -n "$WEBHAREPROXY_FSROOT" ] || WEBHAREPROXY_FSROOT="$(cd "${BASH_SOURCE%/*}" || exit; pwd)/fsroot/"
-
   if [ -x /opt/homebrew/bin/nginx ]; then
     WEBHAREPROXY_NGINX=/opt/homebrew/bin/nginx
   elif [ -x /usr/local/bin/nginx ]; then
@@ -158,8 +169,6 @@ if [ "$1" = "runlocal" ]; then
   export WEBHAREPROXY_FSROOT WEBHAREPROXY_NGINX
 
   echo "Data root: $WEBHAREPROXY_DATAROOT"
-
-  "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
 
   # TODO dynamic brew configuration, see chatplane? or webhare' rb
   if ! hash runsv ; then

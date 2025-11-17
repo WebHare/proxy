@@ -22,7 +22,7 @@ function comparePorts(a: { port: number; ipv6: boolean; ssl: boolean }, b: { por
   return 0;
 }
 
-function generateLocationConfig(client: config.Client, host: config.Client["hosts"][number], upstreamurl: string) {
+function generateLocationConfig(client: config.Client, host: config.ClientHost, upstreamurl: string) {
   // client_max_body_size: html5 uploads only require 10m, but module pushes need more. we'll settle for this for webdav too then
   return `
     proxy_http_version    1.1;
@@ -38,7 +38,7 @@ function generateLocationConfig(client: config.Client, host: config.Client["host
       proxy_set_header      Host $http_host;
       proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header      X-Forwarded-Proto $scheme;
-      proxy_set_header      X-WebHare-Proxy "${client.proxyid}";
+      proxy_set_header      X-WebHare-Proxy ${JSON.stringify(client.proxyid)}"
       add_header            X-Accel-Redirect $upstream_http_x_next_accel_redirect;
       proxy_hide_header     X-Next-Accel-Redirect;
       add_header            X-Accel-Buffering $upstream_http_x_next_accel_buffering;
@@ -55,7 +55,7 @@ function generateLocationConfig(client: config.Client, host: config.Client["host
       proxy_set_header      Host $http_host;
       proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header      X-Forwarded-Proto $scheme;
-      proxy_set_header      X-WebHare-Proxy "${client.proxyid}";
+      proxy_set_header      X-WebHare-Proxy ${JSON.stringify(client.proxyid)};
     }
 `;
 }
@@ -373,9 +373,9 @@ async function applyNginxConfig(configdata: string, saveconfig?: boolean) {
 }
 
 export {
-  generateNginxConfig as generateNginxConfig,
-  testNginxConfig as testNginxConfig,
-  applyNginxConfig as applyNginxConfig,
+  generateNginxConfig,
+  testNginxConfig,
+  applyNginxConfig,
   min_supported_version,
   max_supported_version
 };

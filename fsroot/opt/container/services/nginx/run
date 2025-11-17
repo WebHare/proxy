@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 mkdir -p "${WEBHAREPROXY_DATAROOT}/etc/ssl_config" "${WEBHAREPROXY_DATAROOT}/cache/" "${WEBHAREPROXY_DATAROOT}/log/"
 
 function ensurekey() {

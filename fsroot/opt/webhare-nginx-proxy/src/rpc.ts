@@ -6,6 +6,7 @@ import fs from "fs";
 import { currentConfig, type Client, waitForChange } from "./config.ts";
 import * as Tools from "./tools.ts";
 import * as NginxConfig from "./nginx-config.ts";
+import { omit, sleep } from "@webhare/std";
 
 let currentversion = '';
 
@@ -79,7 +80,7 @@ export async function test(reverseaddress: string, verificationurl: string) {
 }
 
 // registerProxyClient is called by a webhare to register the hosts it needs forwarded
-export async function registerProxyClient(newconfig: Omit<Client, "lastregistration"> & { secretkey: string; verificationurl: string }) {
+export async function registerProxyClient(newconfig: Client & { secretkey: string; verificationurl: string }) {
   if (arguments.length !== 1)
     throw new Error("Expected one parameter");
 
@@ -104,7 +105,7 @@ export async function registerProxyClient(newconfig: Omit<Client, "lastregistrat
   await verifyClient(newconfig.reverseaddress, newconfig.verificationurl);
 
   // Remove id and secretkey from newconfig
-  const new_client: Client = Tools.omit({ ...newconfig, lastregistration: 0 }, ["secretkey", "verificationurl"]);
+  const new_client: Client = omit({ ...newconfig, lastregistration: 0 }, ["secretkey", "verificationurl"]);
 
   // Generate the newconfig from all last valid configs, but with the new newconfig for this client
   const configfile = NginxConfig.generateNginxConfig(new_client);
@@ -166,8 +167,7 @@ export async function unregisterProxyClient(servername: string, reverseaddress: 
 }
 
 export async function getGUIState(counter: number) {
-  const sleepPromise = new Promise<number>(r => setTimeout(() => r(0), 10000));
-  await Promise.race([waitForChange(counter), sleepPromise]);
+  await Promise.race([waitForChange(counter), sleep(10000)]);
 
   return (
     {
@@ -187,7 +187,8 @@ export async function getGUIState(counter: number) {
 }
 
 try {
-  currentversion = fs.readFileSync("/opt/container/etc/proxy-branch").toString() + " " + fs.readFileSync("/opt/container/etc/proxy-version").toString();
+  const base = Tools.getFSPath("/opt/container/etc");
+  currentversion = fs.readFileSync(base + "/proxy-branch").toString() + " " + fs.readFileSync(base + "/proxy-version").toString();
 } catch (e) {
 }
 

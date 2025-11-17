@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 if [ -z "$TEST_PROXY_IMAGE" ]; then
   TEST_PROXY_IMAGE="webhare/proxy:devbuild"
 fi

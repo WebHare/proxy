@@ -25,6 +25,7 @@
     "react": "15.1.0",
     "react-dom": "15.1.0",
     "react-tap-event-plugin": "1.0.0",
+    "typescript": "^5.9.3",
     "undici": "^6.2.1",
     "whatwg-fetch": "^1.0.0"
   },
