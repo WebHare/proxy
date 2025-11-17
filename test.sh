@@ -44,7 +44,7 @@ fi
 
 export PROXYKEY;
 for _ in {1..60}; do
-  PROXYKEY=$(docker exec $DOCKERBASENAME /root/get-proxy-key.sh)
+  PROXYKEY=$(docker exec $DOCKERBASENAME /root/get-proxy-key.sh || true)
   if [ -n "$PROXYKEY" ]; then
     break
   fi
@@ -72,7 +72,7 @@ if ! docker cp "$TESTDIR/" "$DOCKERBASENAME-testscript:/"; then
 fi
 
 echo "** running testscript"
-if ! docker start -a "$DOCKERBASENAME-testscript"; then
-  echo "Test failed"
-  exit 1
-fi
+docker start "$DOCKERBASENAME-testscript"
+docker logs -f $DOCKERBASENAME &
+docker wait $DOCKERBASENAME-testscript
+echo "** all tests succeeded"

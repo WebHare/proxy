@@ -6,7 +6,7 @@
 # run tests!
 
 # Verify code first
-if ! "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/node_modules/.bin/tsc" --project "${BASH_SOURCE%/*}/opt/webhare-nginx-proxy/src/tsconfig.json" ; then
+if ! "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/node_modules/.bin/tsc" --project "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/src/tsconfig.json" ; then
   echo "TypeScript compilation failed"
   exit 1
 fi
