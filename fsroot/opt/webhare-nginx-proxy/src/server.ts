@@ -9,6 +9,7 @@ import * as RPCs from './rpc.ts';
 import * as Tools from "./tools.ts";
 import * as RPCSupport from "./rpcsupport.ts";
 import * as NginxConfig from "./nginx-config.ts";
+import { throwError } from "@webhare/std";
 
 function handleRequest(req: http.IncomingMessage, postdata: string, res: http.ServerResponse) {
   // Handle basic authentication
@@ -26,34 +27,38 @@ function handleRequest(req: http.IncomingMessage, postdata: string, res: http.Se
   if (req.method == "POST" && req.url.match(/^\/admin\/rpc(\?.*)?$/))
     return handleRPCRequest(req, postdata, res);
 
-  let filename = (req.url.match(/^\/([^?]*)(\?.*)?$/) || [])[1];
+  let geturl = req.url;
+  if (geturl.endsWith("/"))
+    geturl += "index.html";
+
+  const filename = (geturl.match(/^\/([^?]*)(\?.*)?$/) || [])[1];
   let contenttype = "application/octet-stream";
-  switch (filename) {
-    case "": filename = "index.html"; contenttype = "text/html"; break;
-    case "app.js": contenttype = "application/javascript"; break;
-    case "app.js.map": break;
-    case "main.css": contenttype = "text/css"; break;
-    default:
-      {
-        res.statusCode = 403;
-        res.statusMessage = "Not found";
-        return res.end("Not found");
-      }
+  if (filename.endsWith(".html"))
+    contenttype = "text/html;charset=utf-8";
+  else if (filename.endsWith(".css"))
+    contenttype = "text/css";
+  else if (filename.endsWith(".js"))
+    contenttype = "application/javascript";
+
+  const path = Path.join(process.env.WEBHAREPROXY_FSROOT ?? throwError("WEBHAREPROXY_FSROOT not set"), 'opt/adminhost/web/admin/', geturl);
+
+  try {
+    const stat = fs.statSync(path);
+
+    res.writeHead(200, {
+      "Content-Type": contenttype,
+      "Content-Length": stat.size,
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0"
+    });
+
+    const stream = fs.createReadStream(path);
+    stream.pipe(res);
+  } catch (e) {
+    res.writeHead(404);
+    res.end("File not found");
   }
-
-  const path = Path.join(import.meta.dirname, '../build/' + filename);
-  const stat = fs.statSync(path);
-
-  res.writeHead(200, {
-    "Content-Type": contenttype,
-    "Content-Length": stat.size,
-    "Cache-Control": "no-cache, no-store, must-revalidate",
-    "Pragma": "no-cache",
-    "Expires": "0"
-  });
-
-  const stream = fs.createReadStream(path);
-  stream.pipe(res);
 }
 
 function handleRPCRequest(req: IncomingMessage, jsondata: string, res: ServerResponse) {

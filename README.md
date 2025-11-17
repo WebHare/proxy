@@ -59,4 +59,4 @@ See the [developer documentation](DEVELOEPRS.MD) for more details and recipes
 
 ## Troubleshooting
 The nginx configuration is generated as `/data/nginx.conf`. If you patch this file use `/opt/container/reload.sh` to reload it.
-Use `/opt/webhare-nginx-proxy/src/nginx-proxy.js --regenerate` to regenerate the configuration file.
+Use `/opt/webhare-nginx-proxy/src/nginx-proxy.ts --regenerate` to regenerate the configuration file.
