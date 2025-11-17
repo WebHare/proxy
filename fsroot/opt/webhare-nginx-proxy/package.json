@@ -5,9 +5,6 @@
   "bin": {
     "nginx-config-server": "nginx-config-server.js"
   },
-  "scripts": {
-    "watch": "webpack --config src/webpack-production.config.js --progress --colors --watch"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://gitlab.webhare.com/webhare-opensource/proxy.git"

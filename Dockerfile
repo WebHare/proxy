@@ -19,14 +19,10 @@ VOLUME     /opt/webhare-proxy-data/
 RUN --mount=type=bind,source=/setup-imagebase.sh,target=/setup-imagebase.sh \
     /bin/bash /setup-imagebase.sh # 2025-11-17
 
-ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
+ADD        fsroot/opt/webhare-nginx-proxy/package.json fsroot/opt/webhare-nginx-proxy/package-lock.json fsroot/opt/webhare-nginx-proxy/install.sh /opt/webhare-nginx-proxy/
+
 # TODO set up temporary mounts for npm cache, see webhare dockerfile
 RUN        "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
-
-# Running webpack through npm's script runner discarded exit codes
-# We always start watch in the container, so it's fine
-#RUN        cd /opt/webhare-nginx-proxy && \
-#           node_modules/.bin/webpack --config src/webpack-production.config.js --progress --bail
 
 ADD        fsroot /
 RUN        ln -sf /opt/webhare-proxy-data/ /data

@@ -5,7 +5,7 @@ set -eo pipefail
 
 # @webhare: this is based on our serververmanagent project baseimage
 dnf -y install epel-release
-dnf -y install busybox logrotate cronie less gettext-envsubst man procps-ng iproute iputils telnet bind-utils tcpdump net-tools stunnel nodejs certbot nginx
+dnf -y install busybox logrotate cronie less gettext-envsubst man procps-ng iproute iputils telnet bind-utils tcpdump net-tools stunnel nodejs certbot nginx hostname
 dnf clean all
 
 ln -s /usr/sbin/busybox /usr/sbin/sv

@@ -261,7 +261,7 @@ http {
           return;
 
         config +=
-            `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl http2":""};\n`;
+            `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl":""};\n`;
 
         let idx = allports.findIndex(a => (comparePorts(a, port) === 0));
         if (idx === -1)

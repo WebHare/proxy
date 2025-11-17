@@ -16,7 +16,7 @@ function ensurekey() {
 
     cd "${WEBHAREPROXY_DATAROOT}etc/ssl_config" || exit 1
     openssl genrsa -out "${BASENAME}.key" 2048
-    echo -e "NL\nOverijssel\nEnschede\nWebHare\n\n$(hostname -f)\n" | openssl req -new -x509 -nodes -sha1 -days 365 -key "${BASENAME}.key" 2>/dev/null > "${BASENAME}.crt"
+    echo -e "NL\nOverijssel\nEnschede\nWebHare\n\n$(hostname -f)\n" | openssl req -new -x509 -nodes -sha256 -days 365 -key "${BASENAME}.key" 2>/dev/null > "${BASENAME}.crt"
   fi
 }
 
