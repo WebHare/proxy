@@ -3,7 +3,6 @@ MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 ENV LC_ALL=C \
   WEBHAREPROXY_IN_DOCKER=1 \
-  WEBHAREPROXY_CODEROOT=/opt/webhare-nginx-proxy/ \
   WEBHAREPROXY_DATAROOT=/data/ \
   WEBHAREPROXY_FSROOT=/ \
   WEBHAREPROXY_NGINX=/usr/sbin/nginx \
@@ -21,19 +20,15 @@ RUN --mount=type=bind,source=/setup-imagebase.sh,target=/setup-imagebase.sh \
     /bin/bash /setup-imagebase.sh # 2025-11-17
 
 ADD        package.json package-lock.json /opt/webhare-nginx-proxy/
-
-RUN        cd /opt/webhare-nginx-proxy && \
-           npm install && \
-           npm cache clear --force
-
-ADD        src /opt/webhare-nginx-proxy/src
+# TODO set up temporary mounts for npm cache, see webhare dockerfile
+RUN        "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
 
 # Running webpack through npm's script runner discarded exit codes
 # We always start watch in the container, so it's fine
 #RUN        cd /opt/webhare-nginx-proxy && \
 #           node_modules/.bin/webpack --config src/webpack-production.config.js --progress --bail
 
-ADD        dropins /
+ADD        fsroot /
 RUN        ln -sf /opt/webhare-proxy-data/ /data
 
 # Add a label with the commit SHA

@@ -1,3 +1,0 @@
-#!/bin/bash
-mkdir -p "${WEBHAREPROXY_DATAROOT}" "${WEBHAREPROXY_DATAROOT}var" "${WEBHAREPROXY_DATAROOT}etc"
-exec "${WEBHAREPROXY_CODEROOT}src/nginx-proxy.js" --configfolder="$WEBHAREPROXY_DATAROOT" --port="$WEBHAREPROXY_MGMT_HTTPS" --localhostport="$WEBHAREPROXY_MGMT_HTTP"

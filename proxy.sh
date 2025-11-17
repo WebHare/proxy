@@ -60,11 +60,11 @@ else
 fi
 
 if [ "$1" == "build" ]; then
-  mkdir -p dropins/opt/container/etc
-  git rev-parse HEAD > dropins/opt/container/etc/proxy-version
+  mkdir -p fsroot/opt/container/etc
+  git rev-parse HEAD > fsroot/opt/container/etc/proxy-version
 
   # CI checkouts break the actual branch reported by git, so in that case we take it from the vars
-  echo "${CI_COMMIT_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}" > dropins/opt/container/etc/proxy-branch
+  echo "${CI_COMMIT_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}" > fsroot/opt/container/etc/proxy-branch
 
   # WebHare/SV integration
 
@@ -114,7 +114,7 @@ if [ "$1" = "getproxykey" ]; then
 fi
 
 DOCKERARGS="-v $(pwd)/runtimedata:/opt/webhare-proxy-data/ -eWEBHAREPROXY_ADMINHOSTNAME=127.0.0.1 -p 41080:80 -p 41443:443 -p 45443:5443 --name $CONTAINERNAME"
-DEVELOPRUNCMD="RunBuilder run -v $(pwd)/src:/opt/webhare-nginx-proxy/src $DOCKERARGS"
+DEVELOPRUNCMD="RunBuilder run -v $(pwd)/fsroot/opt/webhare-nginx-proxy/src:/opt/webhare-nginx-proxy/src $DOCKERARGS"
 LIVERUNCMD="RunBuilder run $DOCKERARGS"
 
 if [ "$1" = "run" ]; then
@@ -136,7 +136,7 @@ if [ "$1" = "runshell" ]; then
 fi
 
 if [ "$1" = "runlocal" ]; then
-  [ -n "$WEBHAREPROXY_CODEROOT" ] || WEBHAREPROXY_CODEROOT="$(cd "${BASH_SOURCE%/*}" || exit; pwd)/"
+  [ -n "$WEBHAREPROXY_FSROOT" ] || WEBHAREPROXY_FSROOT="$(cd "${BASH_SOURCE%/*}" || exit; pwd)/fsroot/"
 
   if [ -x /opt/homebrew/bin/nginx ]; then
     WEBHAREPROXY_NGINX=/opt/homebrew/bin/nginx
@@ -147,17 +147,19 @@ if [ "$1" = "runlocal" ]; then
     exit 1
   fi
 
-  export WEBHAREPROXY_FSROOT="${WEBHAREPROXY_CODEROOT}dropins/"
-  [ -n "$WEBHAREPROXY_DATAROOT" ] || export WEBHAREPROXY_DATAROOT="${WEBHAREPROXY_CODEROOT}localdata/"
+  [ -n "$WEBHAREPROXY_DATAROOT" ] || export WEBHAREPROXY_DATAROOT="${WEBHAREPROXY_FSROOT}../localdata/"
+  [ -n "$WEBHAREPROXY_DATAROOT" ] || export WEBHAREPROXY_ADMINHOSTNAME=localhost
   export WEBHAREPROXY_PORT_HTTP=80
   export WEBHAREPROXY_PORT_HTTPS=443
   export WEBHAREPROXY_MGMT_HTTP=5080
   export WEBHAREPROXY_MGMT_HTTPS=5443
-  export WEBHAREPROXY_ADMINHOSTNAME=localhost
 
-  export WEBHAREPROXY_CODEROOT WEBHAREPROXY_NGINX
+
+  export WEBHAREPROXY_FSROOT WEBHAREPROXY_NGINX
 
   echo "Data root: $WEBHAREPROXY_DATAROOT"
+
+  "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
 
   # TODO dynamic brew configuration, see chatplane? or webhare' rb
   if ! hash runsv ; then
@@ -169,7 +171,7 @@ if [ "$1" = "runlocal" ]; then
   set -m
   {
     trap '' INT TERM HUP
-    runsvdir -P "$WEBHAREPROXY_CODEROOT/dropins/opt/container/services"
+    runsvdir -P "${WEBHAREPROXY_FSROOT}opt/container/services"
   } &
   set +m
 

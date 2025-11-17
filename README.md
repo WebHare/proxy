@@ -45,7 +45,15 @@ If you want to remap the listen ports, set the environment variables WEBHAREPROX
 The CI scripts take care of deploying to Docker. Simply push a new tag
 
 ## Running the proxy from the source tree
-Use `./proxy.sh runlocal` to start the proxy locally. Consider using WebHare runkit with `runkit run-proxy --nocontainer`
+We recommend using runkit:
+- Start the proxy with `runkit run-proxy --nocontainer`
+- Open it with `runkit open-proxy`
+- See any data in `~/whrunkit/_proxy/data`
+
+When invoked this way `~/whrunkit/_settings/publichostname` will be used for WEBHAREPROXY_ADMINHOSTNAME, the hostname of the admin interface
+
+Otherwise:
+- use `./proxy.sh runlocal` to start the proxy locally. Consider using WebHare
 
 See the [developer documentation](DEVELOEPRS.MD) for more details and recipes
 

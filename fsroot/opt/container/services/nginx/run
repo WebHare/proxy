@@ -27,7 +27,7 @@ if [ -n "$WEBHAREPROXY_ADMINHOSTNAME" ]; then
 fi
 
 echo "** Updating/creating initial configuration"
-"${WEBHAREPROXY_CODEROOT}src/nginx-proxy.js" --regenerate
+"${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/src/nginx-proxy.js" --regenerate
 
 while [ ! -f "$WEBHAREPROXY_DATAROOT"/etc/nginx.conf ]; do
   echo "nginx is waiting for its config file to appear..."

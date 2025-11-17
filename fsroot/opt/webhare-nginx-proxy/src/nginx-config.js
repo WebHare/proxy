@@ -99,14 +99,14 @@ http {
   keepalive_timeout   65;
   types_hash_max_size 2048;
 
-  include             ${process.env.WEBHAREPROXY_CODEROOT}src/data/mime.types;
+  include             ${process.env.WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/src/data/mime.types;
   include             ${Config.data_storage_path}/etc/nginx-http/*.conf;
   default_type        application/octet-stream;
 
   server_names_hash_bucket_size 256;
 
   ssl_protocols TLSv1.2 TLSv1.3;
-  ssl_dhparam ${process.env.WEBHAREPROXY_CODEROOT}src/data/ffdhe3072.pem;
+  ssl_dhparam ${process.env.WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/src/data/ffdhe3072.pem;
 
   ssl_prefer_server_ciphers on;
   ssl_session_cache shared:SSL:10m;

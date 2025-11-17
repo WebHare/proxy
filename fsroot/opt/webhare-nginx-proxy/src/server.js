@@ -32,35 +32,39 @@ function handleRequest(req, postdata, res)
   if (req.method == "POST" && req.url.match(/^\/admin\/rpc(\?.*)?$/))
     return handleRPCRequest(req, postdata, res);
 
-  let filename = (req.url.match(/^\/([^?]*)(\?.*)?$/) || [])[1];
+  let geturl = req.url;
+  if(geturl.endsWith("/"))
+    geturl += "index.html";
+
+  let filename = (geturl.match(/^\/([^?]*)(\?.*)?$/) || [])[1];
   let contenttype = "application/octet-stream";
-  switch (filename)
-  {
-  case "":            filename = "index.html"; contenttype = "text/html"; break;
-  case "app.js":      contenttype = "application/javascript"; break;
-  case "app.js.map":  break;
-  case "main.css":    contenttype = "text/css"; break;
-  default:
-    {
-      res.statusCode = 403;
-      res.statusMessage = "Not found";
-      return res.end("Not found");
-    }
+  if(filename.endsWith(".html"))
+    contenttype = "text/html;charset=utf-8";
+  else if(filename.endsWith(".css"))
+    contenttype = "text/css";
+  else if(filename.endsWith(".js"))
+    contenttype = "application/javascript";
+
+  let path = Path.join(process.env.WEBHAREPROXY_FSROOT, 'opt/adminhost/web/admin/', geturl);
+  console.log("serve " + path);
+
+  try {
+    let stat = fs.statSync(path);
+
+    res.writeHead(200,
+      { "Content-Type":     contenttype
+      , "Content-Length":   stat.size
+      , "Cache-Control":    "no-cache, no-store, must-revalidate"
+      , "Pragma":           "no-cache"
+      , "Expires":          "0"
+      });
+
+    var stream = fs.createReadStream(path);
+    stream.pipe(res);
+  } catch(e) {
+    res.writeHead(404);
+    res.end("File not found");
   }
-
-  let path = Path.join(__dirname, '../build/' + filename);
-  let stat = fs.statSync(path);
-
-  res.writeHead(200,
-    { "Content-Type":     contenttype
-    , "Content-Length":   stat.size
-    , "Cache-Control":    "no-cache, no-store, must-revalidate"
-    , "Pragma":           "no-cache"
-    , "Expires":          "0"
-    });
-
-  var stream = fs.createReadStream(path);
-  stream.pipe(res);
 }
 
 function handleRPCRequest(req, jsondata, res)

@@ -1,3 +1,0 @@
-#!/bin/bash
-cd "${WEBHAREPROXY_CODEROOT}src/" || exit 1
-exec node "$WEBHAREPROXY_CODEROOT/node_modules/webpack/bin/webpack.js" --config "${WEBHAREPROXY_CODEROOT}src/webpack-production.config.js" --progress --colors --watch

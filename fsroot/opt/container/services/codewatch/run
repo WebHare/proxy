@@ -1,0 +1,3 @@
+#!/bin/bash
+cd "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/" || exit 1
+exec ./node_modules/.bin/esbuild src/app/app.jsx --bundle --outdir="${WEBHAREPROXY_FSROOT}opt/adminhost/web/admin/assetpack" --watch
