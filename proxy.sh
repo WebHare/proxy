@@ -9,7 +9,8 @@ PUSH=""
 CONTAINERNAME=testproxy
 RUNBUILDER_PREFIX=""
 NOPULL=
-export WEBHAREPROXY_FSROOT="${BASH_SOURCE%/*}/fsroot/"
+WEBHAREPROXY_FSROOT="$(cd "${BASH_SOURCE%/*}/fsroot/" || exit 1 ; pwd)/"
+export WEBHAREPROXY_FSROOT
 
 while [[ $1 =~ ^-.* ]]; do
   if [ "$1" == "--podman" ]; then
@@ -67,7 +68,7 @@ if [ "$1" == "runlocal" ] || [ "$1" == "check" ]; then
   # Ensures our packages are up to date
   "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
   # Verify code first
-  if ! "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/node_modules/.bin/tsc" --project "${BASH_SOURCE%/*}/tsconfig.json" ; then
+  if ! "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/node_modules/.bin/tsc" --project "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/src/tsconfig.json" ; then
     echo "TypeScript compilation failed"
     exit 1
   fi
@@ -160,8 +161,8 @@ if [ "$1" = "runlocal" ]; then
     exit 1
   fi
 
-  [ -n "$WEBHAREPROXY_DATAROOT" ] || export WEBHAREPROXY_DATAROOT="${WEBHAREPROXY_FSROOT}../localdata/"
-  [ -n "$WEBHAREPROXY_DATAROOT" ] || export WEBHAREPROXY_ADMINHOSTNAME=localhost
+  [ -n "$WEBHAREPROXY_DATAROOT" ] || export WEBHAREPROXY_DATAROOT="$(cd "${WEBHAREPROXY_FSROOT}.." || exit 1 ; pwd)/localdata/"
+  [ -n "$WEBHAREPROXY_ADMINHOSTNAME" ] || export WEBHAREPROXY_ADMINHOSTNAME=localhost
   export WEBHAREPROXY_PORT_HTTP=80
   export WEBHAREPROXY_PORT_HTTPS=443
   export WEBHAREPROXY_MGMT_HTTP=5080
