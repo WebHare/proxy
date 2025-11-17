@@ -63,7 +63,7 @@ else
 fi
 
 
-if [ "$1" == "build" ] || [ "$1" == "runlocal" ] || [ "$1" == "check" ]; then
+if [ "$1" == "runlocal" ] || [ "$1" == "check" ]; then
   # Ensures our packages are up to date
   "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
   # Verify code first

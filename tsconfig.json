@@ -1,14 +1,5 @@
 {
-  "extends": "@tsconfig/recommended",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "noEmit": true,
-    "target": "es2022",
-    "allowImportingTsExtensions": true,
-    "skipLibCheck": true,
-    "moduleResolution": "nodenext",
-    "module": "nodenext"
-  },
+  "extends": "./fsroot/opt/webhare-nginx-proxy/src/tsconfig.json",
   "include": [
     "fsroot/opt/webhare-nginx-proxy/src/**/*.ts",
     "fsroot/opt/webhare-nginx-proxy/src/**/*.tsx"
