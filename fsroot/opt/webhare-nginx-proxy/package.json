@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "WebHare nginx proxy",
   "bin": {
-    "nginx-config-server": "nginx-config-server.js"
+    "nginx-config-server": "nginx-config-server.ts"
   },
   "type": "module",
   "repository": {
