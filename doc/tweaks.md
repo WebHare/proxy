@@ -11,3 +11,5 @@ server:
     - regexp: ^/forbidden-path/.*
       blockWithStatus: 410
 ```
+
+after updating, run `/opt/webhare-nginx-proxy/src/nginx-proxy.ts --regenerate` to apply the changes.

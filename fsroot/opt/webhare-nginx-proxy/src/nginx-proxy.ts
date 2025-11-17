@@ -21,10 +21,9 @@ run({
     },
   },
   flags: {
+    //FIXME subcommands, not flags!
     resetconfig: "generate empty configuration and exit",
     regenerate: "regenerate configuration and exit",
-    install: "install as service",
-    uninstall: "uninstall as service",
   },
   async main({ opts }) {
 
