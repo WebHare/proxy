@@ -1,30 +1,28 @@
 "use strict";
 
-const fs = require("fs");
-const crypto = require("crypto");
-const child_process = require("child_process");
-const process = require("process");
+import fs from "fs";
+import crypto from "crypto";
+import child_process from "child_process";
+import process from "process";
 
-const Config = require("./config");
-const Tools = require("./tools");
+import * as config from "./config.ts";
+import * as Tools from "./tools.ts";
 
-let min_supported_version = 1;
-let max_supported_version = 1;
+const min_supported_version = 1;
+const max_supported_version = 1;
 
-function comparePorts(a, b)
-{
+function comparePorts(a: { port: number; ipv6: boolean; ssl: boolean }, b: { port: number; ipv6: boolean; ssl: boolean }) {
   if (a.port !== b.port)
     return a.port < b.port;
   // The booleans might be undefined
   if (!a.ipv6 !== !b.ipv6)
-    return !a.ipv6 ;
+    return !a.ipv6;
   if (!a.ssl !== !b.ssl)
     return !a.ssl;
   return 0;
 }
 
-function generateLocationConfig(client, host, upstreamurl)
-{
+function generateLocationConfig(client: config.Client, host: config.Client["hosts"][number], upstreamurl: string) {
   // client_max_body_size: html5 uploads only require 10m, but module pushes need more. we'll settle for this for webdav too then
   return `
     proxy_http_version    1.1;
@@ -48,7 +46,7 @@ function generateLocationConfig(client, host, upstreamurl)
       proxy_hide_header     X-WebHare-ProxyOptions;
       add_header            Server-Timing $servertiming;\n
     }
-    location ~* \.whsock$
+    location ~* \\.whsock$
     {
       proxy_http_version    1.1;
       proxy_set_header      Upgrade $http_upgrade;
@@ -63,18 +61,17 @@ function generateLocationConfig(client, host, upstreamurl)
 }
 
 
-function generateNginxConfig(override_id, override_config)
-{
-  let config = "";
+function generateNginxConfig(override_client?: config.Client) {
+  let configFile = "";
 
-  config += `
+  configFile += `
 user nginx;
 worker_processes auto;
-error_log ${Config.data_storage_path}/log/error.log info;
-error_log ${Config.data_storage_path}/log/emerg.log emerg;
-pid ${Config.data_storage_path}/var/nginx.pid;
+error_log ${config.currentConfig.data_storage_path}/log/error.log info;
+error_log ${config.currentConfig.data_storage_path}/log/emerg.log emerg;
+pid ${config.currentConfig.data_storage_path}/var/nginx.pid;
 
-include             ${Config.data_storage_path}/etc/nginx-other/*.conf;
+include             ${config.currentConfig.data_storage_path}/etc/nginx-other/*.conf;
 
 events {
   worker_connections 25000;
@@ -90,7 +87,7 @@ http {
                     '"$sent_http_content_type" $upstream_addr $ssl_protocol $ssl_cipher'
                     'rqt=$request_time uct=$upstream_connect_time uht=$upstream_header_time urt=$upstream_response_time';
 
-  access_log ${Config.data_storage_path}/log/access.log main;
+  access_log ${config.currentConfig.data_storage_path}/log/access.log main;
   large_client_header_buffers 4 16k;
 
   sendfile            on;
@@ -99,22 +96,22 @@ http {
   keepalive_timeout   65;
   types_hash_max_size 2048;
 
-  include             ${process.env.WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/src/data/mime.types;
-  include             ${Config.data_storage_path}/etc/nginx-http/*.conf;
+  include             ${process.env.WEBHAREPROXY_CODEROOT}src/data/mime.types;
+  include             ${config.currentConfig.data_storage_path}/etc/nginx-http/*.conf;
   default_type        application/octet-stream;
 
   server_names_hash_bucket_size 256;
 
   ssl_protocols TLSv1.2 TLSv1.3;
-  ssl_dhparam ${process.env.WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/src/data/ffdhe3072.pem;
+  ssl_dhparam ${process.env.WEBHAREPROXY_CODEROOT}src/data/ffdhe3072.pem;
 
   ssl_prefer_server_ciphers on;
   ssl_session_cache shared:SSL:10m;
   ssl_session_timeout 10m;
 
   #20 m = about 160.000 keys
-  proxy_cache_path ${Config.data_storage_path}/cache/maincache levels=1:2 keys_zone=maincache:20m max_size=10g inactive=240m use_temp_path=off;
-  proxy_cache_path ${Config.data_storage_path}/cache/authcache levels=1:2 keys_zone=authcache:10m max_size=1g  inactive=60m  use_temp_path=off;
+  proxy_cache_path ${config.currentConfig.data_storage_path}/cache/maincache levels=1:2 keys_zone=maincache:20m max_size=10g inactive=240m use_temp_path=off;
+  proxy_cache_path ${config.currentConfig.data_storage_path}/cache/authcache levels=1:2 keys_zone=authcache:10m max_size=1g  inactive=60m  use_temp_path=off;
 
   # Ensure Range support for file/image cache requests (they would return 200 on first hit was SendWebFile doesn't do Range)
   proxy_force_ranges on ;
@@ -142,30 +139,28 @@ http {
     default "";
   }
 `;
-  let allports = [];
+  const allports: config.Client["hosts"][number]["ports"] = [];
 
   let ip4bindto = process.env["WEBHAREPROXY_BINDTO_IPV4"] || '';
-  if(ip4bindto)
+  if (ip4bindto)
     ip4bindto += ':';
 
-  let port_insecure = parseInt(process.env["WEBHAREPROXY_INSECUREPORT"]) || 80;
-  let port_secure = parseInt(process.env["WEBHAREPROXY_SECUREPORT"]) || 443;
+  const port_insecure = parseInt(process.env["WEBHAREPROXY_INSECUREPORT"] || "0") || 80;
+  const port_secure = parseInt(process.env["WEBHAREPROXY_SECUREPORT"] || "0") || 443;
 
-  let ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
-  let serverprolog = "    server_tokens off;\n    http2 on;\n";
+  const ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
+  const serverprolog = "    server_tokens off;\n    http2 on;\n";
 
-  let adminhostname = process.env["WEBHAREPROXY_ADMINHOSTNAME"];
+  const adminhostname = process.env["WEBHAREPROXY_ADMINHOSTNAME"];
   let certpath = `/etc/letsencrypt/live/${adminhostname}/fullchain.pem`;
   let keypath = `/etc/letsencrypt/live/${adminhostname}/privkey.pem`;
-  if(!fs.existsSync(certpath))
-  {
+  if (!fs.existsSync(certpath)) {
     certpath = `${ssl_config_dir}/${adminhostname}.crt`;
     keypath = `${ssl_config_dir}/${adminhostname}.key`;
   }
 
-  if(adminhostname)
-  {
-    config += `
+  if (adminhostname) {
+    configFile += `
     server {
       ${serverprolog}
       listen [::]:${port_insecure};
@@ -192,18 +187,22 @@ http {
         proxy_pass http://127.0.0.1:5080/;
       }
 
-      include ${Config.data_storage_path}/etc/nginx-adminserver/*.conf;
+      include ${config.currentConfig.data_storage_path}/etc/nginx-adminserver/*.conf;
     }
 `;
   }
 
-  Config.clients.forEach(client =>
-  {
-    if (client.id === override_id)
-      client = override_config;
+  const clients = [...config.currentConfig.clients];
+  if (override_client) {
+    const idx = clients.findIndex(c => c.id === override_client.id);
+    if (idx !== -1)
+      clients[idx] = override_client;
+    else
+      clients.push(override_client);
+  }
 
-    if (client.version < min_supported_version || client.version > max_supported_version)
-    {
+  clients.forEach(client => {
+    if (client.version < min_supported_version || client.version > max_supported_version) {
       console.log('version problem');
       throw new Error("This Nginx installation does not support request format " + client.version + ", allowed are " + min_supported_version + "-" + max_supported_version);
     }
@@ -214,7 +213,7 @@ http {
       //recreate a http:// or https:// url to match the original address
       upstreamurl = client.reverseaddress.split(':')[0] + "://" + upstreamname;
 
-      config += `
+      configFile += `
   upstream ${upstreamname} {
     server ${new URL(client.reverseaddress).host};
     keepalive 60;
@@ -223,16 +222,15 @@ http {
     }
 
     // Process all the certificates from this client
-    let certs = {};
-    client.certificates.forEach(cert =>
-    {
-      let sha256 = crypto.createHash("sha256");
-      let hash = sha256.update(cert.keyfile + "\t" + cert.chainfile, "utf8").digest("hex");
+    const certs: Record<string, { cert_path: string; key_path: string }> = {};
+    client.certificates.forEach(cert => {
+      const sha256 = crypto.createHash("sha256");
+      const hash = sha256.update(cert.keyfile + "\t" + cert.chainfile, "utf8").digest("hex");
 
-      let keys_dir = Tools.ensureStorageDir("keystore");
+      const keys_dir = Tools.ensureStorageDir("keystore");
 
-      let ssl_path_key = keys_dir + "/" + hash + ".key";
-      let ssl_path_cert = keys_dir + "/" + hash + ".crt";
+      const ssl_path_key = keys_dir + "/" + hash + ".key";
+      const ssl_path_cert = keys_dir + "/" + hash + ".crt";
 
       fs.writeFileSync(ssl_path_key + ".tmp", cert.keyfile);
       fs.renameSync(ssl_path_key + ".tmp", ssl_path_key);
@@ -242,13 +240,11 @@ http {
       certs[cert.name] = { cert_path: ssl_path_cert, key_path: ssl_path_key };
     });
 
-    client.hosts.forEach(host =>
-    {
-      config += "  server { \n" + serverprolog;
+    client.hosts.forEach(host => {
+      configFile += "  server { \n" + serverprolog;
 
-      host.ports.forEach(port =>
-      {
-        if( (port.port===80 && port.ssl) || (port.port===443 && (!port.ssl || !host.ssl_keypair)))
+      host.ports.forEach(port => {
+        if ((port.port === 80 && port.ssl) || (port.port === 443 && (!port.ssl || !host.ssl_keypair)))
           return;
 
         // Only allow port 80 and 443 and remap them
@@ -260,55 +256,52 @@ http {
         else
           return;
 
-        config +=
-            `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl":""};\n`;
+        configFile +=
+          `    listen ${port.ipv6 ? "[::]:" : ip4bindto}${portnr}${port.ssl ? " ssl http2" : ""};\n`;
 
-        let idx = allports.findIndex(a => (comparePorts(a, port) === 0));
+        const idx = allports.findIndex(a => (comparePorts(a, port) === 0));
         if (idx === -1)
           allports.push(port);
       });
 
-      config +=
-          `    server_name ${host.servernames.join(" ")};\n`;
+      configFile +=
+        `    server_name ${host.servernames.join(" ")};\n`;
 
-      let cert = certs[host.ssl_keypair];
-      if (cert) //if the referred cert was actually shipped.. (WH pre-5.4 would mention a nonexisting 'fallback' certificate)
-      {
-        config +=
-            "    ssl_certificate " + cert.cert_path + ";\n"
+      const cert = certs[host.ssl_keypair];
+      if (cert) { //if the referred cert was actually shipped.. (WH pre-5.4 would mention a nonexisting 'fallback' certificate)
+        configFile +=
+          "    ssl_certificate " + cert.cert_path + ";\n"
           + "    ssl_certificate_key " + cert.key_path + ";\n";
 
-        if (client.ssl_ciphers)
-        {
-          config +=
-              "    ssl_ciphers " + client.ssl_ciphers + ";\n";
+        if (client.ssl_ciphers) {
+          configFile +=
+            "    ssl_ciphers " + client.ssl_ciphers + ";\n";
         }
       }
 
       if (client.proxyid && client.reverseaddress)
-        config += generateLocationConfig(client, host, upstreamurl);
+        configFile += generateLocationConfig(client, host, upstreamurl);
       else //FIXME block this path if we're sure no servers use it
-        config += (host.server_settings || client.default_server_settings || "") + "\n";
+        configFile += (host.server_settings || client.default_server_settings || "") + "\n";
 
-      config +=
+      configFile +=
         "  }\n\n";
     });
   });
 
-  config += "  server { \n" + serverprolog;
+  configFile += "  server { \n" + serverprolog;
 
-  allports.forEach(port =>
-  {
-    if(port.port === 443 && !port.ssl)
+  allports.forEach(port => {
+    if (port.port === 443 && !port.ssl)
       return;
 
-    config +=
-        `    listen ${port.ipv6?"[::]:":ip4bindto}${port.port}${port.ssl?" ssl":""} default_server;\n`;
+    configFile +=
+      `    listen ${port.ipv6 ? "[::]:" : ip4bindto}${port.port}${port.ssl ? " ssl" : ""} default_server;\n`;
   });
 
 
-  config +=
-      "    ssl_certificate " + ssl_config_dir + "/ssl.crt;\n"
+  configFile +=
+    "    ssl_certificate " + ssl_config_dir + "/ssl.crt;\n"
     + "    ssl_certificate_key " + ssl_config_dir + "/ssl.key;\n"
     + "    ssl_protocols TLSv1.2 TLSv1.3;\n"
     + "    server_name _;\n"
@@ -316,21 +309,26 @@ http {
     + "  }\n"
     + "}\n";
 
-  return config;
+  return configFile;
 }
 
-async function testNginxConfig(configdata)
-{
+type ChildProcessOutput = {
+  e: Error | null;
+  stdout: string;
+  stderr: string;
+};
+
+async function testNginxConfig(configdata: string) {
   // Write the temporary config file
-  let testpath = Tools.ensureStorageDir() + "var/nginx.conf.test";
+  const testpath = Tools.ensureStorageDir() + "var/nginx.conf.test";
   fs.writeFileSync(testpath, configdata);
 
   // Run the process, catch the return code and output
-  let process2;
+  let process2!: child_process.ChildProcess;
   //FIXME don't rely on shell arg parser
-  let output = new Promise(resolve => process2 = child_process.exec(`${process.env.WEBHAREPROXY_NGINX} -t -c ${testpath}`, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
-  let process_result = await new Promise(resolve => process2.on("exit", resolve));
-  output = await output;
+  const outputPromise = new Promise<ChildProcessOutput>(resolve => process2 = child_process.exec(`${process.env.WEBHAREPROXY_NGINX} -t -c ${testpath}`, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+  const process_result = await new Promise(resolve => process2.on("exit", resolve));
+  const output = await outputPromise;
 
   if (process_result !== 0)
     throw new Error("Validation error: " + output.stdout + output.stderr);
@@ -338,13 +336,12 @@ async function testNginxConfig(configdata)
   return process_result === 0;
 }
 
-async function applyNginxConfig(configdata, saveconfig)
-{
-  let finalpath = `${Config.data_storage_path}/etc/nginx.conf`;
-  let testpath = finalpath + ".apply_tmp";
+async function applyNginxConfig(configdata: string, saveconfig?: boolean) {
+  const finalpath = `${config.currentConfig.data_storage_path}/etc/nginx.conf`;
+  const testpath = finalpath + ".apply_tmp";
 
-  let configsdir = Tools.ensureStorageDir("var/applied_configs");
-  let datestr = new Date().toISOString().replace(/[-:.]/g, "");
+  const configsdir = Tools.ensureStorageDir("var/applied_configs");
+  const datestr = new Date().toISOString().replace(/[-:.]/g, "");
   fs.writeFileSync(configsdir + `/nginx.${datestr}.conf`, configdata);
 
   // Write the configuration file, and move it over the old file
@@ -355,20 +352,16 @@ async function applyNginxConfig(configdata, saveconfig)
 
   // Reload the configuration of nginx if its running
   let nginxpid;
-  try
-  {
+  try {
     nginxpid = fs.readFileSync(`${process.env.WEBHAREPROXY_DATAROOT}var/nginx.pid`);
-  }
-  catch(ignore)
-  {
+  } catch (ignore) {
 
   }
-  if(nginxpid && nginxpid.toString())
-  {
-    let proc;
-    let output = new Promise(resolve => proc = child_process.exec(`${process.env.WEBHAREPROXY_FSROOT}opt/container/reload.sh`, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
-    let process_result = await new Promise(resolve => proc.on("exit", resolve));
-    output = await output;
+  if (nginxpid && nginxpid.toString()) {
+    let proc: child_process.ChildProcess;
+    const outputPromise = new Promise<ChildProcessOutput>(resolve => proc = child_process.exec(`${process.env.WEBHAREPROXY_FSROOT}opt/container/reload.sh`, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
+    const process_result = await new Promise(resolve => proc.on("exit", resolve));
+    const output = await outputPromise;
 
     // Test if reload went ok
     if (process_result !== 0)
@@ -376,14 +369,13 @@ async function applyNginxConfig(configdata, saveconfig)
   }
 
   if (saveconfig)
-    Config.write();
+    config.write();
 }
 
-
-module.exports =
-  { generateNginxConfig:    generateNginxConfig
-  , testNginxConfig:        testNginxConfig
-  , applyNginxConfig:       applyNginxConfig
-  , min_supported_version:  1
-  , max_supported_version:  1
-  };
+export {
+  generateNginxConfig as generateNginxConfig,
+  testNginxConfig as testNginxConfig,
+  applyNginxConfig as applyNginxConfig,
+  min_supported_version,
+  max_supported_version
+};
