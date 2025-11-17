@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import Main from './main'; // Our custom react component
-import "whatwg-fetch";
 import "./main.css";
 
 //Needed for onTouchTap
