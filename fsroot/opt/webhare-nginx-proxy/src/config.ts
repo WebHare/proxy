@@ -1,5 +1,8 @@
 import * as crypto from "crypto";
 import * as fs from "fs";
+import { getDataPath } from "./tools.ts";
+import YAML from "yaml";
+import * as z from "zod";
 
 export type ClientHost = {
   ports: Array<{
@@ -15,7 +18,7 @@ export type ClientHost = {
 
 export type Client = {
   id: string;
-  proxyid: string;
+  proxyid: number;
   version: number;
   reverseaddress: string;
   lastset: string;
@@ -33,6 +36,7 @@ export type Client = {
 };
 
 type Config = {
+  /** @deprecated use getDataPath */
   data_storage_path: string;
   listenport: number;
   portnumber: number;
@@ -59,6 +63,30 @@ export const currentConfig: Config = {
 
 let waitpromise: Promise<number> | null = null;
 let waitresolve: ((value: number) => void) | null = null;
+
+const TweaksFileFormat = z.strictObject({
+  server: z.record(z.string(),
+    z.strictObject({
+      urls: z.array(
+        z.strictObject({
+          regexp: z.string(),
+          blockWithStatus: z.number({})
+        }))
+    }).partial()
+  )
+}).partial();
+
+export type ConfigTweaks = z.infer<typeof TweaksFileFormat>;
+
+export type HostTweaks = NonNullable<ConfigTweaks["server"]>[string];
+
+export function loadTweaks(): ConfigTweaks {
+  const tweaksFile = getDataPath("/etc/tweaks.yml");
+  if (fs.existsSync(tweaksFile)) {
+    return TweaksFileFormat.parse(YAML.parse(fs.readFileSync(tweaksFile, "utf8")));
+  }
+  return {};
+}
 
 /// Read the last valid configuration from disk
 export function readSavedConfiguration() {

@@ -35,3 +35,6 @@ export function getLocalIPs() {
 export function getFSPath(path = "/") {
   return join(process.env.WEBHAREPROXY_FSROOT ?? throwError("WEBHAREPROXY_FSROOT not set"), path);
 }
+export function getDataPath(path: string) {
+  return join(process.env.WEBHAREPROXY_DATAROOT ?? throwError("WEBHAREPROXY_DATAROOT not set"), path);
+}

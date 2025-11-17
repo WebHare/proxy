@@ -21,9 +21,9 @@ function comparePorts(a: { port: number; ipv6: boolean; ssl: boolean }, b: { por
   return 0;
 }
 
-function generateLocationConfig(client: config.Client, host: config.ClientHost, upstreamurl: string) {
+function generateLocationConfig(client: config.Client, host: config.ClientHost, upstreamurl: string, hostTweaks: config.HostTweaks) {
   // client_max_body_size: html5 uploads only require 10m, but module pushes need more. we'll settle for this for webdav too then
-  return `
+  let result = `
     proxy_http_version    1.1;
     proxy_request_buffering off;
     proxy_buffering off;
@@ -37,7 +37,7 @@ function generateLocationConfig(client: config.Client, host: config.ClientHost, 
       proxy_set_header      Host $http_host;
       proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header      X-Forwarded-Proto $scheme;
-      proxy_set_header      X-WebHare-Proxy ${JSON.stringify(client.proxyid)}"
+      proxy_set_header      X-WebHare-Proxy ${client.proxyid};
       add_header            X-Accel-Redirect $upstream_http_x_next_accel_redirect;
       proxy_hide_header     X-Next-Accel-Redirect;
       add_header            X-Accel-Buffering $upstream_http_x_next_accel_buffering;
@@ -45,6 +45,17 @@ function generateLocationConfig(client: config.Client, host: config.ClientHost, 
       proxy_hide_header     X-WebHare-ProxyOptions;
       add_header            Server-Timing $servertiming;\n
     }
+`;
+
+  for (const url of hostTweaks?.urls || []) {
+    result += `    # Host tweak for URL ${url.regexp}
+    location ~* ${url.regexp} {
+      return ${url.blockWithStatus};
+    }
+`;
+  }
+
+  result += `    # Standard config: forward websockets
     location ~* \\.whsock$
     {
       proxy_http_version    1.1;
@@ -54,13 +65,15 @@ function generateLocationConfig(client: config.Client, host: config.ClientHost, 
       proxy_set_header      Host $http_host;
       proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header      X-Forwarded-Proto $scheme;
-      proxy_set_header      X-WebHare-Proxy ${JSON.stringify(client.proxyid)};
+      proxy_set_header      X-WebHare-Proxy ${client.proxyid};
     }
 `;
+  return result;
 }
 
 
 export function generateNginxConfig(override_client?: config.Client) {
+  const tweaks = config.loadTweaks();
   let configFile = "";
 
   configFile += `
@@ -278,8 +291,17 @@ http {
         }
       }
 
+      const hostTweaks: config.HostTweaks = {
+        urls: []
+      };
+      for (const [server, serverTweaks] of Object.entries(tweaks?.server || {})) {
+        if (host.servernames.includes(server)) {
+          hostTweaks.urls!.push(...serverTweaks.urls || []);
+        }
+      }
+
       if (client.proxyid && client.reverseaddress)
-        configFile += generateLocationConfig(client, host, upstreamurl);
+        configFile += generateLocationConfig(client, host, upstreamurl, hostTweaks);
       else //FIXME block this path if we're sure no servers use it
         configFile += (host.server_settings || client.default_server_settings || "") + "\n";
 
