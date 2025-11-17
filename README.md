@@ -53,7 +53,7 @@ We recommend using runkit:
 When invoked this way `~/whrunkit/_settings/publichostname` will be used for WEBHAREPROXY_ADMINHOSTNAME, the hostname of the admin interface
 
 Otherwise:
-- use `./proxy.sh runlocal` to start the proxy locally. Consider using WebHare
+- use `./proxy.sh runlocal` to start the proxy locally.
 
 See the [developer documentation](DEVELOEPRS.MD) for more details and recipes
 
