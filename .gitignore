@@ -10,3 +10,5 @@ fsroot/opt/adminhost/web/admin/assetpack
 runtimedata
 # used when running from source tree
 /localdata
+# WebHare will manage the tsconfig.json for the project
+/tsconfig.json
