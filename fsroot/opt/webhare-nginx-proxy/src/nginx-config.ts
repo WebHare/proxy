@@ -300,11 +300,7 @@ http {
         }
       }
 
-      if (client.proxyid && client.reverseaddress)
-        configFile += generateLocationConfig(client, host, upstreamurl, hostTweaks);
-      else //FIXME block this path if we're sure no servers use it
-        configFile += (host.server_settings || client.default_server_settings || "") + "\n";
-
+      configFile += generateLocationConfig(client, host, upstreamurl, hostTweaks);
       configFile +=
         "  }\n\n";
     });

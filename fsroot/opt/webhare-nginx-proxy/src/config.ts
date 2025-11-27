@@ -12,8 +12,6 @@ export type ClientHost = {
   }>;
   ssl_keypair: string;
   servernames: string[];
-  /// @deprecated When proxyid is set, this is ignored
-  server_settings?: string;
 };
 
 export type Client = {
@@ -30,9 +28,6 @@ export type Client = {
   }>;
   hosts: ClientHost[];
   ssl_ciphers?: string;
-
-  /// @deprecated When proxyid is set, this is ignored
-  default_server_settings?: string;
 };
 
 type Config = {
