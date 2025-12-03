@@ -1,4 +1,4 @@
-FROM       almalinux/10-base
+FROM       docker.io/almalinux/10-base
 MAINTAINER Arnold Hendriks <arnold@webhare.nl>
 
 ENV LC_ALL=C \
