@@ -60,3 +60,16 @@ See the [developer documentation](DEVELOEPRS.MD) for more details and recipes
 ## Troubleshooting
 The nginx configuration is generated as `/data/nginx.conf`. If you patch this file use `/opt/container/reload.sh` to reload it.
 Use `/opt/webhare-nginx-proxy/src/nginx-proxy.ts --regenerate` to regenerate the configuration file.
+
+# Tweaks
+Proxy v4 introduces tweaks.yml to update the generated configuration without modifying WebHares:
+
+/data/etc/tweaks.yml, example:
+
+```yaml
+server:
+  my.webhare.dev:
+    urls:
+    - regexp: ^/forbidden-path/.*
+      blockWithStatus: 410
+```
