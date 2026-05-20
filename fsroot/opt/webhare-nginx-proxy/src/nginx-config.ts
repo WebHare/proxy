@@ -43,6 +43,7 @@ function generateLocationConfig(client: config.Client, host: config.ClientHost, 
       add_header            X-Accel-Buffering $upstream_http_x_next_accel_buffering;
       proxy_hide_header     X-Next-Accel-Buffering;
       proxy_hide_header     X-WebHare-ProxyOptions;
+      proxy_hide_header     Server-Timing;
       add_header            Server-Timing $servertiming;\n
     }
 `;
@@ -147,8 +148,8 @@ http {
   map "$upstream_content_type:$upstream_http_x_webhare_proxyoptions" $servertiming
   {
     # Look for word (\\b..\\b) 'addremoteip' option (X-WebHare-ProxyOptions) enabled on a HTML (text/html) file. If set, we'll add the remote address. Quoted so it doesn't get truncated at ipv6 :
-    ~^html:.*\\baddremoteip\\b 'remoteip;desc="$remote_addr"';
-    default "";
+    ~^html:.*\\baddremoteip\\b 'remoteip;desc="$remote_addr",$upstream_http_server_timing';
+    default '$upstream_http_server_timing';
   }
 `;
   const allports: config.Client["hosts"][number]["ports"] = [];
