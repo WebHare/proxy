@@ -1,2 +1,8 @@
 # we explicitly overwrite certbot's own letsencryt setting by placing this file at /etc/cron.d/certbot
-0 5 * * Sun,Wed  root /opt/container/update-certbot.sh
+0 5 * * Sun,Wed  root   /opt/container/update-certbot.sh
+
+# Touch a file every hour so we can verify cron is running
+44 * * * *       root   touch /root/.hourly-cron-test-file
+
+# Rotate log files once a day
+0 2 * * *        root   /usr/sbin/logrotate /etc/logrotate.conf
