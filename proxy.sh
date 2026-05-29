@@ -98,6 +98,7 @@ if [ "$1" == "build" ]; then
   # Record CI information so we can verify eg. if this image really matches the most recent build
   DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_SHA=$CI_COMMIT_SHA")
   DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME")
+  DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_TIMESTAMP=$CI_COMMIT_TIMESTAMP")
   DOCKERBUILDOPTS+=(--build-arg "CI_PIPELINE_ID=$CI_PIPELINE_ID")
   DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_TAG=$CI_COMMIT_TAG")
   DOCKERBUILDOPTS+=(--tag "$TAG")
