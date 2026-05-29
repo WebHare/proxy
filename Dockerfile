@@ -34,6 +34,7 @@ ARG CI_PIPELINE_ID
 ARG CI_COMMIT_TAG
 LABEL dev.webhare.proxy.git-commit-sha="$CI_COMMIT_SHA" \
       dev.webhare.proxy.git-commit-ref="$CI_COMMIT_REF_NAME" \
+      dev.webhare.proxy.git-commit-time="$CI_COMMIT_TIMESTAMP" \
       dev.webhare.proxy.pipelineid="$CI_PIPELINE_ID" \
       dev.webhare.proxy.version="$CI_COMMIT_TAG"
 
