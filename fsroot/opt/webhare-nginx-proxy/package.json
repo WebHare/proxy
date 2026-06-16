@@ -26,16 +26,16 @@
     "@webhare/eslint-config": "^0.509.0",
     "@webhare/std": "^0.509.0",
     "basic-auth": "^1.0.4",
-    "esbuild": "^0.27.0",
+    "esbuild": "^0.28.1",
     "eslint-plugin-react": "^7.33.2",
     "material-ui": "^0.15.0",
     "react": "15.1.0",
     "react-dom": "15.1.0",
     "react-tap-event-plugin": "1.0.0",
     "typescript": "^5.9.3",
-    "undici": "^7.20.0",
-    "yaml": "^2.8.1",
-    "zod": "^4.1.12"
+    "undici": "^8.5.0",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
   },
   "private": true,
   "homepage": "https://gitlab.com/webhare/proxy#readme"
