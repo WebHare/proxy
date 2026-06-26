@@ -1,7 +1,32 @@
 # proxy development
-To run proxy locally next to an existing WebHare source install, start that WebHare using `WEBHARE_WEBSERVER=nginx`. This will trigger the HareScript webserver to only open its 'trusted' port
+To run proxy locally next to an existing WebHare source install, start that WebHare using `WEBHARE_WEBSERVER=nginx`.
+This will trigger the HareScript webserver to only open its 'trusted' ports
+
+Then choose one of the following paths
+
+## runkit
+Even for local development it's easiest to have WebHare and the proxy managed by [runkit](https://github.com/webhare/runkit)
+
+To run the proxy outside a container:
+
+```bash
+# Ensure the proxy project is installed and linked into runkit:
+runkit list-projects
+# If proxy is missing:
+runkit link-proxy ~/projects/proxy
+# Use run-proxy to run it. It will use $WHRUNKIT_DATADIR/_proxy/data as its data dir
+runkit run-proxy --nocontainer
+# Open the web interface
+runkit open-proxy
+# Get the key to log into the proxy
+runkit get-proxy-key
+```
+
+## fully manual running
 
 To run proxy locally: `./proxy.sh runlocal`
+
+Then access the admin interface on http://127.0.0.1/admin/ - log in using user 'webhare' and the password from localdata/etc/secret.key
 
 To test a container version locally with a local WebHare, launch WebHare with `WEBHARE_SECUREPORT_BINDIP=0.0.0.0 WEBHARE_WEBSERVER=nginx wh console
 ` and the proxy as follows:
