@@ -1,5 +1,5 @@
-import * as http from "http";
 import * as fs from "fs";
+import { Agent, request } from "undici";
 
 import { currentConfig, type Client, waitForConfigChange } from "./config.ts";
 import * as Tools from "./tools.ts";
@@ -8,55 +8,59 @@ import { omit, sleep } from "@webhare/std";
 
 let currentversion = '';
 
-function verifyClient(reverseaddress: string, verificationurl: string) {
+const verificationDispatcher = new Agent({
+  connect: {
+    rejectUnauthorized: false
+  }
+});
+
+async function verifyClient(reverseaddress: string, verificationurl: string) {
   const parsed_reverseaddr = new URL(reverseaddress);
   const parsed_verificationurl = new URL(verificationurl);
 
-  const options = {
-    protocol: parsed_reverseaddr.protocol,
-    host: parsed_reverseaddr.hostname,
-    port: parsed_reverseaddr.port,
-    path: parsed_verificationurl.pathname + parsed_verificationurl.search,
-    headers: {
-      Host: parsed_verificationurl.hostname,
-      "X-Forwarded-Proto": "https"
+  const target = new URL(reverseaddress);
+  target.pathname = parsed_verificationurl.pathname;
+  target.search = parsed_verificationurl.search;
+
+  try {
+    const { statusCode, body } = await request(target, {
+      method: "GET",
+      dispatcher: verificationDispatcher,
+      signal: AbortSignal.timeout(10000),
+      headers: {
+        Host: parsed_verificationurl.hostname,
+        "X-Forwarded-Proto": "https"
+      }
+    });
+
+    const responseBody = await body.text();
+
+    if (statusCode === 200 && responseBody === "ok")
+      return;
+
+    if (responseBody === "Wrong proxy verification code") {
+      console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed: wrong verification code");
+      throw new Error("Proxy verification failed, wrong verification code");
     }
-  };
 
-  return new Promise<void>((resolve, reject) => {
-    const req = http.get(options, res => {
-      let body = "";
-      res.on("data", data => body += data);
-      res.on("end", () => {
-        console.log('<' + body + '>');
-        if (res.statusCode === 200 && body === "ok")
-          resolve();
-        else if (body === "Wrong proxy verification code") {
-          console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed: wrong verification code");
-          reject(new Error("Proxy verification failed, wrong verification code"));
-        } else if (res.statusCode === 404) {
-          console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed: 404, domain probably not hosted on reverse address");
-          reject(new Error("Proxy verification failed, got 404"));
-        } else {
-          console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed: http code " + res.statusCode + " and unrecognized response");
-          reject(new Error("Proxy verification failed, http code " + res.statusCode + " and unrecognized response"));
-        }
-      });
-    });
+    if (statusCode === 404) {
+      console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed: 404, domain probably not hosted on reverse address");
+      throw new Error("Proxy verification failed, got 404");
+    }
 
-    // an error is always problematic
-    req.on("error", e => {
-      console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed:", e.message);
-      reject(new Error(e.message));
-    });
+    console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed: http code " + statusCode + " and unrecognized response");
+    throw new Error("Proxy verification failed, http code " + statusCode + " and unrecognized response");
+  } catch (e) {
+    if (e instanceof Error && e.message.startsWith("Proxy verification failed"))
+      throw e;
 
-    req.end();
+    if (e instanceof Error && e.name === "AbortError")
+      throw new Error("Timeout for retrieving verification (waited 10 seconds)");
 
-    // Also set a timeout
-    setTimeout(() => {
-      reject(new Error("Timeout for retrieving verification (waited 10 seconds)"));
-    }, 10000);
-  });
+    const message = e instanceof Error ? e.message : String(e);
+    console.log("Verification of reverse addr", reverseaddress, "with url", verificationurl, "failed:", message);
+    throw new Error(message);
+  }
 }
 
 export async function ping(echo: unknown) {
