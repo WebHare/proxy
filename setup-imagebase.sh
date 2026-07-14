@@ -4,7 +4,7 @@
 set -eo pipefail
 
 # @webhare: this is based on our serververmanagent project baseimage
-dnf -y install epel-release curl logrotate cronie less gettext-envsubst man procps-ng iproute iputils telnet bind-utils tcpdump net-tools stunnel nginx hostname
+dnf -y install epel-release curl logrotate cronie less gettext-envsubst man procps-ng iproute iputils telnet bind-utils tcpdump net-tools stunnel nginx hostname openssl
 rpm --import https://rpm.nodesource.com/gpgkey/ns-operations-public.key
 cat >/etc/yum.repos.d/nodesource-nodejs.repo <<'EOF'
 [nodesource-nodejs]
