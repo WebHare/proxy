@@ -135,20 +135,20 @@ DEVELOPRUNCMD="RunBuilder run -v $(pwd)/fsroot/opt/webhare-nginx-proxy/src:/opt/
 LIVERUNCMD="RunBuilder run $DOCKERARGS"
 
 if [ "$1" = "run" ]; then
-  RunBuilder kill $CONTAINERNAME
-  RunBuilder rm $CONTAINERNAME
+  RunBuilder kill $CONTAINERNAME || true
+  RunBuilder rm $CONTAINERNAME || true
   RUNBUILDER_PREFIX="exec" $DEVELOPRUNCMD -ti "$TAG"
 fi
 
 if [ "$1" = "runlive" ]; then
-  RunBuilder kill $CONTAINERNAME
-  RunBuilder rm $CONTAINERNAME
+  RunBuilder kill $CONTAINERNAME || true
+  RunBuilder rm $CONTAINERNAME || true
   RUNBUILDER_PREFIX="exec" $LIVERUNCMD -ti "$TAG"
 fi
 
 if [ "$1" = "runshell" ]; then
-  RunBuilder kill $CONTAINERNAME
-  RunBuilder rm $CONTAINERNAME
+  RunBuilder kill $CONTAINERNAME || true
+  RunBuilder rm $CONTAINERNAME || true
   RUNBUILDER_PREFIX="exec" $DEVELOPRUNCMD -ti "$TAG" /bin/bash
 fi
 

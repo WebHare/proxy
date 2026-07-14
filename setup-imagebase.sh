@@ -4,8 +4,18 @@
 set -eo pipefail
 
 # @webhare: this is based on our serververmanagent project baseimage
-dnf -y install epel-release
-dnf -y install busybox logrotate cronie less gettext-envsubst man procps-ng iproute iputils telnet bind-utils tcpdump net-tools stunnel nodejs certbot nginx hostname
+dnf -y install epel-release curl logrotate cronie less gettext-envsubst man procps-ng iproute iputils telnet bind-utils tcpdump net-tools stunnel nginx hostname
+rpm --import https://rpm.nodesource.com/gpgkey/ns-operations-public.key
+cat >/etc/yum.repos.d/nodesource-nodejs.repo <<'EOF'
+[nodesource-nodejs]
+name=NodeSource Node.js Packages
+baseurl=https://rpm.nodesource.com/pub_26.x/nodistro/nodejs/$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://rpm.nodesource.com/gpgkey/ns-operations-public.key
+module_hotfixes=1
+EOF
+dnf -y install nodejs busybox certbot
 dnf clean all
 
 ln -s /usr/sbin/busybox /usr/sbin/sv

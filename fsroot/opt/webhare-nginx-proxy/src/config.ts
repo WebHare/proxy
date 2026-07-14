@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { getDataPath } from "./tools.ts";
 import YAML from "yaml";
 import * as z from "zod";
+import { storeDiskFile } from "@webhare/system-tools";
 
 export type ClientHost = {
   ports: Array<{
@@ -84,7 +85,7 @@ export function loadTweaks(): ConfigTweaks {
 }
 
 /// Read the last valid configuration from disk
-export function readSavedConfiguration() {
+export async function readSavedConfiguration() {
   try {
     const saved_config = fs.readFileSync(currentConfig.data_storage_path + "/var/config.json", "utf-8");
     if (saved_config) {
@@ -96,20 +97,25 @@ export function readSavedConfiguration() {
       }
     }
   } catch (e) {
+    console.log("[configserver] No persistent configuration found on disk, starting with empty configuration", String(e));
   }
 
   try {
     currentConfig.secretkey = fs.readFileSync(currentConfig.data_storage_path + "/etc/secret.key", "utf8").trim();
   } catch (e) {
+    console.log("[configserver] No persistent key on disk, regenerate", String(e));
   }
 
-  if (!currentConfig.secretkey)
+  if (!currentConfig.secretkey) {
+    //only write the key if we just created it, not every config save
     currentConfig.secretkey = crypto.randomBytes(32).toString("hex");
+    await storeDiskFile(currentConfig.data_storage_path + "/etc/secret.key", currentConfig.secretkey + "\n");
+  }
 
-  saveConfiguration();
+  await saveConfiguration();
 }
 
-export function saveConfiguration() {
+export async function saveConfiguration() {
   ++currentConfig.counter;
 
   // Save the current valid config to disk
@@ -119,8 +125,7 @@ export function saveConfiguration() {
       counter: currentConfig.counter
     }, null, 2); //prettify output
 
-  fs.writeFileSync(currentConfig.data_storage_path + "/var/config.json", saved_config);
-  fs.writeFileSync(currentConfig.data_storage_path + "/etc/secret.key", currentConfig.secretkey + "\n");
+  await storeDiskFile(currentConfig.data_storage_path + "/var/config.json", saved_config, { overwrite: true });
 
   if (waitresolve) {
     waitresolve(currentConfig.counter);
