@@ -345,11 +345,11 @@ export async function testNginxConfig(configdata: string) {
   let process2!: child_process.ChildProcess;
   //FIXME don't rely on shell arg parser
   const outputPromise = new Promise<ChildProcessOutput>(resolve => process2 = child_process.exec(`${process.env.WEBHAREPROXY_NGINX} -t -c ${testpath}`, (e, stdout, stderr) => resolve({ e, stdout, stderr })));
-  const process_result = await new Promise(resolve => process2.on("exit", resolve));
+  const process_result = await new Promise<number | NodeJS.Signals | null>(resolve => process2.on("exit", (code, signal) => resolve(code ?? signal)));
   const output = await outputPromise;
 
   if (process_result !== 0)
-    throw new Error("Validation error: " + output.stdout + output.stderr);
+    throw new Error(`Validation error, exitcode ${process_result}:\n${output.stdout}${output.stderr}`);
 
   return process_result === 0;
 }

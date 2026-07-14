@@ -25,12 +25,10 @@ if [ -n "$WEBHAREPROXY_ADMINHOSTNAME" ]; then
   ensurekey "${WEBHAREPROXY_ADMINHOSTNAME}" "${WEBHAREPROXY_ADMINHOSTNAME}"
 fi
 
-echo "** Updating/creating initial configuration"
-"${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/src/nginx-proxy.ts" --regenerate
-
 while [ ! -f "$WEBHAREPROXY_DATAROOT"/etc/nginx.conf ]; do
   echo "nginx is waiting for its config file to appear..."
-  sleep 300
+  sleep .3
 done
 
+echo "Starting nginx"
 exec "$WEBHAREPROXY_NGINX" -c "$WEBHAREPROXY_DATAROOT"/etc/nginx.conf -g 'daemon off;'
