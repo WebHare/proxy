@@ -110,6 +110,7 @@ export async function readSavedConfiguration() {
     //only write the key if we just created it, not every config save
     currentConfig.secretkey = crypto.randomBytes(32).toString("hex");
     await storeDiskFile(currentConfig.data_storage_path + "/etc/secret.key", currentConfig.secretkey + "\n");
+    console.log("[configserver] Written key to disk");
   }
 
   await saveConfiguration();
