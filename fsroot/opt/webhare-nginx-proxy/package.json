@@ -1,6 +1,5 @@
 {
   "name": "webhare-proxy",
-  "type": "module",
   "version": "0.0.1",
   "description": "WebHare nginx proxy",
   "bin": {
