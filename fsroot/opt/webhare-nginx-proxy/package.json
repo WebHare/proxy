@@ -38,6 +38,11 @@
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },
+  "scripts": {
+    "build:admin": "node ./build-admin.mjs",
+    "build:admin:production": "node ./build-admin.mjs --production",
+    "watch:admin": "node ./build-admin.mjs --watch"
+  },
   "private": true,
   "homepage": "https://gitlab.com/webhare/proxy#readme"
 }
