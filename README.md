@@ -55,7 +55,7 @@ When invoked this way `~/whrunkit/_settings/publichostname` will be used for WEB
 Otherwise:
 - use `./proxy.sh runlocal` to start the proxy locally.
 
-See the [developer documentation](DEVELOEPRS.MD) for more details and recipes
+See the [developer documentation](DEVELOPERS.md) for more details and recipes.
 
 ## Troubleshooting
 The nginx configuration is generated as `/data/nginx.conf`. If you patch this file use `/opt/container/reload.sh` to reload it.

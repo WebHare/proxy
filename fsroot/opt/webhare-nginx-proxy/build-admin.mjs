@@ -19,7 +19,7 @@ const isWatch = process.argv.includes('--watch');
 const isProduction = process.argv.includes('--production');
 
 const buildOptions = {
-  entryPoints: [path.resolve(__dirname, 'src/app/main.tsx')],
+  entryPoints: [path.resolve(__dirname, 'src/app/app.ts')],
   bundle: true,
   outdir,
   entryNames: 'app',
@@ -37,7 +37,7 @@ const buildOptions = {
 if (isWatch) {
   const context = await esbuild.context(buildOptions);
   await context.watch();
-  console.log(`[esbuild] Watching src/app/main.tsx -> ${outdir}`);
+  console.log(`[esbuild] Watching src/app/app.ts -> ${outdir}`);
 }
 else {
   await esbuild.build(buildOptions);

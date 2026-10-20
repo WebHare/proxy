@@ -2,7 +2,6 @@ import * as fs from "fs";
 import { type IncomingMessage, type ServerResponse } from "http";
 import * as http from "http";
 import * as https from "https";
-import BasicAuth from 'basic-auth';
 import * as Path from 'path';
 
 import { currentConfig, readSavedConfiguration } from './config.ts';
@@ -14,8 +13,9 @@ import { throwError } from "@webhare/std";
 
 function handleRequest(req: http.IncomingMessage, postdata: string, res: http.ServerResponse) {
   // Handle basic authentication
-  const auth = BasicAuth(req);
-  if (!auth || auth.name != "webhare" || auth.pass != currentConfig.secretkey) {
+  const auth = req.headers.authorization?.match(/^ *Basic +([A-Za-z0-9._~+/-]+=*) *$/i);
+  const credentials = auth && Buffer.from(auth[1], "base64").toString("utf8");
+  if (credentials !== `webhare:${currentConfig.secretkey}`) {
     res.statusCode = 401;
     res.setHeader('WWW-Authenticate', 'Basic realm="WebHare Proxy"');
     return res.end('Access denied');

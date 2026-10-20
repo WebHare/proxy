@@ -12,7 +12,6 @@
   },
   "include": [
     "fsroot/opt/webhare-nginx-proxy/src/**/*.ts",
-    "fsroot/opt/webhare-nginx-proxy/src/**/*.tsx",
     "tests/**/*.ts"
   ],
   "exclude": [

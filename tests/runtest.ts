@@ -120,6 +120,35 @@ async function test() {
     await sleep(100);
   }
 
+  for (const authorization of [
+    undefined,
+    'Basic',
+    'Basic !!!',
+    'Basic ' + Buffer.from('webhare').toString('base64'),
+    'Basic ' + Buffer.from(`other:${config.PROXYKEY}`).toString('base64'),
+    'Basic ' + Buffer.from(`webhare:${config.PROXYKEY}:wrong`).toString('base64'),
+    'Bearer ' + Buffer.from(`webhare:${config.PROXYKEY}`).toString('base64')
+  ]) {
+    const denied = await request(`http://${config.PROXYIP}:${config.PORT_80}/admin/rpc`, {
+      headers: { host: 'admin.example.com', ...(authorization === undefined ? {} : { authorization }) },
+      method: 'POST',
+      body: JSON.stringify({ method: "ping", params: [42] })
+    });
+    if (denied.statusCode !== 401 || denied.headers['www-authenticate'] !== 'Basic realm="WebHare Proxy"' || denied.body !== "Access denied")
+      throw new Error(`Expected authentication failure for ${authorization === undefined ? "missing credentials" : "invalid credentials"}`);
+  }
+
+  const authenticated = await request(`http://${config.PROXYIP}:${config.PORT_80}/admin/rpc`, {
+    headers: {
+      host: 'admin.example.com',
+      authorization: 'bAsIc  ' + Buffer.from(`webhare:${config.PROXYKEY}`).toString('base64')
+    },
+    method: 'POST',
+    body: JSON.stringify({ method: "ping", params: [42] })
+  });
+  if (authenticated.statusCode !== 200)
+    throw new Error("Expected mixed-case Basic authentication to succeed");
+
   const server = http.createServer(requestListener);
   server.listen(parseInt(config.CONNECTPORT), config.CONNECTIP);
 

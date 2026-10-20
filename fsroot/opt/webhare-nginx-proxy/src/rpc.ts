@@ -182,7 +182,7 @@ export async function getGUIState(counter: number) {
             id: c.id,
             lastregistration: c.lastregistration,
             lastset: c.lastset,
-            hosts: c.hosts.map(host => ({ servernames: host.servernames, with_cert: Boolean(host.ssl_keypair) }))
+            hosts: c.hosts.map(host => ({ servernames: host.servernames }))
           });
       }),
       currentversion: currentversion

@@ -1,6 +1,6 @@
 # proxy development
-To run proxy locally next to an existing WebHare source install, start that WebHare using `WEBHARE_WEBSERVER=nginx`.
-This will trigger the HareScript webserver to only open its 'trusted' ports
+To run the proxy locally next to an existing WebHare source install, start WebHare with `WEBHARE_WEBSERVER=nginx`.
+This makes the HareScript webserver open only its trusted ports.
 
 Then choose one of the following paths
 
@@ -21,6 +21,22 @@ runkit open-proxy
 # Get the key to log into the proxy
 runkit get-proxy-key
 ```
+
+## Admin interface development
+The admin UI is a small TypeScript DOM application; it does not use React or Material UI. Its esbuild entry point is `fsroot/opt/webhare-nginx-proxy/src/app/app.ts`, which handles RPC polling and actions. `main.ts` renders the interface and `main.css` contains its styles. The build writes `app.js` and `app.css` to `fsroot/opt/adminhost/web/admin/assetpack/`.
+
+The UI gets its data from the `getGUIState` RPC in `src/rpc.ts`. That endpoint long-polls for configuration changes and returns a deliberately limited view: client IDs and registration timestamps, each host's server names, and the proxy version. It does not return host ports or certificate details. Removing a registration uses `guiUnregisterProxyClient`.
+
+From the repository root, build or watch the UI with:
+
+```bash
+cd fsroot/opt/webhare-nginx-proxy
+npm install
+npm run build:admin
+npm run watch:admin
+```
+
+The watcher writes to the same assetpack directory. `npm run build:admin:production` creates a minified bundle. `./proxy.sh check` installs package dependencies, builds the admin UI, and type-checks the proxy sources. When running the development container with `./proxy.sh run`, its codewatch service watches the UI source and rebuilds the bundle.
 
 ## fully manual running
 
@@ -45,8 +61,8 @@ wh cli addproxy https://runkit.XX.YY.webhare.dev "$PROXY_PASSWORD" http://10.55.
 ```
 
 ## Container development
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the container run, key, and service restart commands.
+
 ```bash
-# build
 ./proxy.sh build
-# run
 ```

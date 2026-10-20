@@ -23,7 +23,15 @@ To get a shell inside the proxy
 ./proxy.sh shell
 ```
 
-To restart the admin interface process (after changing its code)
+The `codewatch` service watches the admin UI source and rebuilds its assets automatically. To build the UI once outside the container:
+
+```bash
+cd fsroot/opt/webhare-nginx-proxy
+npm run build:admin
+```
+
+The config server serves the generated assetpack directly, so frontend changes do not require a config-server restart. To restart the config server after changing its server-side code:
+
 ```bash
 docker exec testproxy sv restart configserver
 ```

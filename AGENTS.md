@@ -5,7 +5,7 @@ This is the standalone WebHare nginx proxy project, not a WebHare module. Do not
 ## Build and validation
 
 - Install the proxy package dependencies with `cd fsroot/opt/webhare-nginx-proxy && npm install`.
-- Build the admin frontend with `npm run build:admin` from that package directory. The esbuild entry point is `src/app/main.tsx`; output assets go to `fsroot/opt/adminhost/web/admin/assetpack/`.
+- Build the admin frontend with `npm run build:admin` from that package directory. The esbuild entry point is `src/app/app.ts`; output assets go to `fsroot/opt/adminhost/web/admin/assetpack/`.
 - Use `npm run build:admin:production` for a minified production frontend bundle.
 - The codewatch service runs `npm run watch:admin` and writes to the admin assetpack directory.
 - `./proxy.sh check` runs the repository's package setup and TypeScript check.

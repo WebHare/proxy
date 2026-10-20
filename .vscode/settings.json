@@ -10,5 +10,8 @@
   },
   "[typescriptreact]": {
     "editor.formatOnSave": true
+  },
+  "chat.tools.terminal.autoApprove": {
+    "fsroot/opt/webhare-nginx-proxy/node_modules/.bin/tsc": true
   }
 }
