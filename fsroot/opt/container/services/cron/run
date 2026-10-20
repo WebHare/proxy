@@ -3,5 +3,5 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo Not starting cron service on macOS
   sleep 60000 #no crond available
 else
-  /usr/sbin/crond -f
+  exec /usr/sbin/crond -f
 fi
