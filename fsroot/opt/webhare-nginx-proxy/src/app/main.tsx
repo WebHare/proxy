@@ -18,7 +18,7 @@ import Paper from 'material-ui/Paper';
 import VPNKey from 'material-ui/svg-icons/communication/vpn-key';
 import FlatButton from 'material-ui/FlatButton';
 import Dialog from 'material-ui/Dialog';
-import type { Client } from 'config.ts';
+import type { Client } from '../config.ts';
 
 
 const styles = {

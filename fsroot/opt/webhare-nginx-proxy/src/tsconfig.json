@@ -9,7 +9,8 @@
     "module": "nodenext",
     "jsx": "react",
     "types": [
-      "node"
+      "node",
+      "material-ui"
     ]
   },
   "include": [
