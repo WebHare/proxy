@@ -1,5 +1,6 @@
 import * as fs from "fs";
-import { Agent, request } from "undici";
+import * as http from "http";
+import * as https from "https";
 
 import { currentConfig, type Client, waitForConfigChange } from "./config.ts";
 import * as Tools from "./tools.ts";
@@ -7,12 +8,6 @@ import * as NginxConfig from "./nginx-config.ts";
 import { omit, sleep } from "@webhare/std";
 
 let currentversion = '';
-
-const verificationDispatcher = new Agent({
-  connect: {
-    rejectUnauthorized: false
-  }
-});
 
 async function verifyClient(reverseaddress: string, verificationurl: string) {
   const parsed_reverseaddr = new URL(reverseaddress);
@@ -23,17 +18,26 @@ async function verifyClient(reverseaddress: string, verificationurl: string) {
   target.search = parsed_verificationurl.search;
 
   try {
-    const { statusCode, body } = await request(target, {
-      method: "GET",
-      dispatcher: verificationDispatcher,
-      signal: AbortSignal.timeout(10000),
-      headers: {
-        Host: parsed_verificationurl.hostname,
-        "X-Forwarded-Proto": "https"
-      }
+    const { statusCode, responseBody } = await new Promise<{ statusCode: number | undefined; responseBody: string }>((resolve, reject) => {
+      const request = target.protocol === "https:" ? https.request : http.request;
+      const req = request(target, {
+        method: "GET",
+        rejectUnauthorized: false,
+        signal: AbortSignal.timeout(10000),
+        headers: {
+          Host: parsed_verificationurl.hostname,
+          "X-Forwarded-Proto": "https"
+        }
+      }, response => {
+        let responseBody = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk: string) => responseBody += chunk);
+        response.on("error", reject);
+        response.on("end", () => resolve({ statusCode: response.statusCode, responseBody }));
+      });
+      req.on("error", reject);
+      req.end();
     });
-
-    const responseBody = await body.text();
 
     if (statusCode === 200 && responseBody === "ok")
       return;

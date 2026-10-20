@@ -19,13 +19,14 @@ VOLUME     /opt/webhare-proxy-data/
 RUN --mount=type=bind,source=/setup-imagebase.sh,target=/setup-imagebase.sh \
     /bin/bash /setup-imagebase.sh # 2025-11-17
 
-ADD        fsroot/opt/webhare-nginx-proxy/package.json fsroot/opt/webhare-nginx-proxy/package-lock.json fsroot/opt/webhare-nginx-proxy/install.sh /opt/webhare-nginx-proxy/
+ADD        fsroot/opt/webhare-nginx-proxy/package.json fsroot/opt/webhare-nginx-proxy/package-lock.json /opt/webhare-nginx-proxy/
 
 # TODO set up temporary mounts for npm cache, see webhare dockerfile
-RUN        "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
+RUN        npm install --prefix "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/"
 
 ADD        fsroot /
-RUN        ln -sf /opt/webhare-proxy-data/ /data
+RUN        npm run build:admin --prefix "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/" && \
+           ln -sf /opt/webhare-proxy-data/ /data
 
 # Add a label with the commit SHA
 ARG CI_COMMIT_SHA

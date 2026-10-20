@@ -1,7 +1,7 @@
 import { sleep } from '@webhare/std';
 import * as http from 'http';
+import * as https from 'https';
 import { networkInterfaces } from 'os';
-import undici from 'undici';
 
 const config =
 {
@@ -45,12 +45,36 @@ function requestListener(req: http.IncomingMessage, res: http.ServerResponse) {
   }
 }
 
+function request(url: string, options: { headers?: http.OutgoingHttpHeaders; method?: string; body?: string } = {}) {
+  return new Promise<{ statusCode: number | undefined; headers: http.IncomingHttpHeaders; body: string }>((resolve, reject) => {
+    const parsedUrl = new URL(url);
+    const onResponse = (response: http.IncomingMessage) => {
+      const chunks: string[] = [];
+      response.setEncoding('utf8');
+      response.on('data', (chunk: string) => chunks.push(chunk));
+      response.on('error', reject);
+      response.on('end', () => resolve({
+        statusCode: response.statusCode,
+        headers: response.headers,
+        body: chunks.join('')
+      }));
+    };
+    const req = parsedUrl.protocol === 'https:'
+      ? https.request(parsedUrl, options, onResponse)
+      : http.request(parsedUrl, options, onResponse);
+    req.on('error', reject);
+    if (options.body)
+      req.write(options.body);
+    req.end();
+  });
+}
+
 async function test() {
   // wait 1 minute for server to start
   for (let i = 0; i < 600; ++i) {
     console.log(`[runtests] Waiting for proxy adminhost to respond, try ${i}`);
     try {
-      await undici.request(`http://${config.PROXYIP}:${config.PORT_80}/`,
+      await request(`http://${config.PROXYIP}:${config.PORT_80}/`,
         {
           headers: { host: 'admin.example.com' }
         });
@@ -61,12 +85,12 @@ async function test() {
   }
   console.log(`[runtests] Proxy adminhost is active`);
 
-  let response = await undici.request(`http://${config.PROXYIP}:${config.PORT_80}/`,
+  let response = await request(`http://${config.PROXYIP}:${config.PORT_80}/`,
     {
       headers: { host: 'admin.example.com' }
     });
 
-  let responsebody = await response.body.text();
+  let responsebody = response.body;
   if (responsebody != "adminhost\n") {
     console.log({ response, responsebody });
     throw new Error(`Expected 'adminhost\n' as response body`);
@@ -75,7 +99,7 @@ async function test() {
   //wait for it to be pingable
   for (let i = 0; i < 600; ++i) {
     console.log(`[runtests] Waiting for underlying service, try ${i}`);
-    const rpcResponse = await undici.request(`http://${config.PROXYIP}:${config.PORT_80}/admin/rpc`,
+    const rpcResponse = await request(`http://${config.PROXYIP}:${config.PORT_80}/admin/rpc`,
       {
         headers: {
           host: 'admin.example.com',
@@ -89,7 +113,7 @@ async function test() {
         })
       }
     );
-    console.log({ response: rpcResponse }, await rpcResponse.body.text());
+    console.log({ response: rpcResponse });
     if (rpcResponse.statusCode === 200)
       break;
 
@@ -99,7 +123,7 @@ async function test() {
   const server = http.createServer(requestListener);
   server.listen(parseInt(config.CONNECTPORT), config.CONNECTIP);
 
-  response = await undici.request(`http://${config.PROXYIP}:${config.PORT_80}/admin/rpc`,
+  response = await request(`http://${config.PROXYIP}:${config.PORT_80}/admin/rpc`,
     {
       headers: {
         host: 'admin.example.com',
@@ -152,7 +176,7 @@ async function test() {
   for (let i = 0; i < 100; ++i) {
     const url = `http://${config.PROXYIP}:${config.PORT_80}/normalrequest`;
     console.log(`wait reload try ${i} ${url}`);
-    response = await undici.request(url,
+    response = await request(url,
       {
         headers: { host: 'test.example.com' },
         method: 'GET'
@@ -161,7 +185,7 @@ async function test() {
       break;
     await new Promise(resolve => setTimeout(resolve, 100));
   }
-  responsebody = await response.body.text();
+  responsebody = response.body;
 
   if (response.statusCode != 200)
     throw new Error(`Unexpected status return code ${response.statusCode}`);
@@ -169,7 +193,7 @@ async function test() {
     throw new Error(`Unexpected body: '${responsebody}'`);
 
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-  response = await undici.request(`https://${config.PROXYIP}:${config.PORT_443}/normalrequest`,
+  response = await request(`https://${config.PROXYIP}:${config.PORT_443}/normalrequest`,
     {
       headers: { host: 'test2.example.com' },
       method: 'GET'
@@ -178,11 +202,11 @@ async function test() {
   if (response.statusCode != 200)
     throw new Error(`Unexpected status return code ${response.statusCode}`);
 
-  responsebody = await response.body.text();
+  responsebody = response.body;
   if (responsebody != "Hello world: /normalrequest on test2.example.com")
     throw new Error(`Unexpected body: '${responsebody}'`);
 
-  response = await undici.request(`http://${config.PROXYIP}:${config.PORT_80}/normalrequest/addremoteip`,
+  response = await request(`http://${config.PROXYIP}:${config.PORT_80}/normalrequest/addremoteip`,
     {
       headers: { host: 'test.example.com' },
       method: 'GET'

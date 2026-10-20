@@ -1,8 +1,19 @@
 {
   "extends": "./fsroot/opt/webhare-nginx-proxy/src/tsconfig.json",
+  "compilerOptions": {
+    "typeRoots": [
+      "./fsroot/opt/webhare-nginx-proxy/node_modules/@types"
+    ],
+    "paths": {
+      "@webhare/std": [
+        "./fsroot/opt/webhare-nginx-proxy/node_modules/@webhare/std"
+      ]
+    }
+  },
   "include": [
     "fsroot/opt/webhare-nginx-proxy/src/**/*.ts",
-    "fsroot/opt/webhare-nginx-proxy/src/**/*.tsx"
+    "fsroot/opt/webhare-nginx-proxy/src/**/*.tsx",
+    "tests/**/*.ts"
   ],
   "exclude": [
     "node_modules",

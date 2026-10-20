@@ -66,7 +66,8 @@ fi
 
 if [ "$1" == "runlocal" ] || [ "$1" == "check" ]; then
   # Ensures our packages are up to date
-  "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/install.sh"
+  npm install --prefix "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/"
+  npm run build:admin --prefix "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/"
   # Verify code first
   if ! "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/node_modules/.bin/tsc" --project "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/src/tsconfig.json" ; then
     echo "TypeScript compilation failed"

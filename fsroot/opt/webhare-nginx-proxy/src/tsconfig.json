@@ -1,14 +1,16 @@
 {
   "extends": "@tsconfig/recommended",
   "compilerOptions": {
-    "baseUrl": ".",
     "noEmit": true,
     "target": "es2022",
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
     "module": "nodenext",
-    "jsx": "react"
+    "jsx": "react",
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "./**/*.ts",
