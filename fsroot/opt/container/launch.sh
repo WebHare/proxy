@@ -27,38 +27,6 @@ if which letsencrypt >/dev/null 2>&1 ; then
   mkdir -p /data/letsencrypt/{etc,lib,log}
 fi
 
-# Enable stunnel envsubst-ed files
-mkdir -p /etc/stunnel/conf.out/
-
-# start stunnel if we have configurations for it
-if ls /etc/stunnel/*.in >/dev/null 2>&1 ; then
-  for P in /etc/stunnel/*.in ; do
-    if [ -f "$P" ]; then
-      envsubst < "$P" > "${P%.in}"
-      chmod 600 "${P%.in}" # shuts up warnings
-    fi
-  done
-fi
-
-if ls /etc/stunnel/conf.d/* >/dev/null 2>&1 ; then
-  # shellcheck disable=SC2164 # we checked for its existence above
-  for P in $( cd /etc/stunnel/conf.d/ ; echo *.in ) ; do
-    envsubst < "/etc/stunnel/conf.d/$P" > "/etc/stunnel/conf.out/${P%.in}"
-  done
-
-  rm /opt/container/services/stunnel/down
-fi
-
-# Containers should drop in /opt/container/init.sh with their custom startup code
-if [ -f /opt/container/init.sh ]; then
-  /opt/container/init.sh
-  RETVAL="$?"
-  if [ "$RETVAL" != "0" ]; then
-    echo Container startup failed with errorcode $RETVAL 1>&2
-    exit $RETVAL
-  fi
-fi
-
 # This script ensures proper signal handling to do a proper shutdown when docker tells us to
 # and bash itself should be a proper zombie reaper
 
