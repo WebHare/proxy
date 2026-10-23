@@ -1,0 +1,92 @@
+name: Auto Approve Internal PRs
+
+on:
+  workflow_run:
+    workflows: [Internal]
+    types: [completed]
+  pull_request_target:
+    types: [opened, reopened]
+
+permissions:
+  actions: read
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-approve:
+    if: >-
+      (github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ${{ vars.WHBUILD_RUNNER && fromJSON(vars.WHBUILD_RUNNER) || 'ubuntu-26.04' }}
+    env:
+      BOT_APP_ID: ${{ secrets.WEBHARE_BOT_APPID }}
+      BOT_PRIVATE_KEY: ${{ secrets.WEBHARE_BOT_PRIVATEKEY }}
+    steps:
+      - name: Check CI for the current PR head
+        if: env.BOT_APP_ID != '' && env.BOT_PRIVATE_KEY != '' && github.event_name == 'pull_request_target'
+        id: check-ci
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const runs = await github.paginate(github.rest.actions.listWorkflowRuns, {
+              ...context.repo,
+              workflow_id: 'internal-pr.yml',
+              head_sha: pr.head.sha,
+              branch: pr.head.ref,
+            });
+            const run = runs.find(candidate =>
+              candidate.head_sha === pr.head.sha &&
+              candidate.head_repository?.full_name === context.payload.repository.full_name
+            );
+            const passed = run?.status === 'completed' && run.conclusion === 'success';
+            core.setOutput('passed', passed ? 'true' : 'false');
+
+      - name: Generate bot token
+        if: env.BOT_APP_ID != '' && env.BOT_PRIVATE_KEY != '' && (github.event_name == 'workflow_run' || steps.check-ci.outputs.passed == 'true')
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ env.BOT_APP_ID }}
+          private-key: ${{ env.BOT_PRIVATE_KEY }}
+
+      - name: Approve successful internal PR
+        if: env.BOT_APP_ID != '' && env.BOT_PRIVATE_KEY != '' && (github.event_name == 'workflow_run' || steps.check-ci.outputs.passed == 'true')
+        uses: actions/github-script@v7
+        env:
+          BOT_LOGIN: ${{ steps.generate-token.outputs.app-slug }}[bot]
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const run = context.payload.workflow_run;
+            const testedSha = run?.head_sha || context.payload.pull_request.head.sha;
+            const prNumbers = run ? run.pull_requests.map(pr => pr.number) : [context.payload.pull_request.number];
+            const pullRequests = await Promise.all(prNumbers.map(async pull_number =>
+              (await github.rest.pulls.get({ ...context.repo, pull_number })).data
+            ));
+            const internalRoles = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+
+            for (const pr of pullRequests) {
+              if (pr.state !== 'open' || pr.head.repo?.full_name !== context.payload.repository.full_name || pr.head.sha !== testedSha) {
+                continue;
+              }
+              if (!internalRoles.includes(pr.author_association)) {
+                continue;
+              }
+
+              const { data: reviews } = await github.rest.pulls.listReviews({
+                ...context.repo,
+                pull_number: pr.number,
+              });
+              if (reviews.some(review => review.user.login === process.env.BOT_LOGIN && review.state === 'APPROVED')) {
+                continue;
+              }
+
+              await github.rest.pulls.createReview({
+                ...context.repo,
+                pull_number: pr.number,
+                commit_id: testedSha,
+                event: 'APPROVE',
+                body: `Auto-approved after successful CI for internal PR author @${pr.user.login}.`,
+              });
+            }

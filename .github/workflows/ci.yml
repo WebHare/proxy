@@ -1,0 +1,186 @@
+name: Proxy CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to build
+        type: string
+        default: ''
+      ref_name:
+        description: Branch or tag name for CI metadata
+        type: string
+        default: ''
+  workflow_call:
+    inputs:
+      ref:
+        description: Git ref to build
+        type: string
+        required: false
+      ref_name:
+        description: Branch or tag name for CI metadata
+        type: string
+        required: false
+      scheduled:
+        description: Skip image publishing for scheduled runs
+        type: boolean
+        required: false
+        default: false
+    secrets:
+      DOCKERHUB_REGISTRY_PASSWORD:
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build container
+    runs-on: ${{ vars.WHBUILD_RUNNER && fromJSON(vars.WHBUILD_RUNNER) || 'ubuntu-26.04' }}
+    outputs:
+      image_tag: ${{ steps.metadata.outputs.image_tag }}
+      ghcr_image: ${{ steps.metadata.outputs.ghcr_image }}
+      temporary_image: ${{ steps.metadata.outputs.temporary_image }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+
+      - name: Set CI metadata
+        id: metadata
+        env:
+          REF_OVERRIDE: ${{ inputs.ref }}
+          REF_NAME_OVERRIDE: ${{ inputs.ref_name }}
+        run: |
+          REF_NAME="${REF_NAME_OVERRIDE:-${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}}"
+          REF_SHA="${REF_OVERRIDE:-$GITHUB_SHA}"
+          REF_SLUG=$(printf '%s' "$REF_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-+|-+$//' | cut -c1-63)
+          COMMIT_TAG=""
+          COMMIT_BRANCH="$REF_NAME"
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            COMMIT_TAG="$GITHUB_REF_NAME"
+            COMMIT_BRANCH=""
+          fi
+          COMMIT_TIMESTAMP=$(git show -s --format=%cI "$REF_SHA")
+
+          {
+            echo "CI_COMMIT_SHA=$REF_SHA"
+            echo "CI_COMMIT_REF_NAME=$REF_NAME"
+            echo "CI_COMMIT_REF_SLUG=$REF_SLUG"
+            echo "CI_COMMIT_BRANCH=$COMMIT_BRANCH"
+            echo "CI_COMMIT_TAG=$COMMIT_TAG"
+            echo "CI_COMMIT_TIMESTAMP=$COMMIT_TIMESTAMP"
+            echo "CI_PIPELINE_ID=$GITHUB_RUN_ID"
+          } >> "$GITHUB_ENV"
+          {
+            echo "image_tag=${COMMIT_TAG:-$REF_SLUG}"
+            echo "ghcr_image=ghcr.io/${GITHUB_REPOSITORY,,}:${COMMIT_TAG:-$REF_SLUG}"
+            echo "temporary_image=ghcr.io/${GITHUB_REPOSITORY,,}:${REF_SLUG}-${REF_SHA}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build proxy image
+        run: ./proxy.sh build
+
+      - name: Tag image for GHCR
+        env:
+          IMAGE_TAG: ${{ steps.metadata.outputs.image_tag }}
+          TEMPORARY_IMAGE: ${{ steps.metadata.outputs.temporary_image }}
+        run: |
+          podman tag "docker.io/webhare/proxy:${IMAGE_TAG}" "$TEMPORARY_IMAGE"
+
+      - name: Push temporary image to GHCR
+        if: github.event_name != 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEMPORARY_IMAGE: ${{ steps.metadata.outputs.temporary_image }}
+        run: |
+          echo "$GITHUB_TOKEN" | podman login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          podman push "$TEMPORARY_IMAGE"
+
+      - name: Test fork PR image
+        if: github.event_name == 'pull_request'
+        env:
+          TEST_PROXY_IMAGE: ${{ steps.metadata.outputs.temporary_image }}
+        run: ./test.sh
+
+  test:
+    name: Integration tests
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ${{ vars.WHBUILD_RUNNER && fromJSON(vars.WHBUILD_RUNNER) || 'ubuntu-26.04' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ inputs.ref || github.sha }}
+          persist-credentials: false
+
+      - name: Run integration tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TEMPORARY_IMAGE: ${{ needs.build.outputs.temporary_image }}
+        run: |
+          echo "$GITHUB_TOKEN" | podman login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          podman pull "$TEMPORARY_IMAGE"
+          TEST_PROXY_IMAGE="$TEMPORARY_IMAGE" ./test.sh
+
+  all-tests-passed:
+    name: All tests passed
+    needs: [build, test]
+    if: always()
+    runs-on: ${{ vars.WHBUILD_RUNNER && fromJSON(vars.WHBUILD_RUNNER) || 'ubuntu-26.04' }}
+    steps:
+      - name: Verify build and test jobs passed
+        if: needs.build.result != 'success' || (github.event_name != 'pull_request' && needs.test.result != 'success')
+        run: exit 1
+      - run: echo "All tests passed successfully."
+
+  publish:
+    name: Publish container
+    needs: [build, test, all-tests-passed]
+    if: github.event_name == 'push' && !inputs.scheduled
+    runs-on: ${{ vars.WHBUILD_RUNNER && fromJSON(vars.WHBUILD_RUNNER) || 'ubuntu-26.04' }}
+    permissions:
+      contents: read
+      packages: write
+    env:
+      DOCKERHUB_REGISTRY_USER: ${{ vars.DOCKERHUB_REGISTRY_USER }}
+      DOCKERHUB_REGISTRY_PASSWORD: ${{ secrets.DOCKERHUB_REGISTRY_PASSWORD }}
+    steps:
+      - name: Publish to GitHub Container Registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_IMAGE: ${{ needs.build.outputs.ghcr_image }}
+          TEMPORARY_IMAGE: ${{ needs.build.outputs.temporary_image }}
+        run: |
+          echo "$GITHUB_TOKEN" | podman login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          podman pull "$TEMPORARY_IMAGE"
+          podman tag "$TEMPORARY_IMAGE" "$GHCR_IMAGE"
+          podman push "$GHCR_IMAGE"
+          echo ""
+          echo "Pushed $GHCR_IMAGE"
+          echo "To install: SV install $GHCR_IMAGE proxy@<server>"
+
+      - name: Publish to Docker Hub
+        if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) && env.DOCKERHUB_REGISTRY_PASSWORD != ''
+        env:
+          IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+          GHCR_IMAGE: ${{ needs.build.outputs.ghcr_image }}
+        run: |
+          podman pull "$GHCR_IMAGE"
+          echo "$DOCKERHUB_REGISTRY_PASSWORD" | podman login docker.io -u "$DOCKERHUB_REGISTRY_USER" --password-stdin
+          podman tag "$GHCR_IMAGE" "docker.io/webhare/proxy:${IMAGE_TAG}"
+          podman push "docker.io/webhare/proxy:${IMAGE_TAG}"

@@ -13,7 +13,7 @@ You should set up a data dir for the /opt/webhare-proxy-data/ volume.
 Example Podman invocation, assuming /containers/my-nx/proxy-data/ will host the volume and publishing management port 5443.
 
 ```bash
-podman run --name my-nx -p 80:80 -p 443:443 -p 5443:5443 -v /containers/my-nx/proxy-data/:/opt/webhare-proxy-data/ webhare/proxy:master
+podman run --name my-nx -p 80:80 -p 443:443 -p 5443:5443 -v /containers/my-nx/proxy-data/:/opt/webhare-proxy-data/ webhare/proxy:main
 ```
 
 Alternatively, you can run the Podman container in the 'host' network namespace (`--network host`). You may find you need this to properly capture client's IP addresses, especially over IPv6.

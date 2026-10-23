@@ -1,0 +1,19 @@
+name: Schedule Proxy CI
+
+on:
+  schedule:
+    - cron: "0 3 * * 1,2,3,4,5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  ci:
+    name: Schedule main
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ github.sha }}
+      ref_name: ${{ github.ref_name }}
+      scheduled: true

@@ -1,0 +1,26 @@
+name: External
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  approval:
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ${{ vars.WHBUILD_RUNNER && fromJSON(vars.WHBUILD_RUNNER) || 'ubuntu-26.04' }}
+    environment: external-ci
+    steps:
+      - name: Wait for external CI approval
+        run: echo "External pull request approved for CI."
+
+  ci:
+    needs: approval
+    if: github.event.pull_request.head.repo.full_name != github.repository
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ github.event.pull_request.head.sha }}
+      ref_name: ${{ github.event.pull_request.head.ref }}

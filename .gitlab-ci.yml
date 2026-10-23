@@ -13,7 +13,7 @@ stages:
 - build
 - test
 - push
-- push_dockerhub
+#- push_dockerhub
 
 default:
   interruptible: true
@@ -48,14 +48,15 @@ pushimage_our_registry:
     - podman push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
     - echo "To install, SV install -s ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG} <server>"
 
-pushimage_docker_hub:
-  stage: push_dockerhub
-  only:
-    - master
-    - tags
-  except:
-    - schedules
-  script:
-    - podman load -i container-images/app.tar
-    - echo $DOCKERHUB_REGISTRY_PASSWORD | podman login -u $DOCKERHUB_REGISTRY_USER --password-stdin docker.io
-    - podman push webhare/proxy:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
+#pushimage_docker_hub:
+#  stage: push_dockerhub
+#  only:
+#    - main
+#    - tags
+#  except:
+#    - schedules
+#  script:
+#    - podman load -i container-images/app.tar
+#    - echo $DOCKERHUB_REGISTRY_PASSWORD | podman login -u $DOCKERHUB_REGISTRY_USER --password-stdin docker.io
+#    - podman push webhare/proxy:${CI_COMMIT_TAG:-$CI_COMMIT_REF_SLUG}
+#
