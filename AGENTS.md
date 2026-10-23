@@ -9,7 +9,7 @@ This is the standalone WebHare nginx proxy project, not a WebHare module. Do not
 - Use `npm run build:admin:production` for a minified production frontend bundle.
 - The codewatch service runs `npm run watch:admin` and writes to the admin assetpack directory.
 - `./proxy.sh check` runs the repository's package setup and TypeScript check.
-- `./test.sh` runs Docker-based integration tests. It expects Docker and a prepared `webhare/proxy:devbuild` image; `tests/runtest.sh` is invoked inside the test runner with proxy environment variables, so it is not a standalone unit test.
+- `./test.sh` runs Podman-based integration tests. It expects Podman and a prepared `webhare/proxy:devbuild` image; `tests/runtest.sh` is invoked inside the test runner with proxy environment variables, so it is not a standalone unit test.
 
 ## Project structure
 

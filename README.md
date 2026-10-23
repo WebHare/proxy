@@ -10,13 +10,13 @@ The proxy also allows you to host multiple instances of WebHare on the same prox
 ## Installation
 You should set up a data dir for the /opt/webhare-proxy-data/ volume.
 
-Example docker calling syntax which assumes /dockers/my-nx/proxy-data/ will host the volume, publishing management port 5443.
+Example Podman invocation, assuming /containers/my-nx/proxy-data/ will host the volume and publishing management port 5443.
 
 ```bash
-docker run --name my-nx -p 80:80 -p 443:443 -p 5443:5443 -v /dockers/my-nx/proxy-data/:/opt/webhare-proxy-data/ webhare/proxy:master
+podman run --name my-nx -p 80:80 -p 443:443 -p 5443:5443 -v /containers/my-nx/proxy-data/:/opt/webhare-proxy-data/ webhare/proxy:master
 ```
 
-Alternatively, you can run the docker container in the 'host' network namespace (`--network host`). You may find you need this to properly capture client's IP addresses, especially over IPv6.
+Alternatively, you can run the Podman container in the 'host' network namespace (`--network host`). You may find you need this to properly capture client's IP addresses, especially over IPv6.
 
 The first time the container is started, it will generate new DH parameters. This may take a while.
 
@@ -42,7 +42,7 @@ If you're using the host network namespcae, nginx can be told to bind to a speci
 If you want to remap the listen ports, set the environment variables WEBHAREPROXY_INSECUREPORT and WEBHAREPROXY_SECUREPORT.
 
 ## Making a new release
-The CI scripts take care of deploying to Docker. Simply push a new tag
+The CI scripts take care of publishing the container image. Simply push a new tag
 
 ## Running the proxy from the source tree
 We recommend using runkit:

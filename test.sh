@@ -6,9 +6,9 @@ if [ -z "$TEST_PROXY_IMAGE" ]; then
   TEST_PROXY_IMAGE="webhare/proxy:devbuild"
 fi
 
-DOCKERBASENAME="testproxy$RANDOM"
+CONTAINERNAME="testproxy$RANDOM"
 
-if ! docker run -l webharecitype=testdocker --rm -i --name "$DOCKERBASENAME" \
+if ! podman run -l webharecitype=testcontainer --rm -i --name "$CONTAINERNAME" \
   -e WEBHAREPROXY_CERTBOT_OPTIONS=--staging \
   "$TEST_PROXY_IMAGE" \
   /opt/container/launch-and-run-tests.sh ; then
@@ -18,33 +18,33 @@ fi
 
 function cleanup()
 {
-  docker rm --force $DOCKERBASENAME 2> /dev/null
-  docker rm --force "$DOCKERBASENAME-testscript" 2> /dev/null
+  podman rm --force "$CONTAINERNAME" 2> /dev/null
+  podman rm --force "$CONTAINERNAME-testscript" 2> /dev/null
 }
 
 trap cleanup EXIT
 
 
 cleanup
-if ! docker create -l webharecitype=testdocker --rm --name $DOCKERBASENAME -e WEBHAREPROXY_CERTBOT_OPTIONS=--staging -e WEBHAREPROXY_ADMINHOSTNAME=admin.example.com "$TEST_PROXY_IMAGE"; then
+if ! podman create -l webharecitype=testcontainer --rm --name "$CONTAINERNAME" -e WEBHAREPROXY_CERTBOT_OPTIONS=--staging -e WEBHAREPROXY_ADMINHOSTNAME=admin.example.com "$TEST_PROXY_IMAGE"; then
   echo "Test failed"
   exit 1
 fi
 
-docker start $DOCKERBASENAME
-docker logs -f $DOCKERBASENAME &
+podman start "$CONTAINERNAME"
+podman logs -f "$CONTAINERNAME" &
 
-PROXYIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $DOCKERBASENAME)
+PROXYIP=$(podman inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$CONTAINERNAME")
 export PROXYIP
 if [[ $OSTYPE == 'darwin'* ]]; then
-  # mac Docker Desktop can't directly route to docker containers, it sees the gateway ip addr as remote IP
-  EXPECTSEENCONNECTIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.Gateway}}{{end}}' $DOCKERBASENAME)
+  # macOS Podman runs containers in a VM, so the gateway address is seen as the remote IP.
+  EXPECTSEENCONNECTIP=$(podman inspect -f '{{range.NetworkSettings.Networks}}{{.Gateway}}{{end}}' "$CONTAINERNAME")
   export EXPECTSEENCONNECTIP
 fi
 
 export PROXYKEY;
 for _ in {1..60}; do
-  PROXYKEY=$(docker exec $DOCKERBASENAME /root/get-proxy-key.sh || true)
+  PROXYKEY=$(podman exec "$CONTAINERNAME" /root/get-proxy-key.sh || true)
   if [ -n "$PROXYKEY" ]; then
     break
   fi
@@ -55,8 +55,8 @@ if [ -z "$PROXYKEY" ]; then
   echo "Could not retrieve proxy key"
 fi
 
-# Create a node docker to run the data
-if ! docker create --rm -w /tests --name "$DOCKERBASENAME-testscript" \
+# Create a Node.js container to run the test script
+if ! podman create --rm -w /tests --name "$CONTAINERNAME-testscript" \
     -e PROXYIP="$PROXYIP" \
     -e PROXYKEY="$PROXYKEY" \
     node /tests/runtest.sh ; then
@@ -66,13 +66,13 @@ fi
 
 TESTDIR=${BASH_SOURCE%/*}/tests/
 # Copy the tests directory to the container, mounts are too impossible in a DIND scenario
-if ! docker cp "$TESTDIR/" "$DOCKERBASENAME-testscript:/"; then
+if ! podman cp "$TESTDIR/" "$CONTAINERNAME-testscript:/"; then
   echo "Copy failed"
   exit 1
 fi
 
 echo "** running testscript"
-docker start "$DOCKERBASENAME-testscript"
-docker logs -f $DOCKERBASENAME &
-docker wait $DOCKERBASENAME-testscript
+podman start "$CONTAINERNAME-testscript"
+podman logs -f "$CONTAINERNAME" &
+podman wait "$CONTAINERNAME-testscript"
 echo "** all tests succeeded"

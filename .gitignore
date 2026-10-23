@@ -6,7 +6,7 @@ fsroot/opt/container/etc/proxy-branch
 fsroot/opt/container/services/*/supervise
 fsroot/opt/adminhost/web/admin/assetpack
 
-# used by docker run, i think?
+# used by container run
 runtimedata
 # used when running from source tree
 /localdata

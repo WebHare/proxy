@@ -3,8 +3,7 @@
 set -eo pipefail
 cd "${0%/*}" || exit 1
 
-USEPODMAN=""
-DOCKERBUILDOPTS=()
+PODMANBUILDOPTS=(--security-opt label=disable)
 PUSH=""
 CONTAINERNAME=testproxy
 RUNBUILDER_PREFIX=""
@@ -13,11 +12,7 @@ WEBHAREPROXY_FSROOT="$(cd "${BASH_SOURCE%/*}/fsroot/" || exit 1 ; pwd)/"
 export WEBHAREPROXY_FSROOT
 
 while [[ $1 =~ ^-.* ]]; do
-  if [ "$1" == "--podman" ]; then
-    USEPODMAN="1"
-    DOCKERBUILDOPTS+=(--security-opt label=disable)
-    shift
-  elif [ "$1" == "--nopull" ]; then
+  if [ "$1" == "--nopull" ]; then
     NOPULL="1"
     shift
   elif [ "$1" == "--push" ]; then
@@ -30,31 +25,18 @@ while [[ $1 =~ ^-.* ]]; do
 done
 
 if [ -z "$NOPULL" ]; then
-  if [ -n "$USEPODMAN" ]; then
-    DOCKERBUILDOPTS+=(--pull=newer)
-  else
-    DOCKERBUILDOPTS+=(--pull)
-  fi
+  PODMANBUILDOPTS+=(--pull=newer)
 fi
 
 RunBuilder()
 {
   local retval
-  if [ -z "$USEPODMAN" ]; then
-    echo "$(date) docker" "$@" >&2
-    $RUNBUILDER_PREFIX docker "$@" ; retval="$?"
-    if [ "$retval" != "0" ]; then
-      echo "$(date) docker returned errorcode $retval" >&2
-    fi
-    return $retval
-  else
-    echo "$(date) podman" "$@" >&2
-    $RUNBUILDER_PREFIX podman "$@" ; retval="$?"
-    if [ "$retval" != "0" ]; then
-      echo "$(date) podman returned errorcode $retval" >&2
-    fi
-    return $retval
+  echo "$(date) podman" "$@" >&2
+  $RUNBUILDER_PREFIX podman "$@" ; retval="$?"
+  if [ "$retval" != "0" ]; then
+    echo "$(date) podman returned errorcode $retval" >&2
   fi
+  return $retval
 }
 
 if [ -n "$CI_COMMIT_REF_NAME" ]; then
@@ -97,25 +79,23 @@ if [ "$1" == "build" ]; then
   fi
 
   # Record CI information so we can verify eg. if this image really matches the most recent build
-  DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_SHA=$CI_COMMIT_SHA")
-  DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME")
-  DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_TIMESTAMP=$CI_COMMIT_TIMESTAMP")
-  DOCKERBUILDOPTS+=(--build-arg "CI_PIPELINE_ID=$CI_PIPELINE_ID")
-  DOCKERBUILDOPTS+=(--build-arg "CI_COMMIT_TAG=$CI_COMMIT_TAG")
-  DOCKERBUILDOPTS+=(--tag "$TAG")
-  DOCKERBUILDOPTS+=(--progress plain)
+  PODMANBUILDOPTS+=(--build-arg "CI_COMMIT_SHA=$CI_COMMIT_SHA")
+  PODMANBUILDOPTS+=(--build-arg "CI_COMMIT_REF_NAME=$CI_COMMIT_REF_NAME")
+  PODMANBUILDOPTS+=(--build-arg "CI_COMMIT_TIMESTAMP=$CI_COMMIT_TIMESTAMP")
+  PODMANBUILDOPTS+=(--build-arg "CI_PIPELINE_ID=$CI_PIPELINE_ID")
+  PODMANBUILDOPTS+=(--build-arg "CI_COMMIT_TAG=$CI_COMMIT_TAG")
+  PODMANBUILDOPTS+=(--tag "$TAG")
+  PODMANBUILDOPTS+=(--progress plain)
 
-  export DOCKER_BUILDKIT=1
-
-  if ! RunBuilder build "${DOCKERBUILDOPTS[@]}" . ; then
-    echo "Docker build failed"
+  if ! RunBuilder build "${PODMANBUILDOPTS[@]}" . ; then
+    echo "Podman build failed"
     exit 1
   fi
 
   if [ "$PUSH" == "1" ]; then
     if ! RunBuilder push "$TAG" ; then
       echo Push failed for tag: "$TAG"
-      echo You may need to login: docker login
+      echo You may need to login: podman login
       exit 1
     fi
     echo Pushed: "$TAG"
@@ -131,9 +111,9 @@ if [ "$1" = "getproxykey" ]; then
   RUNBUILDER_PREFIX="exec" RunBuilder exec $CONTAINERNAME /opt/container/get-proxy-key.sh
 fi
 
-DOCKERARGS="-v $(pwd)/runtimedata:/opt/webhare-proxy-data/ -eWEBHAREPROXY_ADMINHOSTNAME=127.0.0.1 -p 41080:80 -p 41443:443 -p 45443:5443 --name $CONTAINERNAME"
-DEVELOPRUNCMD="RunBuilder run -v $(pwd)/fsroot/opt/webhare-nginx-proxy/src:/opt/webhare-nginx-proxy/src $DOCKERARGS"
-LIVERUNCMD="RunBuilder run $DOCKERARGS"
+PODMANARGS="-v $(pwd)/runtimedata:/opt/webhare-proxy-data/ -eWEBHAREPROXY_ADMINHOSTNAME=127.0.0.1 -p 41080:80 -p 41443:443 -p 45443:5443 --name $CONTAINERNAME"
+DEVELOPRUNCMD="RunBuilder run -v $(pwd)/fsroot/opt/webhare-nginx-proxy/src:/opt/webhare-nginx-proxy/src $PODMANARGS"
+LIVERUNCMD="RunBuilder run $PODMANARGS"
 
 if [ "$1" = "run" ]; then
   RunBuilder kill $CONTAINERNAME || true

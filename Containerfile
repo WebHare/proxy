@@ -1,8 +1,7 @@
-FROM       docker.io/almalinux/10-base
-MAINTAINER Arnold Hendriks <arnold@webhare.nl>
+FROM       quay.io/centos/centos:stream10
 
 ENV LC_ALL=C \
-  WEBHAREPROXY_IN_DOCKER=1 \
+  WEBHAREPROXY_IN_CONTAINER=1 \
   WEBHAREPROXY_DATAROOT=/data/ \
   WEBHAREPROXY_FSROOT=/ \
   WEBHAREPROXY_NGINX=/usr/sbin/nginx \
@@ -21,7 +20,7 @@ RUN --mount=type=bind,source=/setup-imagebase.sh,target=/setup-imagebase.sh \
 
 ADD        fsroot/opt/webhare-nginx-proxy/package.json fsroot/opt/webhare-nginx-proxy/package-lock.json /opt/webhare-nginx-proxy/
 
-# TODO set up temporary mounts for npm cache, see webhare dockerfile
+# TODO set up temporary mounts for npm cache, see webhare Dockerfile
 RUN        npm install --prefix "${WEBHAREPROXY_FSROOT}opt/webhare-nginx-proxy/"
 
 ADD        fsroot /
@@ -38,7 +37,8 @@ LABEL dev.webhare.proxy.git-commit-sha="$CI_COMMIT_SHA" \
       dev.webhare.proxy.git-commit-ref="$CI_COMMIT_REF_NAME" \
       dev.webhare.proxy.git-commit-time="$CI_COMMIT_TIMESTAMP" \
       dev.webhare.proxy.pipelineid="$CI_PIPELINE_ID" \
-      dev.webhare.proxy.version="$CI_COMMIT_TAG"
+      dev.webhare.proxy.version="$CI_COMMIT_TAG" \
+      maintainer="Arnold Hendriks <arnold@webhare.nl>"
 
 
 CMD        [ "/opt/container/launch.sh" ]

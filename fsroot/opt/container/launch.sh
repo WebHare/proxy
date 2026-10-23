@@ -27,7 +27,7 @@ if which letsencrypt >/dev/null 2>&1 ; then
   mkdir -p /data/letsencrypt/{etc,lib,log}
 fi
 
-# This script ensures proper signal handling to do a proper shutdown when docker tells us to
+# This script ensures proper signal handling when Podman requests a shutdown.
 # and bash itself should be a proper zombie reaper
 
 # If runsvdir receives a HUP signal, it sends a TERM signal to each runsv(8) process it is monitoring and then exits with 111.

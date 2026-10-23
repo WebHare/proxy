@@ -48,11 +48,11 @@ To test a container version locally with a local WebHare, launch WebHare with `W
 ` and the proxy as follows:
 
 ```bash
-sudo ifconfig lo0 alias 10.55.55.55 # Setting up an additional IP on localhost makes your mac easily routable for podman/docker
+sudo ifconfig lo0 alias 10.55.55.55 # Setting up an additional IP on localhost makes your Mac reachable from Podman
 
 podman machine start
 podman machine ssh sudo sysctl net.ipv4.ip_unprivileged_port_start=80
-./proxy.sh --podman build
+./proxy.sh build
 echo "runkit.XX.YY.webhare.dev" > ~/whrunkit/_settings/publichostname # this name would also be used by runkit run-proxy, which would normally use 'localhost' as a fallback
 runkit run-proxy --set-image docker.io/webhare/proxy:devbuild
 
