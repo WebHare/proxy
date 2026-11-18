@@ -1,4 +1,7 @@
 # Changelog
+## Unreleased
+- Disable HTTP/2 to work around CVE-2026-123007
+
 ## 3.4.2
 - Increase upstream accepted header sizes (to support larger wrdauth cookies)
 

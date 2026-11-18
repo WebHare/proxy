@@ -162,7 +162,8 @@ http {
   const port_secure = parseInt(process.env["WEBHAREPROXY_SECUREPORT"] || "0") || 443;
 
   const ssl_config_dir = Tools.ensureStorageDir("etc/ssl_config");
-  const serverprolog = "    server_tokens off;\n    http2 on;\n";
+  // HTTP/2 disabled to work around CVE-2026-123007. Re-enable ('http2 on;') once nginx is patched
+  const serverprolog = "    server_tokens off;\n    http2 off;\n";
 
   const adminhostname = process.env["WEBHAREPROXY_ADMINHOSTNAME"];
   let certpath = `/etc/letsencrypt/live/${adminhostname}/fullchain.pem`;
