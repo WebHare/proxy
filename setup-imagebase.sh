@@ -4,7 +4,7 @@
 set -eo pipefail
 
 # @webhare: this is based on our serververmanagent project baseimage
-dnf -y install epel-release curl logrotate cronie less gettext-envsubst man procps-ng iproute iputils telnet bind-utils tcpdump net-tools stunnel nginx hostname openssl
+dnf -y install epel-release curl logrotate cronie less gettext-envsubst man procps-ng iproute iputils telnet bind-utils tcpdump net-tools stunnel hostname openssl
 rpm --import https://rpm.nodesource.com/gpgkey/ns-operations-public.key
 cat >/etc/yum.repos.d/nodesource-nodejs.repo <<'EOF'
 [nodesource-nodejs]
@@ -15,7 +15,17 @@ gpgcheck=1
 gpgkey=https://rpm.nodesource.com/gpgkey/ns-operations-public.key
 module_hotfixes=1
 EOF
-dnf -y install nodejs busybox certbot
+# Use nginx straight from nginx.org (F5) instead of the distribution's package, so we get security fixes sooner
+cat >/etc/yum.repos.d/nginx.repo <<'EOF'
+[nginx-stable]
+name=nginx stable repo
+baseurl=https://nginx.org/packages/centos/$releasever/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://nginx.org/keys/nginx_signing.key
+module_hotfixes=true
+EOF
+dnf -y install nodejs busybox certbot nginx
 dnf clean all
 
 ln -s /usr/sbin/busybox /usr/sbin/sv

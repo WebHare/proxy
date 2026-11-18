@@ -17,7 +17,7 @@ EXPOSE     80 443 5443
 VOLUME     /opt/webhare-proxy-data/
 
 RUN --mount=type=bind,source=/setup-imagebase.sh,target=/setup-imagebase.sh \
-    /bin/bash /setup-imagebase.sh # 2025-11-17
+    /bin/bash /setup-imagebase.sh # 2026-11-18
 
 ADD        fsroot/opt/webhare-nginx-proxy/package.json fsroot/opt/webhare-nginx-proxy/package-lock.json fsroot/opt/webhare-nginx-proxy/install.sh /opt/webhare-nginx-proxy/
 
